@@ -2,3 +2,4 @@ burocrazia/
 *.tar.*
 *.tgz
 datasets/
+.idea/
