@@ -1,0 +1,1 @@
+grandFather(Z, X) :- father(X, Y), father(Y, Z)

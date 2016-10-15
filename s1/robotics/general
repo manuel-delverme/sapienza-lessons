@@ -1,0 +1,24 @@
+##
+joint space <-> end effector space
+joint space is [angle, angle, angle, angle, angle]
+end effector space is cartesian (x, y, z)
+
+## kinematics
+acceleration:
+-----       
+     ------
+           -----
+
+bang ground bang
+
+maximum acceleration followed by saturation (and 0 accel)
+and negative acceleration
+
+
+## body joint link 
+body:
+    not able to move
+joint:
+    nD movement
+link:
+    ??

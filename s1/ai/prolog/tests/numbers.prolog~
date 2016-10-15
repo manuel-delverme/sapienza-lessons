@@ -1,0 +1,2 @@
+nautral_numbers(0).
+nautral_numbers(s(X)) :- natural_number(X).

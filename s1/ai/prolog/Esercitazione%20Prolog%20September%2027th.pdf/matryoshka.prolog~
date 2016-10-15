@@ -1,0 +1,6 @@
+contains(katarina, olga).
+contains(olga, natasha).
+contains(natasha, irina).
+
+contains(X, X).
+contains(X, Y) :- contains(X, Doll), contains(Doll, Y).

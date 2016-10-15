@@ -1,0 +1,22 @@
+father(daniele, michela).
+father(daniele, jacopo).
+father(eriberto, michela).
+father(antonio, eriberto).
+mother(alma, eriberto).
+mother(annamaria, daniele).
+mother(annamaria, marcello).
+mother(annamaria, sandro).
+
+% ruels
+son(X, Y) :- father(Y, X).
+son(X, Y) :- father(Y, X).
+
+sibling(X, Y) :- son(Y, P), son(Y, P), X \= Y.
+cousin(X, Y) :- son(Y, P1), son(Y, P2), sibling(P1, P2), X \= Y, P1 \= P2.
+aunt_uncle(X, Y) :- son, sibling
+
+descendant(X, Y):- son(X, Y)
+descendant(X, Y):- son(Z,Y), descendant(X, Z)
+
+
+% _ means don't care
