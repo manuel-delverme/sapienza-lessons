@@ -1,0 +1,51 @@
+NQueensDemo DFS 
+nodesExpanded : 113
+queueSize : 11
+maxQueueSize : 19
+millis:43
+
+NQueensDemo BFS 
+nodesExpanded : 1665
+queueSize : 301
+maxQueueSize : 573
+millis:29
+
+NQueensDemo recursive DLS 
+nodesExpanded : 113
+millis:4
+
+NQueensDemo Iterative DS  
+nodesExpanded : 3656
+millis:27
+
+NQueensDemo Simulated Annealing  
+Search Outcome=FAILURE
+nodesExpanded : 100
+millis:43
+
+NQueensDemo HillClimbing  
+Search Outcome=FAILURE
+nodesExpanded : 7
+millis:8
+
+NQueensDemo GeneticAlgorithm  
+Max Time (1 second) Best Individual=
+
+Board Size      = 8
+# Board Layouts = 16777216
+Fitness         = 25.0
+Is Goal         = false
+Population Size = 50
+Itertions       = 171
+Took            = 1003ms.
+
+Goal Test Best Individual=
+
+Board Size      = 8
+# Board Layouts = 16777216
+Fitness         = 28.0
+Is Goal         = true
+Population Size = 50
+Itertions       = 877
+Took            = 4368ms.
+millis:5384
