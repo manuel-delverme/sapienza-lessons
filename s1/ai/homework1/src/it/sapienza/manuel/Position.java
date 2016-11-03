@@ -1,51 +1,44 @@
 package it.sapienza.manuel;
-import aima.core.util.datastructure.XYLocation;
 
-public class Position extends XYLocation {
+class Position {
 	static int maxX;
 	static int maxY;
+	int x;
+	int y;
 
 	Position(int xCoOrdinate, int yCoOrdinate){
-		super(xCoOrdinate, yCoOrdinate);
+		x = xCoOrdinate;
+		y = yCoOrdinate;
 	}
 
-	public Position left(){
-		if(getYCoOrdinate()-1 > 0){
-			return new Position (getXCoOrdinate(), getYCoOrdinate()-1);
-		}
-		return null;
+	Position move_down(){
+		return new Position(x, y + 1);
 	}
 
-	public Position down(){
-		if(getXCoOrdinate()+1 <= maxX){
-			return new Position (getXCoOrdinate()+1, getYCoOrdinate());
-		}
-		return null;
+	Position move_up(){
+		return new Position(x, y - 1);
 	}
 
-	public Position right(){
-		if(getYCoOrdinate()+1 <= maxY){
-			return new Position (getXCoOrdinate(), getYCoOrdinate()+1);
-		}
-		return null;
+	Position move_right(){
+		return new Position(x + 1, y);
 	}
 
-	public Position up(){
-		if(getXCoOrdinate()-1 > 0){
-			return new Position (getXCoOrdinate()-1, getYCoOrdinate());
-		}
-		return null;
+	Position move_left(){
+		return new Position(x - 1, y);
 	}
 
     @Override
     public String toString() {
-        return "pos: (" + getXCoOrdinate() + ", " + getYCoOrdinate() + ")";
+        return "pos: (" + x + ", " + y + ")";
     }
 
-	public int x() {
-		return getXCoOrdinate();
+	@Override
+	public int hashCode() {
+		return x*maxX + y;
 	}
-	public int y() {
-		return getYCoOrdinate();
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Position && o.hashCode() == hashCode();
 	}
 }

@@ -3,27 +3,30 @@ package it.sapienza.manuel;
 import java.util.HashSet;
 import java.util.Set;
 
-import aima.core.agent.Agent;
-import aima.core.environment.nqueens.NQueensGoalTest
-import aima.core.environment.map.MapAgent;
-import aima.core.environment.xyenv.XYEnvironment;
-import aima.core.environment.xyenv.Wall;
-import aima.core.util.datastructure.XYLocation;
+import aima.core.agent.Action;
+import aima.core.agent.impl.DynamicAction;
 
-class Environment extends XYEnvironment {
+public class Environment {
 	private static int maxX;
 	private static int maxY;
 	private final Position robot;
 	private static Position goal;
-	private static Set<Position> walls = new HashSet<>();
+	private static final Set<Position> walls = new HashSet<>();
+	enum Actions implements Action {
+		UP, DOWN, RIGHT, LEFT;
+
+		@Override
+		public boolean isNoOp() {
+			return false;
+		}
+	}
+
+	boolean isEmpty(Position robotLocation) {
+		return !walls.contains(robotLocation);
+	}
 
 	Environment(Position robot) {
-		super(maxX, maxY);
-		for(Position position : walls)
-			this.addObjectToLocation(new Wall(), position);
 		this.robot = robot;
-		// Agent a = new MapAgent();
-		// this.addAgent(a);
 	}
 
 	static void setFinish(Position finish) {
@@ -34,15 +37,11 @@ class Environment extends XYEnvironment {
 		walls.add(position);
 	}
 
-	public static Position getGoal() {
+	Position getGoalPosition() {
 		return goal;
 	}
 
-	public Position getRobot() {
+	Position getRobotPosition() {
 		return robot;
 	}
-
-	//TODO
-	//insert the required class methods
-	//
 }

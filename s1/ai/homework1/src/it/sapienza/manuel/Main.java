@@ -1,7 +1,7 @@
 package it.sapienza.manuel;
 
+import aima.core.environment.eightpuzzle.MisplacedTilleHeuristicFunction;
 import aima.core.search.framework.problem.Problem;
-import aima.core.environment.nqueens.NQueensBoard;
 import aima.core.agent.Action;
 import aima.core.agent.Agent;
 import aima.core.search.framework.qsearch.GraphSearch;
@@ -24,18 +24,54 @@ import java.lang.Math;
 
 import static java.lang.Math.pow;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
+		// the initial state that the agent starts in.
 		Environment init = getEnvironment(args);
 
-		//Use AIMA framework to solve the problem
+		// a description of the possible actions available to the agent.
 		ActionFunction actFunc = new ActionFunction();
+
+		// a description of what each action does; the formal name for
+		// this is the transition model, specified by a function
+		// RESULT(s, a) that returns the state that results from doing
+		// action a in state s.
 		Result resFunc = new Result();
+
+	    // test determines whether a given state is a goal state.
 		Goal goal = new Goal();
 		Problem p = new Problem(init, actFunc, resFunc, goal);
+
+		// Properties properties = null;
+
+		List<Search> search_algorithms = new LinkedList<>();
+		search_algorithms.add(new IterativeDeepeningSearch());
+		search_algorithms.add(new AStarSearch(new GraphSearch(), new GravityHeuristics()));
+
+		long startTime = System.currentTimeMillis();
+		SearchAgent agent = new SearchAgent(p,search);
+		List<Action> listAct = agent.getActions();
+		// properties = agent.getInstrumentation();
+		for(Action action : listAct){
+			// Actions act = (Actions) action;
+			System.out.println(action.toString());
+			// writer.append(",");
+		}
+		// writer.close();
+		// Iterator<Object> iterat = properties.keySet().iterator();
+		// while(iterat.hasNext()){
+		// 	String foo = (String) iterat.next();
+		// 	String bar = properties.getProperty(foo);
+		// 	System.out.println(foo+" "+bar);
+		// }
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time: " +(endTime-startTime)+ "milisecond");
+
+
 		//TODO
 		//store the path of the robot in the occupancy grid and save it in a bitmap image
 		//
@@ -73,13 +109,13 @@ public class Main {
 		tokens = new StringTokenizer(reader.readLine());
 		Position robot = new Position(Integer.parseInt(tokens.nextToken()) * m, Integer.parseInt(tokens.nextToken()) * m);
 		System.out.println("Robot");
-		System.out.println("X: " + robot.x() + " Y: " + robot.y());
-		occupancy[robot.y()][robot.x()] = 255;
+		System.out.println("X: " + robot.x + " Y: " + robot.y);
+		occupancy[robot.y][robot.x] = 255;
 		tokens = new StringTokenizer(reader.readLine());
 		Position finish = new Position(Integer.parseInt(tokens.nextToken()) * m, Integer.parseInt(tokens.nextToken()) * m);
 		System.out.println("Goal");
-		System.out.println("X: " + finish.x() + " Y: " + finish.y());
-		occupancy[finish.y()][finish.y()] = 65280;
+		System.out.println("X: " + finish.x + " Y: " + finish.y);
+		occupancy[finish.y][finish.y] = 65280;
 
 		//Build the environment
 		Environment init = new Environment(robot);
@@ -90,8 +126,8 @@ public class Main {
 			Position temp = new Position(Integer.parseInt(tokens.nextToken()) * m, Integer.parseInt(tokens.nextToken()) * m);
 			for (int x = 0; x < m; x++)
 				for (int y = 0; y < m; y++) {
-					int newX = temp.x() + x;
-					int newY = temp.y() + y;
+					int newX = temp.x + x;
+					int newY = temp.y + y;
 					Environment.addWall(new Position(newX, newY));
 					occupancy[newY][newX] = 0x000000;
 				}
