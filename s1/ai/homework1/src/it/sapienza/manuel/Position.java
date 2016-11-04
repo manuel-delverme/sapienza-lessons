@@ -12,11 +12,11 @@ class Position {
 	}
 
 	Position move_down(){
-		return new Position(x, y + 1);
+		return new Position(x, y - 1);
 	}
 
 	Position move_up(){
-		return new Position(x, y - 1);
+		return new Position(x, y + 1);
 	}
 
 	Position move_right(){
@@ -40,5 +40,11 @@ class Position {
 	@Override
 	public boolean equals(Object o) {
 		return o instanceof Position && o.hashCode() == hashCode();
+	}
+
+	public int distance_from(Position point2) {
+		int x2 = point2.x;
+		int y2 = point2.y;
+		return (int) Math.sqrt((x-x2)*(x-x2) + (y-y2)*(y-y2));
 	}
 }

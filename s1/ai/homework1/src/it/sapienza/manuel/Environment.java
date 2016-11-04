@@ -12,14 +12,6 @@ public class Environment {
 	private final Position robot;
 	private static Position goal;
 	private static final Set<Position> walls = new HashSet<>();
-	enum Actions implements Action {
-		UP, DOWN, RIGHT, LEFT;
-
-		@Override
-		public boolean isNoOp() {
-			return false;
-		}
-	}
 
 	boolean isEmpty(Position robotLocation) {
 		return !walls.contains(robotLocation);

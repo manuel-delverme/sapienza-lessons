@@ -1,7 +1,17 @@
 package it.sapienza.manuel;
 
-/**
- * Created by awok on 04/11/16.
- */
-public class RobotAction {
+import aima.core.agent.impl.DynamicAction;
+
+public class RobotAction extends DynamicAction{
+	Position endpoint;
+
+	public RobotAction(String name, Position endpoint) {
+		super(name);
+		this.endpoint = endpoint;
+	}
+
+	@Override
+	public boolean isNoOp() {
+		return false;
+	}
 }
