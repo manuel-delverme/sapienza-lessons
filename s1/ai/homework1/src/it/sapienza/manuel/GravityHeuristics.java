@@ -11,7 +11,6 @@ class GravityHeuristics implements HeuristicFunction {
 	private int gravityPull(Environment board) {
 		Position robotLocation = board.getRobotPosition();
 		Position goalLocation = board.getGoalPosition();
-		int dist = robotLocation.distance_from(goalLocation);
-		return dist*dist;
+		return (int) Math.round(0.9 * robotLocation.distance_from(goalLocation));
 	}
 }

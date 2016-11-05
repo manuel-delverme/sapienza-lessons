@@ -11,19 +11,19 @@ class Position {
 		y = yCoOrdinate;
 	}
 
-	Position move_down(){
+	Position whats_below(){
 		return new Position(x, y - 1);
 	}
 
-	Position move_up(){
+	Position whats_above(){
 		return new Position(x, y + 1);
 	}
 
-	Position move_right(){
+	Position whats_right(){
 		return new Position(x + 1, y);
 	}
 
-	Position move_left(){
+	Position whats_left(){
 		return new Position(x - 1, y);
 	}
 
@@ -34,7 +34,7 @@ class Position {
 
 	@Override
 	public int hashCode() {
-		return x*maxX + y;
+		return (x << 4) + y;
 	}
 
 	@Override
@@ -45,6 +45,6 @@ class Position {
 	public int distance_from(Position point2) {
 		int x2 = point2.x;
 		int y2 = point2.y;
-		return (int) Math.sqrt((x-x2)*(x-x2) + (y-y2)*(y-y2));
+		return Math.abs(x-x2) + Math.abs(y-y2);
 	}
 }

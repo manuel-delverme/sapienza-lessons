@@ -5,6 +5,7 @@ import aima.core.agent.Action;
 import aima.core.search.framework.qsearch.GraphSearch;
 import aima.core.search.framework.SearchAgent;
 import aima.core.search.informed.AStarSearch;
+import aima.core.search.uninformed.IterativeDeepeningSearch;
 import javafx.util.Pair;
 
 import java.awt.*;
@@ -57,7 +58,7 @@ public class Main {
 		Position finish = new Position(Integer.parseInt(tokens.nextToken()) * m, Integer.parseInt(tokens.nextToken()) * m);
 		System.out.println("Goal");
 		System.out.println("X: " + finish.x + " Y: " + finish.y);
-		occupancy[finish.y][finish.y] = 65280;
+		occupancy[finish.y][finish.x] = 65280;
 
 		//Build the environment
 		Environment init = new Environment(robot);
@@ -96,28 +97,29 @@ public class Main {
 		// IterativeDeepeningSearch search = new IterativeDeepeningSearch();
 		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
 
-		/*
 		long startTime = System.currentTimeMillis();
 		SearchAgent agent = new SearchAgent(p,search);
 		List<Action> listAct = agent.getActions();
 		// properties = agent.getInstrumentation();
+		listAct.remove(listAct.size() - 1);
 		for(Action action : listAct){
 			RobotAction robotAction = (RobotAction) action;
 			// Actions act = (Actions) action;
 			System.out.println(action.toString());
-			occupancy[robotAction.endpoint.x][robotAction.endpoint.y] = 0x772255;
+			System.out.println(Math.round( 0.5 * finish.distance_from(robotAction.endpoint)));
+			occupancy[robotAction.endpoint.y][robotAction.endpoint.x] = 0xFF0000;
 			// writer.append(",");
 		}
 		// writer.close();
 		// Iterator<Object> iterat = properties.keySet().iterator();
 		// while(iterat.hasNext()){
+		
 		// 	String foo = (String) iterat.next();
 		// 	String bar = properties.getProperty(foo);
 		// 	System.out.println(foo+" "+bar);
 		// }
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " +(endTime-startTime)+ " milisecond");
-		*/
 		new BMP().saveBMP(args[2], occupancy);
 
 

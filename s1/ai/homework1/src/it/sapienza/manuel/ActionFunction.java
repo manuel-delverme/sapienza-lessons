@@ -17,26 +17,26 @@ public class ActionFunction implements ActionsFunction {
 		Position location = world.getRobotPosition();
 
 		if(location.x < Position.maxX) {
-			Position new_location = new Position(location.x + 1, location.y);
-			if(world.isEmpty(new_location)){
+			if(world.isEmpty(location.x + 1, location.y)){
+				Position new_location = new Position(location.x + 1, location.y);
 				actions.add(new RobotAction("RIGHT", new_location));
 			}
 		}
 		if(location.x > 0) {
-			Position new_location = new Position(location.x - 1, location.y);
-			if(world.isEmpty(new_location)){
+			if(world.isEmpty(location.x - 1, location.y)){
+				Position new_location = new Position(location.x - 1, location.y);
 				actions.add(new RobotAction("LEFT", new_location));
 			}
 		}
-		if(location.y > 0) {
-			Position new_location = new Position(location.x, location.y + 1);
-			if(world.isEmpty(new_location)){
+		if(location.y < Position.maxY) {
+			if(world.isEmpty(location.x, location.y + 1)){
+				Position new_location = new Position(location.x, location.y + 1);
 				actions.add(new RobotAction("UP", new_location));
 			}
 		}
-		if(location.y < Position.maxY) {
-			Position new_location = new Position(location.x, location.y - 1);
-			if(world.isEmpty(new_location)){
+		if(location.y > 0) {
+			if(world.isEmpty(location.x, location.y - 1)){
+				Position new_location = new Position(location.x, location.y - 1);
 				actions.add(new RobotAction("DOWN", new_location));
 			}
 		}
