@@ -1,24 +1,21 @@
 package it.sapienza.manuel;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Environment {
-	private static int maxX;
-	private static int maxY;
 	private final Position robot;
 	private static Position goal;
 	// private static final Set<Position> walls = new HashSet<>();
-	private static final Set<Integer> walls_y = new HashSet<>();
-	private static final Set<Integer> walls_x = new HashSet<>();
+	private static final Set<Long> walls = new HashSet<>();
 	// private static final HashMap<Integer, boolean[]> is_empty = null;
 
 	// boolean isEmpty(Position robotLocation) {
 	boolean isEmpty(int x, int y) {
 		// return !walls.contains(robotLocation);
 		// return is_empty.get(robotLocation.y)[robotLocation.x];
-		return walls_x.contains(x) && walls_y.contains(y);
+		long hash = ((long)x * Position.maxX) + y;
+		return !walls.contains(hash);
 	}
 
 	Environment(Position robot) {
@@ -34,8 +31,8 @@ public class Environment {
 		// row[position.x] = false;
 		// is_empty.put(position.y, row);
 		// walls.add(position);
-		walls_x.add(position.x);
-		walls_y.add(position.y);
+		long hash = ((long)position.x * Position.maxX) + position.y;
+		walls.add(hash);
 	}
 
 	Position getGoalPosition() {
@@ -44,5 +41,14 @@ public class Environment {
 
 	Position getRobotPosition() {
 		return robot;
+	}
+		@Override
+	public int hashCode() {
+		return this.robot.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return this.robot.equals(((Environment) o).getRobotPosition());
 	}
 }

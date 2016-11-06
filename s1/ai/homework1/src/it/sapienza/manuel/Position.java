@@ -34,7 +34,7 @@ class Position {
 
 	@Override
 	public int hashCode() {
-		return (x << 4) + y;
+		return x * maxX + y;
 	}
 
 	@Override

@@ -90,9 +90,7 @@ public class Main {
 
 	    // test determines whether a given state is a goal state.
 		Goal goal = new Goal();
-		Problem p = new Problem(init, actFunc, resFunc, goal);
-
-		// Properties properties = null;
+		Problem p = new Problem(init, actFunc, resFunc, goal); //, (s, a, sDelta) -> 10);
 
 		// IterativeDeepeningSearch search = new IterativeDeepeningSearch();
 		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
@@ -100,31 +98,14 @@ public class Main {
 		long startTime = System.currentTimeMillis();
 		SearchAgent agent = new SearchAgent(p,search);
 		List<Action> listAct = agent.getActions();
-		// properties = agent.getInstrumentation();
 		listAct.remove(listAct.size() - 1);
 		for(Action action : listAct){
 			RobotAction robotAction = (RobotAction) action;
-			// Actions act = (Actions) action;
 			System.out.println(action.toString());
-			System.out.println(Math.round( 0.5 * finish.distance_from(robotAction.endpoint)));
 			occupancy[robotAction.endpoint.y][robotAction.endpoint.x] = 0xFF0000;
-			// writer.append(",");
 		}
-		// writer.close();
-		// Iterator<Object> iterat = properties.keySet().iterator();
-		// while(iterat.hasNext()){
-		
-		// 	String foo = (String) iterat.next();
-		// 	String bar = properties.getProperty(foo);
-		// 	System.out.println(foo+" "+bar);
-		// }
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time: " +(endTime-startTime)+ " milisecond");
 		new BMP().saveBMP(args[2], occupancy);
-
-
-		//TODO
-		//store the path of the robot in the occupancy grid and save it in a bitmap image
-		//
 	}
 }
