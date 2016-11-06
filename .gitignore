@@ -2,4 +2,11 @@ burocrazia/
 *.tar.*
 *.tgz
 datasets/
+dataset/
 .idea/
+*.csv
+*.pyc
+*.out
+aima-java
+build/
+bin/
