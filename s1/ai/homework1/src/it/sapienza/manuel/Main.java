@@ -1,91 +1,34 @@
 package it.sapienza.manuel;
 
-import aima.core.environment.eightpuzzle.MisplacedTilleHeuristicFunction;
 import aima.core.search.framework.problem.Problem;
 import aima.core.agent.Action;
-import aima.core.agent.Agent;
 import aima.core.search.framework.qsearch.GraphSearch;
-import aima.core.search.framework.problem.Problem;
-import aima.core.search.framework.Search;
 import aima.core.search.framework.SearchAgent;
-import aima.core.search.framework.qsearch.TreeSearch;
 import aima.core.search.informed.AStarSearch;
-import aima.core.search.uninformed.BreadthFirstSearch;
-import aima.core.search.uninformed.DepthFirstSearch;
 import aima.core.search.uninformed.IterativeDeepeningSearch;
+import javafx.util.Pair;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.Math;
 
 import static java.lang.Math.pow;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
 		// the initial state that the agent starts in.
-		Environment init = getEnvironment(args);
-
-		// a description of the possible actions available to the agent.
-		ActionFunction actFunc = new ActionFunction();
-
-		// a description of what each action does; the formal name for
-		// this is the transition model, specified by a function
-		// RESULT(s, a) that returns the state that results from doing
-		// action a in state s.
-		Result resFunc = new Result();
-
-	    // test determines whether a given state is a goal state.
-		Goal goal = new Goal();
-		Problem p = new Problem(init, actFunc, resFunc, goal);
-
-		// Properties properties = null;
-
-		List<Search> search_algorithms = new LinkedList<>();
-		search_algorithms.add(new IterativeDeepeningSearch());
-		search_algorithms.add(new AStarSearch(new GraphSearch(), new GravityHeuristics()));
-
-		long startTime = System.currentTimeMillis();
-		SearchAgent agent = new SearchAgent(p,search);
-		List<Action> listAct = agent.getActions();
-		// properties = agent.getInstrumentation();
-		for(Action action : listAct){
-			// Actions act = (Actions) action;
-			System.out.println(action.toString());
-			// writer.append(",");
-		}
-		// writer.close();
-		// Iterator<Object> iterat = properties.keySet().iterator();
-		// while(iterat.hasNext()){
-		// 	String foo = (String) iterat.next();
-		// 	String bar = properties.getProperty(foo);
-		// 	System.out.println(foo+" "+bar);
-		// }
-		long endTime = System.currentTimeMillis();
-		System.out.println("Time: " +(endTime-startTime)+ "milisecond");
-
-
-		//TODO
-		//store the path of the robot in the occupancy grid and save it in a bitmap image
-		//
-	}
-
-	private static Environment getEnvironment(String[] parameters) throws IOException {
 		//Input file must be specified in args[1]
-		BufferedReader reader = new BufferedReader(new FileReader(new File(parameters[1])));
-
+		BufferedReader reader = new BufferedReader(new FileReader(new File(args[1])));
 		//In order to increment the resolution of the grid we use v as the exponent of the power of 2;
 		// so if v = 0 then m = 2^0 = 1 and the grid resolution is 16x16
 		// if v = 1 then m = 2^1 = 2 and the grid resolution is 32x32
 		//and so on...
-		int v = Integer.parseInt(parameters[3]);
+		int v = Integer.parseInt(args[3]);
 		int m = (int) pow(2, v);
 		System.out.println("M: " + m);
 
@@ -115,7 +58,7 @@ public class Main {
 		Position finish = new Position(Integer.parseInt(tokens.nextToken()) * m, Integer.parseInt(tokens.nextToken()) * m);
 		System.out.println("Goal");
 		System.out.println("X: " + finish.x + " Y: " + finish.y);
-		occupancy[finish.y][finish.y] = 65280;
+		occupancy[finish.y][finish.x] = 65280;
 
 		//Build the environment
 		Environment init = new Environment(robot);
@@ -134,7 +77,35 @@ public class Main {
 		}
 
 		//Store the occupancy matrix in a bitmap image
-		new BMP().saveBMP(parameters[2], occupancy);
-		return init;
+		new BMP().saveBMP(args[2], occupancy);
+
+		// a description of the possible actions available to the agent.
+		ActionFunction actFunc = new ActionFunction();
+
+		// a description of what each action does; the formal name for
+		// this is the transition model, specified by a function
+		// RESULT(s, a) that returns the state that results from doing
+		// action a in state s.
+		Result resFunc = new Result();
+
+	    // test determines whether a given state is a goal state.
+		Goal goal = new Goal();
+		Problem p = new Problem(init, actFunc, resFunc, goal); //, (s, a, sDelta) -> 10);
+
+		// IterativeDeepeningSearch search = new IterativeDeepeningSearch();
+		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
+
+		long startTime = System.currentTimeMillis();
+		SearchAgent agent = new SearchAgent(p,search);
+		List<Action> listAct = agent.getActions();
+		listAct.remove(listAct.size() - 1);
+		for(Action action : listAct){
+			RobotAction robotAction = (RobotAction) action;
+			System.out.println(action.toString());
+			occupancy[robotAction.endpoint.y][robotAction.endpoint.x] = 0xFF0000;
+		}
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time: " +(endTime-startTime)+ " milisecond");
+		new BMP().saveBMP(args[2], occupancy);
 	}
 }
