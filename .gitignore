@@ -1,12 +1,15 @@
 burocrazia/
 *.tar.*
+*.tar
 *.tgz
 datasets/
 dataset/
 .idea/
 *.csv
 *.pyc
+*.npy
 *.out
 aima-java
 build/
 bin/
+code_samples/
