@@ -2,7 +2,7 @@ package it.sapienza.manuel;
 
 import aima.core.search.framework.problem.GoalTest;
 
-public class Goal implements GoalTest {
+class Goal implements GoalTest {
 	@Override
 	public boolean isGoalState(Object state) {
 		Environment world = (Environment) state;
