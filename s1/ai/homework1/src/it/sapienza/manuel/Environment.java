@@ -1,14 +1,27 @@
 package it.sapienza.manuel;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Environment {
+	public static final Integer RIGHT = 1;
+	public static final Integer LEFT = 2;
+	public static final Integer DOWN = 3;
+	public static final Integer UP = 4;
 	private final Position robot;
 	private static Position goal;
+	private static Position starting_position;
 	// private static final Set<Position> walls = new HashSet<>();
 	private static final Set<Long> walls = new HashSet<>();
+
+	private static final Map<Integer, Integer> optimal_path = new HashMap<>();
+	private static Position startingPosition;
+
 	// private static final HashMap<Integer, boolean[]> is_empty = null;
+	static Map<Integer, Integer> getOptimalPath() {
+		return optimal_path;
+	}
+
+
 
 	// boolean isEmpty(Position robotLocation) {
 	boolean isEmpty(int x, int y) {
@@ -20,8 +33,17 @@ public class Environment {
 
 	Environment(Position robot) {
 		this.robot = robot;
+		int optimal_horizontal_moves = goal.x - starting_position.x;
+		int optimal_vertical_moves = goal.y - starting_position.y;
+		optimal_path.put(Environment.RIGHT, Math.max(optimal_horizontal_moves, 0));
+		optimal_path.put(Environment.LEFT, Math.max(-optimal_horizontal_moves, 0));
+		optimal_path.put(Environment.UP, Math.max(optimal_vertical_moves, 0));
+		optimal_path.put(Environment.DOWN, Math.max(-optimal_vertical_moves, 0));
 	}
 
+	static void setStartingPosition(Position startingPosition) {
+		starting_position = startingPosition;
+	}
 	static void setFinish(Position finish) {
 		goal = finish;
 	}
@@ -42,7 +64,11 @@ public class Environment {
 	Position getRobotPosition() {
 		return robot;
 	}
-		@Override
+	Position getStartingPosition() {
+		return starting_position;
+	}
+
+	@Override
 	public int hashCode() {
 		return this.robot.hashCode();
 	}

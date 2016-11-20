@@ -5,6 +5,7 @@ import aima.core.agent.Action;
 import aima.core.search.framework.qsearch.GraphSearch;
 import aima.core.search.framework.SearchAgent;
 import aima.core.search.informed.AStarSearch;
+import aima.core.search.uninformed.DepthFirstSearch;
 import aima.core.search.uninformed.IterativeDeepeningSearch;
 import javafx.util.Pair;
 
@@ -61,8 +62,9 @@ public class Main {
 		occupancy[finish.y][finish.x] = 65280;
 
 		//Build the environment
-		Environment init = new Environment(robot);
 		Environment.setFinish(finish);
+		Environment.setStartingPosition(robot);
+		Environment init = new Environment(robot);
 		int numWalls = Integer.parseInt(reader.readLine());
 		for (int i = 0; i < numWalls; i++) {
 			tokens = new StringTokenizer(reader.readLine());
@@ -92,8 +94,8 @@ public class Main {
 		Goal goal = new Goal();
 		Problem p = new Problem(init, actFunc, resFunc, goal); //, (s, a, sDelta) -> 10);
 
-		// IterativeDeepeningSearch search = new IterativeDeepeningSearch();
-		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
+		// DepthFirstSearch search = new DepthFirstSearch(new GraphSearch());
+		AStarSearch search = new AStarSearch(new GraphSearch(), new MisplacedTilesHeuristics());
 
 		long startTime = System.currentTimeMillis();
 		SearchAgent agent = new SearchAgent(p,search);
@@ -102,6 +104,7 @@ public class Main {
 		for(Action action : listAct){
 			RobotAction robotAction = (RobotAction) action;
 			System.out.println(action.toString());
+			// (new GravityHeuristics()).h(new Environment().)
 			occupancy[robotAction.endpoint.y][robotAction.endpoint.x] = 0xFF0000;
 		}
 		long endTime = System.currentTimeMillis();

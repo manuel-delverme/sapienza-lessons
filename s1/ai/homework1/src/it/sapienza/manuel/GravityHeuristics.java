@@ -11,7 +11,15 @@ class GravityHeuristics implements HeuristicFunction {
 	private int gravityPull(Environment board) {
 		Position robotLocation = board.getRobotPosition();
 		Position goalLocation = board.getGoalPosition();
-		return (int) Math.round(0.99 * robotLocation.distance_from(goalLocation));
-		// return robotLocation.distance_from(goalLocation);
+		/*
+		int real = robotLocation.distance_from(goalLocation);
+		double myeur = 0.99 * robotLocation.distance_from(goalLocation);
+		if (real != (int) Math.round(myeur)){
+			System.out.println( "error " + real + " -> " + myeur);
+		}
+		*/
+		// return (int) Math.round(0.99 * robotLocation.distance_from(goalLocation));
+		return robotLocation.distance_from(goalLocation);
+		// return (int) Math.sqrt(robotLocation.distance_from(goalLocation));
 	}
 }
