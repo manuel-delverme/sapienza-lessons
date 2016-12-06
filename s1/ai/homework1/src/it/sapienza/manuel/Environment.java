@@ -8,8 +8,8 @@ public class Environment {
 	public static final Integer DOWN = 3;
 	public static final Integer UP = 4;
 	private final Position robot;
-	private static Position goal;
-	private static Position starting_position;
+	public static Position goal;
+	public static Position starting_position;
 	// private static final Set<Position> walls = new HashSet<>();
 	private static final Set<Long> walls = new HashSet<>();
 

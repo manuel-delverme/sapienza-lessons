@@ -95,7 +95,8 @@ public class Main {
 		Problem p = new Problem(init, actFunc, resFunc, goal); //, (s, a, sDelta) -> 10);
 
 		// DepthFirstSearch search = new DepthFirstSearch(new GraphSearch());
-		AStarSearch search = new AStarSearch(new GraphSearch(), new MisplacedTilesHeuristics());
+		// AStarSearch search = new AStarSearch(new GraphSearch(), new MisplacedTilesHeuristics(occupancy));
+		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
 
 		long startTime = System.currentTimeMillis();
 		SearchAgent agent = new SearchAgent(p,search);
