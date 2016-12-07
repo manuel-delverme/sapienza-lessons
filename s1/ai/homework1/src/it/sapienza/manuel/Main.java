@@ -1,23 +1,18 @@
 package it.sapienza.manuel;
 
-import aima.core.search.framework.problem.Problem;
 import aima.core.agent.Action;
+import aima.core.agent.EnvironmentObject;
+import aima.core.search.framework.problem.Problem;
 import aima.core.search.framework.qsearch.GraphSearch;
 import aima.core.search.framework.SearchAgent;
 import aima.core.search.informed.AStarSearch;
-import aima.core.search.uninformed.DepthFirstSearch;
-import aima.core.search.uninformed.IterativeDeepeningSearch;
-import javafx.util.Pair;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 import static java.lang.Math.pow;
 
-import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -89,27 +84,85 @@ public class Main {
 		// RESULT(s, a) that returns the state that results from doing
 		// action a in state s.
 		Result resFunc = new Result();
+		Result resMisplacedFunc = new ResultMisplaced();
 
 	    // test determines whether a given state is a goal state.
 		Goal goal = new Goal();
-		Problem p = new Problem(init, actFunc, resFunc, goal); //, (s, a, sDelta) -> 10);
+		Problem p; //, (s, a, sDelta) -> 10);
+		p = new Problem(init, actFunc, resFunc, goal);
 
 		// DepthFirstSearch search = new DepthFirstSearch(new GraphSearch());
-		// AStarSearch search = new AStarSearch(new GraphSearch(), new MisplacedTilesHeuristics(occupancy));
-		AStarSearch search = new AStarSearch(new GraphSearch(), new GravityHeuristics());
-
-		long startTime = System.currentTimeMillis();
-		SearchAgent agent = new SearchAgent(p,search);
-		List<Action> listAct = agent.getActions();
-		listAct.remove(listAct.size() - 1);
-		for(Action action : listAct){
-			RobotAction robotAction = (RobotAction) action;
-			System.out.println(action.toString());
-			// (new GravityHeuristics()).h(new Environment().)
-			occupancy[robotAction.endpoint.y][robotAction.endpoint.x] = 0xFF0000;
+		System.out.println("manhattan heuristics:");
+		p = new Problem(init, actFunc, resFunc, goal);
+		AStarSearch search = new AStarSearch(new GraphSearch(), new ManhattanHeuristics());
+		long startTime;
+		long endTime;
+		long manhattan_time;
+		SearchAgent agent = null;
+		startTime = System.currentTimeMillis();
+		for(int i = 0; i < 0; i++){
+			agent = new SearchAgent(p,search);
 		}
-		long endTime = System.currentTimeMillis();
-		System.out.println("Time: " +(endTime-startTime)+ " milisecond");
+		endTime = System.currentTimeMillis();
+		manhattan_time = endTime - startTime;
+		System.out.println("Time: " + manhattan_time + " millisecond");
+		// System.out.println(agent.getInstrumentation());
+
+		System.out.println("misplaced heuristics:");
+		p = new Problem(init, actFunc, resMisplacedFunc, goal);
+		search = new AStarSearch(new GraphSearch(), new MisplacedTilesHeuristics());
+		startTime = System.currentTimeMillis();
+		for(int i = 0; i < 1; i++){
+			agent = new SearchAgent(p,search);
+		}
+		endTime = System.currentTimeMillis();
+		System.out.println(agent.getInstrumentation());
+		float misplaced_time = endTime - startTime;
+		System.out.println("Time: " + misplaced_time + " millisecond");
+		System.out.println("misplaced tiles is: " + manhattan_time / misplaced_time + " times faster");
+		/*
+		List<Action> listAct = agent.getActions();
+		System.out.println("length: " + listAct.size());
+		listAct.remove(listAct.size() - 1);
+		int robot_x = finish.x;
+		int robot_y = finish.y;
+		for(Action action : listAct){
+			System.out.println("PATH: " + action.toString());
+			if (action == Environment.taxicabAction.RIGHT) {
+				robot_x -= 1;
+			} else if (action == Environment.taxicabAction.LEFT) {
+				robot_x += 1;
+			} else if (action == Environment.taxicabAction.UP) {
+				robot_y += 1;
+			} else if (action == Environment.taxicabAction.DOWN) {
+				robot_y -= 1;
+			}
+			occupancy[robot_x][robot_y] = 0xFF0000;
+		}
+		*/
+
 		new BMP().saveBMP(args[2], occupancy);
+	}
+
+	private static class ResultMisplaced extends Result {
+		public Object result(Object s, Action action) {
+			Environment old_world = (Environment) s;
+			Environment new_world = coreResult(s, action);
+			new_world.taken_RIGHT = old_world.taken_RIGHT;
+			new_world.taken_LEFT = old_world.taken_LEFT;
+			new_world.taken_DOWN = old_world.taken_DOWN;
+			new_world.taken_UP = old_world.taken_UP;
+			if (action == Environment.taxicabAction.RIGHT) {
+				new_world.taken_RIGHT = old_world.taken_RIGHT + 1;
+			} else if (action == Environment.taxicabAction.LEFT) {
+				new_world.taken_LEFT = old_world.taken_LEFT + 1;
+			} else if (action == Environment.taxicabAction.UP) {
+				new_world.taken_UP = old_world.taken_UP + 1;
+			} else if (action == Environment.taxicabAction.DOWN) {
+				new_world.taken_DOWN = old_world.taken_DOWN + 1;
+			}
+			return new_world;
+
+		}
 	}
 }

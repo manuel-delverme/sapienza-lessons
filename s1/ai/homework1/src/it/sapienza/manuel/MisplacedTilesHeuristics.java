@@ -34,8 +34,6 @@ class MisplacedTilesHeuristics implements HeuristicFunction {
 
 	public double h(Object state) {
 		Environment world = (Environment) state;
-		return gravityPull(world);
-	}
 
 	private int gravityPull(Environment board) {
 		Position robotLocation = board.getRobotPosition();
