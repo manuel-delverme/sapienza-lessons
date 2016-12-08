@@ -44,7 +44,7 @@ def load_dataset(base_path, num_classes):
     labels = []
     index = 0
     klass = 0
-    for img_number in random.sample(range(100), num_classes):  # [33, 3, 16, 22]:
+    for img_number in random.sample(range(1, 101), num_classes):  # [33, 3, 16, 22]:
         for angle in range(0, 360, 5):
             img_path = "obj{}__{}.png".format(img_number, angle)
             haforgiveish = np.asarray(PIL.Image.open(base_path + img_path))
@@ -131,10 +131,19 @@ if __name__ == "__main__":
     base_path = "datasets/coil-100/"
     dataset, labels = load_dataset(base_path, num_classes=4)
     dataset = normalize(dataset)
-    dataset = dim_reduction(dataset, labels)
+    dataset = dim_reduction(dataset, labels, plot=False)
     train_set, test_set, train_labels, test_labels = sklearn.cross_validation.train_test_split(dataset, labels,
                                                                                                test_size=0.33)
-    classifier = nbClassifier()
-    classifier.train(dataset=train_set, labels=train_labels)
-    accuracy = classifier.test(train_set, train_labels)
+    # >>> from sklearn import datasets
+    # >>> iris = datasets.load_iris()
+    # >>> from sklearn.naive_bayes import GaussianNB
+    # >>> gnb = GaussianNB()
+    # >>> y_pred = gnb.fit(iris.data, iris.target).predict(iris.data)
+    # >>> print("Number of mislabeled points out of a total %d points : %d"
+    # ...       % (iris.data.shape[0],(iris.target != y_pred).sum()))
+    # Number of mislabeled points out of a total 150 points : 6
+
+    # classifier = nbClassifier()
+    # classifier.train(dataset=train_set, labels=train_labels)
+    # accuracy = classifier.test(train_set, train_labels)
     print("accuracy", accuracy)

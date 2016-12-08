@@ -1,4 +1,10 @@
 burocrazia/
+aima-java/
+build/
+bin/
+code_samples/
+.idea/
+
 *.tar.*
 *.tar
 *.tgz
@@ -10,7 +16,4 @@ dataset/
 *.npy
 *.out
 *.jar
-aima-java/
-build/
-bin/
-code_samples/
+tags
