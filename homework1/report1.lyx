@@ -1,0 +1,184 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Homework Report 1
+\end_layout
+
+\begin_layout Author
+Manuel Del Verme
+\begin_inset Newline newline
+\end_inset
+
+1769408
+\end_layout
+
+\begin_layout Section
+Data Preparation
+\end_layout
+
+\begin_layout Standard
+For this experiment the COIL-100 dataset was used, 72 samples per class
+ were analyzed, each sample consisting in 49152 features (128x128px, 3 color
+ channels), 3 classes choosen at random from the 100 available were used.
+\end_layout
+
+\begin_layout Section
+Preprocessing
+\end_layout
+
+\begin_layout Standard
+The data was normalized to zero-mean and unit-variance, and reduced to two
+ dimensions using the two principal components of Principal Component Analysis
+\end_layout
+
+\begin_layout Subsection
+PCA results
+\end_layout
+
+\begin_layout Standard
+The visualization of the two principal components shows an high inter class
+ variance and a low intra class variance, the third and fourth principal
+ component still retrain low variance, while the tenth and eleventh dimensions,
+ while not random, show now clear division between the classes? *Justify
+ your answer from theoretical perspective behind PCA.*
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\frac{\partial A}{\partial z}+v_{G}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Optimal number of dimensions
+\end_layout
+
+\begin_layout Standard
+Since we aim to retrain most of the information of the data, we should set
+ a threshold (1%, or 0.01) and keep any component which represents more than
+ the threshold level.
+\end_layout
+
+\begin_layout Section
+Classification
+\end_layout
+
+\begin_layout Subsection
+Naive Bayes Classifier
+\end_layout
+
+\begin_layout Standard
+Write down formulation of Na ̈ıve Bayes classifier y b = arg max p(y | x
+ 1 , .
+ .
+ .
+ , x d ) , y∈{1,...,k} where y b is a predicted label, k is the number of classes,
+ {x i } di=1 are exam- ples, p(x | y) is a Gaussian, and distribution of
+ labels is uniform.
+\end_layout
+
+\begin_layout Subsection
+Training and testing data Split
+\end_layout
+
+\begin_layout Standard
+The data was split in a 66% training set, 33% testing set, 
+\end_layout
+
+\begin_layout Subsection
+Naive Bayes classifier
+\end_layout
+
+\begin_layout Subsubsection
+Pure Naive Bayes
+\end_layout
+
+\begin_layout Standard
+Since a naive bayes classifier assigns probability 0 to anything it didn't
+ saw during the training, it's 
+\end_layout
+
+\begin_layout Subsubsection
+classifier was implemented
+\end_layout
+
+\begin_layout Standard
+A naive bayes classifier with Gaussian class-conditional distribution
+\end_layout
+
+\end_body
+\end_document
