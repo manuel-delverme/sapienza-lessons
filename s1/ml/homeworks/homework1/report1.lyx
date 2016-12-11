@@ -168,16 +168,31 @@ Pure Naive Bayes
 \end_layout
 
 \begin_layout Standard
-Since a naive bayes classifier assigns probability 0 to anything it didn't
- saw during the training, it's 
+Since a Naive Bayes classifier assigns probability 0 to anything it didn't
+ saw during the training, the required training set would be exponential
+ in the data representation.
 \end_layout
 
 \begin_layout Subsubsection
-classifier was implemented
+Gaussian Naive Bayes
 \end_layout
 
 \begin_layout Standard
 A naive bayes classifier with Gaussian class-conditional distribution
+\end_layout
+
+\begin_layout Standard
+[decision boundaries image]
+\end_layout
+
+\begin_layout Subsubsection
+using successive PCA dimensions
+\end_layout
+
+\begin_layout Standard
+As expected the classification results are strictly worse since the variance
+ between the classes is much lower thus making a distinction between classes
+ is harder
 \end_layout
 
 \end_body

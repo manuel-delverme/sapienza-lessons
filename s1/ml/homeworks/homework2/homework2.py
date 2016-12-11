@@ -27,26 +27,29 @@ Y_test = np.load("regression_ytest.npy").reshape(-1, 1)
 # plt.scatter(x_train, y_train - y_avg)
 
 
-plt.plot(X_train, Y_train)
-lr = LinearRegression()
-lr.fit(X_train, Y_train)
-Y_predicted = lr.predict(X_test)
-plt.plot(X_test, Y_predicted)
+# plt.plot(X_train, Y_train)
+# lr = LinearRegression()
+# lr.fit(X_train, Y_train)
+# Y_predicted = lr.predict(X_test)
+plt.title("test data vs train data")
+plt.scatter(X_test, Y_test, c='r')
+plt.scatter(X_train, Y_train, c='b')
 
-delta = (Y_predicted - Y_test)
-mse = np.dot(delta.transpose(), delta) / delta.shape[0]
-print(mse)
+# delta = (Y_predicted - Y_test)
+# mse = np.dot(delta.transpose(), delta) / delta.shape[0]
+# print(mse)
 plt.show()
 
 mses = []
 MAX_DEGREE = 10
-plot = True
-for degree in range(1, MAX_DEGREE):
+plot = False
+for degree in range(1, MAX_DEGREE + 1):
     print("using degree = {}".format(degree))
     transform = PolynomialFeatures(degree=degree, include_bias=False)
     X_train_poly = transform.fit_transform(X_train)
 
-    fitter = LinearRegression().fit(X_train_poly, Y_train)
+    lr = LinearRegression()
+    fitter = lr.fit(X_train_poly, Y_train)
 
     graph_xs = np.linspace(-1, 5.5, 100).reshape(-1, 1)
     graph_poly_xs = transform.fit_transform(graph_xs) # this is poly space (?)
@@ -65,10 +68,17 @@ for degree in range(1, MAX_DEGREE):
     delta = (Y_predicted - Y_test)
     # print(delta)
     mse = np.dot(delta.transpose(), delta) / len(delta)
-    print(mse)
+    # print(mse[0][0])
     mses.append(mse[0][0])
+
+    # X_train_poly = transform.fit_transform(X_train)
+    Y_predicted = fitter.predict(X_train_poly)
+    delta = (Y_predicted - Y_test)
+    mse = np.dot(delta.transpose(), delta) / len(delta)
+    print("train error", mse[0][0])
+
     if plot:
         plt.show()
 
-plt.plot(range(1, MAX_DEGREE), mses)
+plt.plot(range(1, MAX_DEGREE-1), mses)
 plt.show()

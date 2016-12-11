@@ -7,12 +7,15 @@ import sklearn.cross_validation
 import sklearn.preprocessing
 
 
-def dim_reduction(dataset, classes, plot=False):
+def dim_reduction(dataset, classes, plot=False, force_dims=False):
     dims = [0, 2, 9]
     dimensions = max(dims) + 2
-    transform = sklearn.decomposition.PCA(n_components=dimensions * 2)  # <- hand engineered
+    transform = sklearn.decomposition.PCA(n_components=min(dimensions * 2, dataset.shape[1]))  # <- hand engineered
     print("using {} dimensions".format(dimensions))
     dataset_t = transform.fit_transform(dataset)
+    if force_dims:
+        return dataset_t[:, :force_dims]
+
     if plot:
         for index, i in enumerate(dims):
             print("dimensions: {}, {}".format(i, i + 1))
