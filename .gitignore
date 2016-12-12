@@ -17,3 +17,7 @@ dataset/
 *.out
 *.jar
 tags
+*.png
+*.jpeg
+*.jpg
+*.lyx~

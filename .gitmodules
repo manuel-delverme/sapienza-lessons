@@ -1,0 +1,3 @@
+[submodule "s1/ai/homework2/pddl-examples"]
+	path = s1/ai/homework2/pddl-examples
+	url = https://github.com/yarox/pddl-examples
