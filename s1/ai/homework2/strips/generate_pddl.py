@@ -3,7 +3,7 @@ import random
 import os
 
 
-def generate_domain(domain_name):
+def generate_domain(domain_name, extended=False):
     #  domain = ""
     #  domain += "(define (domain paul-world)\n".format(domain_name)
     #  domain += "\t\t(:predicates\n"
@@ -30,11 +30,118 @@ def generate_domain(domain_name):
         (at ?robot ?square)
         (square ?square)
         (wall ?wall)
+        (table ?wall)
+        (manuels-seat ?wall)
+        (mccarthy-seat ?wall)
+        (ritchie-seat ?wall)
+        (kernighan-seat ?wall)
+        (door ?wall)
+        (closet ?wall)
+        (part-of-kitchen ?square)
+        (part-of-bedroom ?square)
+        (part-of-livingroom ?square)
+        (part-of-bathroom ?square)
         (robot ?robot)
         (empty ?robot)
     )
 
     (:action move
+        :parameters
+            (?robot
+             ?from-square
+             ?to-square)
+
+        :precondition
+            (and
+                (robot ?robot)
+                (square ?from-square)
+                (square ?to-square)
+
+                (at ?robot ?from-square)
+                (can-move ?from-square ?to-square)
+            )
+
+        :effect
+            (and
+                (at ?robot ?to-square)
+                (not
+                  (at ?robot ?from-square)
+                )
+            )
+    )
+    (:action pick-tray
+        :parameters
+            (?robot
+             ?from-square
+             ?to-square)
+
+        :precondition
+            (and
+                (robot ?robot)
+                (square ?from-square)
+                (square ?to-square)
+
+                (at ?robot ?from-square)
+                (can-move ?from-square ?to-square)
+            )
+
+        :effect
+            (and
+                (at ?robot ?to-square)
+                (not
+                  (at ?robot ?from-square)
+                )
+            )
+    )
+    (:action leave-tray
+        :parameters
+            (?robot
+             ?from-square
+             ?to-square)
+
+        :precondition
+            (and
+                (robot ?robot)
+                (square ?from-square)
+                (square ?to-square)
+
+                (at ?robot ?from-square)
+                (can-move ?from-square ?to-square)
+            )
+
+        :effect
+            (and
+                (at ?robot ?to-square)
+                (not
+                  (at ?robot ?from-square)
+                )
+            )
+    )
+    (:action run-washing-machine
+        :parameters
+            (?robot
+             ?from-square
+             ?to-square)
+
+        :precondition
+            (and
+                (robot ?robot)
+                (square ?from-square)
+                (square ?to-square)
+
+                (at ?robot ?from-square)
+                (can-move ?from-square ?to-square)
+            )
+
+        :effect
+            (and
+                (at ?robot ?to-square)
+                (not
+                  (at ?robot ?from-square)
+                )
+            )
+    )
+    (:action wait-dancing
         :parameters
             (?robot
              ?from-square
@@ -100,8 +207,12 @@ def main():
         NUM_SQUARES = 3
         NUM_WALLS = 3
 
+    ##################################################################
+    #                                                                #
+    #                   OBJECTS IN THE WORLD                         #
+    #                                                                #
+    ##################################################################
     objects = []
-
     squares = []
     for i in range(NUM_SQUARES):
         for j in range(NUM_SQUARES):
@@ -115,6 +226,11 @@ def main():
     robot = "paul"
     objects.append(robot)
 
+    ##################################################################
+    #                                                                #
+    #                   RELATIONS BETWEEN OBJECTS                    #
+    #                                                                #
+    ##################################################################
     relations = []
     for square in squares:
         relations.append("square {}".format(square))
@@ -159,6 +275,11 @@ def main():
 
     relations.append("at paul {}".format(starting_position))
 
+    ##################################################################
+    #                                                                #
+    #                       GOAL STATE                               #
+    #                                                                #
+    ##################################################################
     goal_square = taken[0]
     while goal_square in taken:
         goal_square = random.choice(squares)
@@ -170,11 +291,12 @@ def main():
     with open(problem_path, "w") as prob:
         prob.write(generated_problem)
 
-    generated_domain = generate_domain("paul-world")
+    generated_domain = generate_domain("paul-world", extended=True)
     domain_path = "generated_domain.pddl"
     with open(domain_path, "w") as domain:
         domain.write(generated_domain)
     os.system("../Metric-FF-v2.0/ff -o {} -f {} -s 1".format(domain_path, problem_path))
+
 
 if __name__ == "__main__":
     main()
