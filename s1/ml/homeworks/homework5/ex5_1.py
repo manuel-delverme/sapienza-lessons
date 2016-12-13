@@ -5,6 +5,7 @@ import sklearn.preprocessing
 import sklearn.decomposition
 import sklearn.cluster
 import sklearn.mixture
+from sklearn.metrics import normalized_mutual_info_score, homogeneity_score
 
 
 digits = sklearn.datasets.load_digits(n_class=5)
@@ -59,7 +60,8 @@ def plot_stuff(reduced_data, model, n_classes):
     plt.xticks(())
     plt.yticks(())
     plt.title("classes: {}, model: {}".format(n_classes, repr(model)))
-    plt.show()
+    plt.savefig("classes_{}_model_{}.jpg".format(n_classes, repr(model)[:10]))
+    # plt.show()
 
 
 def purity_score(clusters, classes):
@@ -87,7 +89,7 @@ def purity_score(clusters, classes):
 
     return n_accurate / A.shape[0]
 
-for n_classes in ([5] + range(3,11)):
+for n_classes in (range(3,10)):
     pass
     # kmeans = sklearn.cluster.KMeans(init='k-means++', n_clusters=n_classes, n_init=10)
     # plot_stuff(reduced_data, kmeans, n_classes)
@@ -95,5 +97,3 @@ for n_classes in ([5] + range(3,11)):
 for n_classes in range(2,11):
     gmm = sklearn.mixture.GMM(n_components=n_classes)
     plot_stuff(reduced_data, gmm, n_classes)
-
-    k
