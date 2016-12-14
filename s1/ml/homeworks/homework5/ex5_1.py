@@ -24,7 +24,6 @@ pca = sklearn.decomposition.PCA(n_components=2)
 reduced_data = pca.fit_transform(data)
 
 def plot_stuff(reduced_data, model, n_classes):
-    model.fit(reduced_data)
     # Step size of the mesh. Decrease to increase the quality of the VQ.
     h = .02     # point in the mesh [x_min, x_max]x[y_min, y_max].
 
@@ -94,6 +93,9 @@ for n_classes in (range(3,10)):
     # kmeans = sklearn.cluster.KMeans(init='k-means++', n_clusters=n_classes, n_init=10)
     # plot_stuff(reduced_data, kmeans, n_classes)
 
+scores = []
 for n_classes in range(2,11):
     gmm = sklearn.mixture.GMM(n_components=n_classes)
+    clusters = gmm.fit_transform(reduced_data)
     plot_stuff(reduced_data, gmm, n_classes)
+    scores.append(purity_score(clusters, labels))
