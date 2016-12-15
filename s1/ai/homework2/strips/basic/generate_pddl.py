@@ -20,8 +20,14 @@ def generate_domain(domain_name, extended=False):
     #          domain += "\t\t\t\t{}\n".format("?" + param)
     #      domain[-1] = ")"
     #     domain += "\n\n"
-    domain = """
-(define (domain {domain_name})
+    domain = "(define "
+    domain += "(domain {domain_name})".format(domain_name=domain_name)
+    ##################################################################
+    #                                                                #
+    #                       PREDICATES                               #
+    #                                                                #
+    ##################################################################
+    domain += """
     (:predicates
         (can-move ?from ?to)
         (is-in ?object ?square)
@@ -43,8 +49,13 @@ def generate_domain(domain_name, extended=False):
         (part-of-bathroom ?square)
         (robot ?robot)
         (empty ?robot)
-    )
-
+    )"""
+    ##################################################################
+    #                                                                #
+    #                        ACTIONS                                 #
+    #                                                                #
+    ##################################################################
+    domain += """
     (:action move
         :parameters
             (?robot
@@ -72,24 +83,24 @@ def generate_domain(domain_name, extended=False):
     (:action pick-tray
         :parameters
             (?robot
-             ?from-square
-             ?to-square)
+             ?from-square)
 
         :precondition
             (and
                 (robot ?robot)
                 (square ?from-square)
-                (square ?to-square)
 
-                (at ?robot ?from-square)
-                (can-move ?from-square ?to-square)
+                (is-near ?robot ?from-square)
+
+                (is-in ?tray ?from-square)
+                (empty ?robot)
             )
 
         :effect
             (and
-                (at ?robot ?to-square)
                 (not
-                  (at ?robot ?from-square)
+                  (is-in ?tray ?from-square)
+                  (empty ?robot)
                 )
             )
     )
@@ -165,8 +176,14 @@ def generate_domain(domain_name, extended=False):
                 )
             )
     )
-)
-    """.format(domain_name=domain_name)
+    """
+    ##################################################################
+    #                                                                #
+    #                        ACTIONS                                 #
+    #                                                                #
+    ##################################################################
+
+    domain += ")"
     return domain[1:]
 
 
