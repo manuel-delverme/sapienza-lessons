@@ -2,12 +2,15 @@
     (:predicates
         (is-room ?room)
         (is-robot ?robot)
+        (is-object ?object)
+
         (is-at ?object ?room) ;; robot is a moving-room
         (can-move ?room ?room)
-        (is-object ?object)
         (is-empty ?robot)
         (is-clean ?object)
-        (should-be-cleaned-in ?object)
+        (is-stored ?object)
+        (should-be-cleaned-in ?object ?room)
+        (should-be-stored-in ?object ?room)
 
         ;; (manuels-seat ?wall)
         ;; (mccarthy-seat ?wall)
@@ -78,10 +81,9 @@
 
                 ;; robot - room
                 (is-at ?robot ?to-room)
-                (has-tray ?robot)
 
                 ;; robot - obj
-                (is-at object robot)
+                (is-at ?object ?robot)
 
                 ;; obj - room
             )
@@ -89,6 +91,9 @@
         :effect
             (and
                 (is-empty ?robot) ;; robot is empty
+                (not
+                  (is-at ?object ?robot)
+                )
                 (is-at ?object ?to-room)
             )
     )
@@ -109,14 +114,14 @@
                 ;; robot - room
                 (is-at ?robot ?from-room)
                 ;; room - object
-                (should-be-cleaned-in ?object ?room)
+                (should-be-cleaned-in ?object ?from-room)
             )
         :effect ;; wm is not loaded, robot is loaded, tray is on robot
             (and
                 (is-clean ?object)
             )
     )
-    (:action put-away-object
+    (:action store-object
         :parameters
             (?robot
              ?object
@@ -136,12 +141,13 @@
                 ;; robot - room
                 (is-at ?robot ?from-room)
                 ;; room - object
-                (should-be-stored-in ?object ?room)
+                (should-be-stored-in ?object ?from-room)
             )
 
         :effect
             (and
-                (is-at ?object ?to-room)
+                (is-at ?object ?from-room)
+                (is-stored ?object)
                 (not
                     (is-at ?object ?robot)
                 )
@@ -158,6 +164,10 @@
                 (is-empty ?robot)
             )
         :effect
+            (and
+                (is-robot ?robot)
+                (is-empty ?robot)
+            )
     )
 )
     
