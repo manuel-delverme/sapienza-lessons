@@ -66,7 +66,7 @@
                 )
             )
     )
-    (:action drop-obj
+    (:action drop-obj ;; load
         :parameters
             (?robot
              ?to-room
@@ -86,6 +86,7 @@
                 (is-at ?object ?robot)
 
                 ;; obj - room
+                (should-be-cleaned-in ?object ?to-room)
             )
 
         :effect
@@ -97,7 +98,7 @@
                 (is-at ?object ?to-room)
             )
     )
-    (:action run-machine
+    (:action run-machine ;;
         :parameters(
              ?robot
              ?object
@@ -153,21 +154,17 @@
                 )
             )
     )
-    (:action wait-dancing
-        :parameters
-            (?robot
-             ?from-room
-             )
-        :precondition
-            (and
-                (is-robot ?robot)
-                (is-empty ?robot)
-            )
-        :effect
-            (and
-                (is-robot ?robot)
-                (is-empty ?robot)
-            )
-    )
+    ;; (:action wait-dancing
+    ;;     :parameters
+    ;;         (?robot
+    ;;          ?from-room
+    ;;          )
+    ;;     :precondition
+    ;;         (and
+    ;;             (is-robot ?robot)
+    ;;             (is-empty ?robot)
+    ;;         )
+    ;;     :effect
+    ;; )
 )
     
