@@ -3,6 +3,13 @@
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\usepackage{listings}
+\lstloadlanguages{Python}
+\lstset{language=Python} 
+\usepackage{graphicx}
+\usepackage{subfig}
+\end_preamble
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -25,6 +32,7 @@
 \bibtex_command default
 \index_command default
 \paperfontsize default
+\spacing single
 \use_hyperref false
 \papersize default
 \use_geometry false
@@ -69,7 +77,7 @@
 \begin_body
 
 \begin_layout Title
-Homework Report 2
+Homework Report 4
 \end_layout
 
 \begin_layout Author
@@ -81,56 +89,62 @@ Manuel Del Verme
 \end_layout
 
 \begin_layout Section
-Data Preparation
-\end_layout
-
-\begin_layout Standard
-For this experiment a dataset of 50 tulpes (x, y) to be used as training
- set and a similar one as test set was provided, no regularization was done,
- centering is done by the zero degree coefficent of the polynomial and x
- is 1-dimentional.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Graphics
-	filename dataset.jpg
-	display false
-	scale 30
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-Regression
-\end_layout
-
-\begin_layout Standard
-We try to find a law govering the data using a linear fit
+Data preparation
 \end_layout
 
 \begin_layout Subsection
-Linear regression
+Preprocessing
 \end_layout
 
 \begin_layout Standard
-A first attempt to fit the data linearly reported an error of: 35.8427, upon
- visualizing the data it's clear that a polynomial fit might be better suited
-\end_layout
-
-\begin_layout Subsection
-Polynomial kernel
+The data was standardized and the two principal dimensions were extracted
+ with PCA.
 \end_layout
 
 \begin_layout Subsubsection
-Choosing a degree
+Train, test, validation split
 \end_layout
 
 \begin_layout Standard
-Using a polynomial kernel we map our features in a polynomial space while
- keeping the model linear, the grade of the polynomial has to be choosen
- taking overfitting in consideration.
+<>
+\end_layout
+
+\begin_layout Section
+K-means
+\end_layout
+
+\begin_layout Standard
+<what's kmeans>
+\end_layout
+
+\begin_layout Subsection
+values for K
+\end_layout
+
+\begin_layout Standard
+We tried values of k in [
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$3$
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$10$
+\end_layout
+
+\end_inset
+
+]
 \begin_inset Newline newline
 \end_inset
 
@@ -139,11 +153,8 @@ Using a polynomial kernel we map our features in a polynomial space while
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="3" columns="11">
+<lyxtabular version="3" rows="2" columns="8">
 <features rotate="0" tabularvalignment="middle">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
 <column alignment="center" valignment="top">
 <column alignment="center" valignment="top">
 <column alignment="center" valignment="top">
@@ -157,7 +168,1145 @@ Using a polynomial kernel we map our features in a polynomial space while
 \begin_inset Text
 
 \begin_layout Plain Layout
-degree
+k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+score
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8333
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8667
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}[!tbp]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:0_001.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{fig:f1}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:0_01.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{fig:f2}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:0_1.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f3}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:1_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f4}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:10_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f5}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:100_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f6}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:1000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f7}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:10000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f8}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:100000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f9}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[K = ]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:linear_C:1000000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f10}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{various values of C}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename c-tuning_linear.jpg
+	lyxscale 30
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Accuracy vs C
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Boundaries in function of C
+\end_layout
+
+\begin_layout Standard
+The parameter C allows to tune training data fit the training set weighting
+ missclassification error more, a small value of C prefers for higher margin
+ in spite of an higher training error, in our experiments extremely low
+ Cs cause a very high misclassification rate.
+\end_layout
+
+\begin_layout Subsubsection
+Best C on test set
+\end_layout
+
+\begin_layout Standard
+best value of C was any value in 
+\begin_inset Formula $[1.0,\infty)$
+\end_inset
+
+.
+ The test score of best: 0.733333333333.
+\begin_inset Newline newline
+\end_inset
+
+Note: the lowest C was chosen since high values of C increase computation
+ time
+\end_layout
+
+\begin_layout Section
+RBF Kernel
+\end_layout
+
+\begin_layout Standard
+If the kernel used is a Gaussian radial basis function, the corresponding
+ feature space is a Hilbert space of infinite dimension.
+\end_layout
+
+\begin_layout Subsection
+values for C
+\end_layout
+
+\begin_layout Standard
+We tried values of k in [
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$10^-3$
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$10^3$
+\end_layout
+
+\end_inset
+
+]
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="8">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+score
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.3667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.3667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8333
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.7667
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.7667
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}[!tbp]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = -3]{
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:0_001.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{fig:f1}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = -2]{
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:0_01.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{fig:f2}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 1]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:0_1.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f3}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 0]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:1_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f4}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\backslash
+subfloat[log(C) = 1]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:10_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f5}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 2]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:100_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f6}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 3]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:1000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f7}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 4]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:10000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f8}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+subfloat[log(C) = 5]{
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+includegraphics[width=0.35
+\backslash
+textwidth]{kernel:rbf_C:100000_0.jpg}
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+label{fig:f9}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{various values of C}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename c-tuning_rbf.jpg
+	lyxscale 30
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Accuracy vs C
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Linear vs RBF
+\end_layout
+
+\begin_layout Standard
+The RBF allows us to map the feature space in a non linear space, hence
+ we are able to draw non-straight boundaries between the points.
+\begin_inset Newline newline
+\end_inset
+
+In theory this non-linear approach is strictly better than the linear one
+ (any linear boundary can be represented by a non-linear one), but linear
+ SVMs are much more computationaly effective than RBF-based ones.
+\end_layout
+
+\begin_layout Subsubsection
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and C grid search
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="8">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\gamma$
+\end_inset
+
+
+\backslash
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
 \end_layout
 
 \end_inset
@@ -175,7 +1324,7 @@ degree
 \begin_inset Text
 
 \begin_layout Plain Layout
-2
+10
 \end_layout
 
 \end_inset
@@ -184,61 +1333,7 @@ degree
 \begin_inset Text
 
 \begin_layout Plain Layout
-3
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-4
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-6
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-7
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-8
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-9
+100
 \end_layout
 
 \end_inset
@@ -247,7 +1342,155 @@ degree
 \begin_inset Text
 
 \begin_layout Plain Layout
-10
+1000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.53
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.53
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.53
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
 \end_layout
 
 \end_inset
@@ -258,7 +1501,7 @@ degree
 \begin_inset Text
 
 \begin_layout Plain Layout
-training error
+0.1
 \end_layout
 
 \end_inset
@@ -267,7 +1510,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-35.84
+0
 \end_layout
 
 \end_inset
@@ -276,7 +1519,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-25.03
+0
 \end_layout
 
 \end_inset
@@ -285,7 +1528,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-27.7
+0.49
 \end_layout
 
 \end_inset
@@ -294,7 +1537,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-23.85
+0.53
 \end_layout
 
 \end_inset
@@ -303,7 +1546,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-23.84
+0.56
 \end_layout
 
 \end_inset
@@ -312,34 +1555,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-23.84
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-23.86
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-23.86
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-23.84
+0.56
 \end_layout
 
 \end_inset
@@ -348,7 +1564,229 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-23.83
+0.56
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.56
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.44
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.46
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.46
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.46
 \end_layout
 
 \end_inset
@@ -359,7 +1797,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-test error
+1000
 \end_layout
 
 \end_inset
@@ -368,7 +1806,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-38.19
+0
 \end_layout
 
 \end_inset
@@ -377,7 +1815,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-14
+0
 \end_layout
 
 \end_inset
@@ -386,7 +1824,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-95.62
+0
 \end_layout
 
 \end_inset
@@ -395,7 +1833,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.31
+0.09
 \end_layout
 
 \end_inset
@@ -404,7 +1842,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.14
+0.09
 \end_layout
 
 \end_inset
@@ -413,34 +1851,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.02
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-1.99
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-5.445
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-157.24
+0.09
 \end_layout
 
 \end_inset
@@ -449,7 +1860,7 @@ test error
 \begin_inset Text
 
 \begin_layout Plain Layout
-4859.53
+0.09
 \end_layout
 
 \end_inset
@@ -463,49 +1874,53 @@ test error
 \begin_inset Newline newline
 \end_inset
 
+Note: 100 values of 
+\begin_inset Formula $\gamma$
+\end_inset
 
+ in (0.1, 10) were tested but offered no improvement over over the values
+ in the table
+\end_layout
+
+\begin_layout Subsubsection
+Best C on test set
+\end_layout
+
+\begin_layout Standard
+best value of C was any value in 
+\begin_inset Formula $[1.0,100]$
+\end_inset
+
+.
+ The test score of C=1 was: 0.7333.
 \begin_inset Newline newline
 \end_inset
 
 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
 \end_layout
 
-\begin_layout Standard
-Looking at the error trends, the best polynomial degree would be 4 or 6,
- the 5th coefficent has a value of 0.0026 hence it's contribution to the
- regression will be minimal.
-\end_layout
-
-\begin_layout Subsubsection
-Best fit
-\end_layout
-
-\begin_layout Standard
+\begin_layout Plain Layout
 \align center
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
 \begin_inset Graphics
-	filename deg6.png
-	display false
-	scale 40
+	filename _kernel:rbf_C:1_g:0_1.jpg
+	lyxscale 30
+	scale 30
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-6th degree fit
-\end_layout
-
+boundary for best C and 
+\begin_inset Formula $\gamma$
 \end_inset
 
 
@@ -516,47 +1931,24 @@ status open
 
 \end_layout
 
-\begin_layout Subsubsection
-Training error vs degree
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+K-fold
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename error_deg.png
-	display false
-	scale 40
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-test error
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
+With a bigger train set we achieved better mean a score on the training
+ set 0.82 but the score on the test set did not change from 0.7333, k-fold
+ gives us more confidence on the parameters but since it comfirmed our old
+ parameters, no classification improvement was seen.
 \end_layout
 
 \end_body
