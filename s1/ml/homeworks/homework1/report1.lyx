@@ -108,19 +108,15 @@ PCA results
 The visualization of the two principal components shows an high inter class
  variance and a low intra class variance, the third and fourth principal
  component still retrain low variance, while the tenth and eleventh dimensions,
- while not random, show now clear division between the classes? *Justify
- your answer from theoretical perspective behind PCA.*
+ while not random, show now clear division between the classes.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula 
-\[
-\frac{\partial A}{\partial z}+v_{G}
-\]
-
-\end_inset
-
-
+The PCA dimensions can be calculated by the eigenvectors in which the data
+ matrix can be decomposed, each dimension has an associated eigenvalue,
+ the higher this eigenvalue the covariances along the eigenvector will be,
+ thus the best dimensions to keep (for classification tasks) will be the
+ first principal components.
 \end_layout
 
 \begin_layout Subsection
@@ -139,16 +135,6 @@ Classification
 
 \begin_layout Subsection
 Naive Bayes Classifier
-\end_layout
-
-\begin_layout Standard
-Write down formulation of Na ̈ıve Bayes classifier y b = arg max p(y | x
- 1 , .
- .
- .
- , x d ) , y∈{1,...,k} where y b is a predicted label, k is the number of classes,
- {x i } di=1 are exam- ples, p(x | y) is a Gaussian, and distribution of
- labels is uniform.
 \end_layout
 
 \begin_layout Subsection
@@ -178,11 +164,48 @@ Gaussian Naive Bayes
 \end_layout
 
 \begin_layout Standard
-A naive bayes classifier with Gaussian class-conditional distribution
+Figure 1 show the decision boundary for gaussian naive bayes classifier
+ trained using only two principal dimensions
 \end_layout
 
 \begin_layout Standard
-[decision boundaries image]
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename decision boundary gaussian bayes.png
+	lyxscale 30
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+gaussian decision boundary for 2 dimensional data
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection

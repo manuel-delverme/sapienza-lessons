@@ -104,7 +104,7 @@ Standardization
 \end_layout
 
 \begin_layout Standard
-PCA (2 dimensions) and centering were applied to the data
+PCA (2 dimensions), centering and scaling were applied to the data
 \end_layout
 
 \begin_layout Subsection
@@ -1274,6 +1274,46 @@ alpha$=100
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ws=distance,k=4.jpg
+	lyxscale 30
+	scale 30
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+one of the highest scoring best combinations
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 implemented K-NN
 \end_layout
@@ -1341,7 +1381,7 @@ weight function
 
 \begin_layout Standard
 as long as K=1 the weight function would not change the results since with
- there is no comparison between neighbors
+ there is no comparison between neighbors.
 \end_layout
 
 \end_body

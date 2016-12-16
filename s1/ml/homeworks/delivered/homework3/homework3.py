@@ -167,3 +167,4 @@ df = DataFrame(clf.cv_results_)
 pretty_table = tabulate.tabulate(df, headers='keys', tablefmt='psql')
 with open("/tmp/gridsearch", "w") as results:
     results.write(pretty_table)
+classify_and_plot(4, ws="distance")

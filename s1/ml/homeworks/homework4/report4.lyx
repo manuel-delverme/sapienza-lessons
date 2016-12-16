@@ -135,13 +135,13 @@ values for C
 \end_layout
 
 \begin_layout Standard
-We tried values of k in [
+We tried values of C in [
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-$10^-3$
+$10^{-3}$
 \end_layout
 
 \end_inset
@@ -158,6 +158,10 @@ $10^3$
 \end_inset
 
 ]
+\begin_inset Newline newline
+\end_inset
+
+
 \begin_inset Newline newline
 \end_inset
 
@@ -181,7 +185,7 @@ $10^3$
 \begin_inset Text
 
 \begin_layout Plain Layout
-k
+C
 \end_layout
 
 \end_inset
@@ -264,7 +268,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.1667
+0.3
 \end_layout
 
 \end_inset
@@ -273,7 +277,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.1667
+0.4
 \end_layout
 
 \end_inset
@@ -282,7 +286,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8333
+0.8
 \end_layout
 
 \end_inset
@@ -291,7 +295,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8667
+0.83
 \end_layout
 
 \end_inset
@@ -300,7 +304,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8667
+0.8
 \end_layout
 
 \end_inset
@@ -309,7 +313,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8667
+0.8
 \end_layout
 
 \end_inset
@@ -318,7 +322,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8667
+0.8
 \end_layout
 
 \end_inset
@@ -370,7 +374,7 @@ subfloat[log(C) = -3]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:0_001.jpg}
+textwidth]{kernel:linear_C:0_001_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -393,7 +397,7 @@ subfloat[log(C) = -2]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:0_01.jpg}
+textwidth]{kernel:linear_C:0_01_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -416,7 +420,7 @@ subfloat[log(C) = 1]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:0_1.jpg}
+textwidth]{kernel:linear_C:0_1_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -448,7 +452,7 @@ subfloat[log(C) = 0]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:1_0.jpg}
+textwidth]{kernel:linear_C:1_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -471,7 +475,7 @@ subfloat[log(C) = 1]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:10_0.jpg}
+textwidth]{kernel:linear_C:10_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -499,7 +503,7 @@ subfloat[log(C) = 2]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:100_0.jpg}
+textwidth]{kernel:linear_C:100_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -516,6 +520,7 @@ label{fig:f6}
 
 \begin_layout Plain Layout
 
+<
 \end_layout
 
 \begin_layout Plain Layout
@@ -531,102 +536,14 @@ subfloat[log(C) = 3]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:linear_C:1000_0.jpg}
+textwidth]{kernel:linear_C:1000_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
 
 	
 \backslash
-label{fig:f7}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-subfloat[log(C) = 4]{
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-includegraphics[width=0.35
-\backslash
-textwidth]{kernel:linear_C:10000_0.jpg}
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-label{fig:f8}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-subfloat[log(C) = 5]{
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-includegraphics[width=0.35
-\backslash
-textwidth]{kernel:linear_C:100000_0.jpg}
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-label{fig:f9}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-subfloat[log(C) = 6]{
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-includegraphics[width=0.35
-\backslash
-textwidth]{kernel:linear_C:1000000_0.jpg}
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-label{fig:f10}
+label{fig:f6}
 \end_layout
 
 \begin_layout Plain Layout
@@ -704,12 +621,8 @@ Best C on test set
 \end_layout
 
 \begin_layout Standard
-best value of C was any value in 
-\begin_inset Formula $[1.0,\infty)$
-\end_inset
-
-.
- The test score of best: 0.733333333333.
+best value of C was 1.0.
+ The test score of best: 0.87.
 \begin_inset Newline newline
 \end_inset
 
@@ -731,13 +644,13 @@ values for C
 \end_layout
 
 \begin_layout Standard
-We tried values of k in [
+We tried values of C in [
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-$10^-3$
+$10^{-3}$
 \end_layout
 
 \end_inset
@@ -773,7 +686,7 @@ $10^3$
 \begin_inset Text
 
 \begin_layout Plain Layout
-k
+C
 \end_layout
 
 \end_inset
@@ -856,7 +769,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.3667
+0.3
 \end_layout
 
 \end_inset
@@ -865,7 +778,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.3667
+0.3
 \end_layout
 
 \end_inset
@@ -883,7 +796,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8333
+0.77
 \end_layout
 
 \end_inset
@@ -892,7 +805,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.8
+0.77
 \end_layout
 
 \end_inset
@@ -901,7 +814,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.7667
+0.67
 \end_layout
 
 \end_inset
@@ -910,7 +823,7 @@ score
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.7667
+0.6
 \end_layout
 
 \end_inset
@@ -962,7 +875,7 @@ subfloat[log(C) = -3]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:0_001.jpg}
+textwidth]{kernel:rbf_C:0_001_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -985,7 +898,7 @@ subfloat[log(C) = -2]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:0_01.jpg}
+textwidth]{kernel:rbf_C:0_01_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1008,7 +921,7 @@ subfloat[log(C) = 1]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:0_1.jpg}
+textwidth]{kernel:rbf_C:0_1_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1040,7 +953,7 @@ subfloat[log(C) = 0]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:1_0.jpg}
+textwidth]{kernel:rbf_C:1_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1063,7 +976,7 @@ subfloat[log(C) = 1]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:10_0.jpg}
+textwidth]{kernel:rbf_C:10_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1091,7 +1004,7 @@ subfloat[log(C) = 2]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:100_0.jpg}
+textwidth]{kernel:rbf_C:100_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1123,7 +1036,7 @@ subfloat[log(C) = 3]{
 \backslash
 includegraphics[width=0.35
 \backslash
-textwidth]{kernel:rbf_C:1000_0.jpg}
+textwidth]{kernel:rbf_C:1000_0_gamma:auto.jpg}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1131,62 +1044,6 @@ textwidth]{kernel:rbf_C:1000_0.jpg}
 	
 \backslash
 label{fig:f7}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-subfloat[log(C) = 4]{
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-includegraphics[width=0.35
-\backslash
-textwidth]{kernel:rbf_C:10000_0.jpg}
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-label{fig:f8}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-subfloat[log(C) = 5]{
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-includegraphics[width=0.35
-\backslash
-textwidth]{kernel:rbf_C:100000_0.jpg}
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-label{fig:f9}
 \end_layout
 
 \begin_layout Plain Layout
@@ -1222,7 +1079,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename c-tuning_rbf.jpg
+	filename c2_tuning_rbf.jpg
 	lyxscale 30
 	scale 30
 
@@ -1261,6 +1118,17 @@ The RBF allows us to map the feature space in a non linear space, hence
 In theory this non-linear approach is strictly better than the linear one
  (any linear boundary can be represented by a non-linear one), but linear
  SVMs are much more computationaly effective than RBF-based ones.
+\end_layout
+
+\begin_layout Subsubsection
+Best C on test set
+\end_layout
+
+\begin_layout Standard
+Also in this case the best value for C is 1.0 (high(er) values of C slow
+ down the computation, also during previous tests 1.0 cosntanly performed
+ optimally).
+ The test score of C=1 was: 0.8.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1891,38 +1759,20 @@ Note: 100 values of
 \begin_inset Formula $\gamma$
 \end_inset
 
- in (0.1, 10) were tested but offered no improvement over over the values
- in the table
-\end_layout
-
-\begin_layout Subsubsection
-Best C on test set
+ in (0.1, 10) were tested but offered no improvement over the values in the
+ table, higher values for C don't improve the result (or change the boundaries).
 \end_layout
 
 \begin_layout Standard
-best value of C was any value in 
-\begin_inset Formula $[1.0,100]$
-\end_inset
-
-.
- The test score of C=1 was: 0.7333.
-\begin_inset Newline newline
-\end_inset
-
-
 \begin_inset Float figure
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename _kernel:rbf_C:1_g:0_1.jpg
+	filename kernel:rbf_C:1_0_gamma:auto.jpg
 	lyxscale 30
 	scale 30
 
@@ -1958,10 +1808,635 @@ K-fold
 \end_layout
 
 \begin_layout Standard
-With a bigger train set we achieved better mean a score on the training
- set 0.82 but the score on the test set did not change from 0.7333, k-fold
- gives us more confidence on the parameters but since it comfirmed our old
- parameters, no classification improvement was seen.
+With a bigger trainingset we achieved better mean a score on the training
+ set (0.8) and the score on the test set increased to 0.83 for C=10, 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ = 1.
+\end_layout
+
+\begin_layout Subsubsection
+\begin_inset Formula $\gamma$
+\end_inset
+
+ and C grid search (5-fold)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="8">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\gamma$
+\end_inset
+
+
+\backslash
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.001
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.59
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.78
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.59
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.77
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.79
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.55
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.76
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.75
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.75
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.77
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.78
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.79
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.78
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.70
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.69
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.74
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.73
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.71
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.65
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.66
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.66
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.66
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.35
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.41
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.41
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.41
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.41
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
 \end_body

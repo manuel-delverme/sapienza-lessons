@@ -93,8 +93,8 @@ For this experiment a dataset of 50 tulpes (x, y) to be used as training
 
 \begin_layout Standard
 \begin_inset Graphics
-	filename dataset.jpg
-	display false
+	filename dataset.png
+	lyxscale 30
 	scale 30
 
 \end_inset
@@ -120,7 +120,7 @@ A first attempt to fit the data linearly reported an error of: 35.8427, upon
 \end_layout
 
 \begin_layout Subsection
-Polynomial kernel
+Polynomial space transform
 \end_layout
 
 \begin_layout Subsubsection
@@ -128,7 +128,7 @@ Choosing a degree
 \end_layout
 
 \begin_layout Standard
-Using a polynomial kernel we map our features in a polynomial space while
+Using a polynomial transform we map our features in a polynomial space while
  keeping the model linear, the grade of the polynomial has to be choosen
  taking overfitting in consideration.
 \begin_inset Newline newline
@@ -258,7 +258,7 @@ degree
 \begin_inset Text
 
 \begin_layout Plain Layout
-training error
+training ms-error
 \end_layout
 
 \end_inset
@@ -359,7 +359,7 @@ training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-test error
+test ms-error
 \end_layout
 
 \end_inset

@@ -5,16 +5,41 @@ import sklearn.decomposition
 import matplotlib.pyplot as plt
 import sklearn.cross_validation
 import sklearn.preprocessing
+from matplotlib.colors import ListedColormap
 
 
-def dim_reduction(dataset, classes, plot=False, force_dims=False):
+def classify_and_plot(X, Y, clf, X_train, y_train):
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    h = 0.1
+
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    X_plot = np.c_[xx.ravel(), yy.ravel()]
+
+    Z = clf.predict(X_plot)
+    Z = Z.reshape(xx.shape)
+
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot also the training points
+    cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cmap_bold)
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.title("decision boundary gaussian bayes")
+    plt.savefig("decision boundary gaussian bayes_ 2")
+    plt.show()
+
+
+def dim_reduction(dataset, classes, plot=False, force_dims=False, force_min=0):
     dims = [0, 2, 9]
     dimensions = max(dims) + 2
     transform = sklearn.decomposition.PCA(n_components=min(dimensions * 2, dataset.shape[1]))  # <- hand engineered
     print("using {} dimensions".format(dimensions))
     dataset_t = transform.fit_transform(dataset)
     if force_dims:
-        return dataset_t[:, :force_dims]
+        return dataset_t[:, force_min:force_dims]
 
     if plot:
         for index, i in enumerate(dims):
@@ -134,17 +159,16 @@ if __name__ == "__main__":
     base_path = "datasets/coil-100/"
     dataset, labels = load_dataset(base_path, num_classes=4)
     dataset = normalize(dataset)
-    dataset = dim_reduction(dataset, labels, plot=False)
+    dataset = dim_reduction(dataset, labels, plot=False, force_dims=4, force_min=2)
     train_set, test_set, train_labels, test_labels = sklearn.cross_validation.train_test_split(dataset, labels,
                                                                                                test_size=0.33)
-    # >>> from sklearn import datasets
-    # >>> iris = datasets.load_iris()
-    # >>> from sklearn.naive_bayes import GaussianNB
-    # >>> gnb = GaussianNB()
-    # >>> y_pred = gnb.fit(iris.data, iris.target).predict(iris.data)
-    # >>> print("Number of mislabeled points out of a total %d points : %d"
-    # ...       % (iris.data.shape[0],(iris.target != y_pred).sum()))
-    # Number of mislabeled points out of a total 150 points : 6
+    from sklearn.naive_bayes import GaussianNB
+    gnb = GaussianNB()
+    gnb.fit(train_set, train_labels)
+    y_pred = gnb.predict(test_set)
+    # accuracy = np.sum(np.where(y_pred == test_labels))
+    accuracy = gnb.score(test_set, test_labels)
+    classify_and_plot(dataset, labels, gnb, test_set, test_labels)
 
     # classifier = nbClassifier()
     # classifier.train(dataset=train_set, labels=train_labels)
