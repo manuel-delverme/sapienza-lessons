@@ -231,13 +231,27 @@ def main():
     ##################################################################
     objects = []
     squares = []
-    house_map = Image.new('RGB', (NUM_SQUARES, NUM_SQUARES), (0,0,0))
+    map_color = (0, 0, 0)
+    boring_mode = False
+
+    if NUM_SQUARES == 17:
+        boring_mode = True
+        map_color = (255, 255, 255)
+        print("#" * 10 + "BORING MODE ON" + "#" * 10)
+
+    house_map = Image.new('RGB', (NUM_SQUARES, NUM_SQUARES), map_color)
 
     for i in range(NUM_SQUARES):
         for j in range(NUM_SQUARES):
             squares.append("square{}_{}".format(i, j))
 
     objects.extend(squares)
+    NUM_WALLS += 17
+    NUM_WALLS += 17
+    NUM_WALLS += 15
+    NUM_WALLS += 15
+    NUM_WALLS += 8
+    NUM_WALLS += 8
 
     walls = ["wall{}".format(i) for i in range(NUM_WALLS)]
     objects.extend(walls)
@@ -259,40 +273,86 @@ def main():
 
     walled_squares = set()
 
-    i = random.choice(range(NUM_SQUARES))
-    j = random.choice(range(NUM_SQUARES))
-    robot_position = (i, j)
+    if boring_mode:
+        y = 0
+        for x in range(NUM_SQUARES):
+            walled_squares.add((x, y))
+            house_map.putpixel((x, y), (0, 0, 0))
 
-    relations.append("robot {}".format(robot))
-    relations.append("empty {}".format(robot))
-    # relations.append("empty {}".format(robot))
+        x = 0
+        for y in range(NUM_SQUARES):
+            walled_squares.add((x, y))
+            house_map.putpixel((x, y), (0, 0, 0))
 
-    i = random.choice(range(NUM_SQUARES))
-    j = random.choice(range(NUM_SQUARES))
-    print("seed", i,j)
-    while len(walled_squares) < NUM_WALLS:
-        offsets = random.sample([(1, 0), (-1, 0), (0, 1),],2)
-        for delta in offsets:
-            ti = i + delta[0]
-            tj = j + delta[1]
-            if (ti, tj) not in walled_squares and not (ti, tj) == robot_position:
-                try:
-                    house_map.putpixel((tj, ti), (255, 0, 0))
-                except Exception as e:
-                    pass
-                else:
-                    if len(walled_squares)+1 > NUM_WALLS:
-                        break
-                    walled_squares.add((ti, tj))
-                    relations.append("is-in wall{} square{}_{}".format(len(walled_squares) - 1, ti, tj))
-        if random.randint(0,10) < 2:
-            i = random.choice(range(NUM_SQUARES))
-            j = random.choice(range(NUM_SQUARES))
-            print("jump", i,j)
-        else:
-            i = ti
-            j = tj
-            print("cont", i,j)
+        x = 16
+        for y in range(NUM_SQUARES):
+            walled_squares.add((x, y))
+            house_map.putpixel((x, y), (0, 0, 0))
+
+        y = 6
+        for x in range(7) + [9, 10]:
+            walled_squares.add((x, y))
+            house_map.putpixel((x, y), (0, 0, 0))
+
+        x = 5
+        for y in (0, 1, 4, 5, 6):
+            walled_squares.add((x, y))
+            house_map.putpixel((x, y), (0, 0, 0))
+
+        x = 10
+        for y in range(NUM_SQUARES):
+            if y not in (2, 3):
+                walled_squares.add((x, y))
+                house_map.putpixel((x, y), (0, 0, 0))
+
+        for x in range(11, 17):
+            for y in range(10, NUM_SQUARES):
+                walled_squares.add((x, y))
+                house_map.putpixel((x, y), (0, 0, 0))
+                print(x, y)
+
+        y = 16
+        for x in range(NUM_SQUARES):
+            if x not in (7, 8):
+                walled_squares.add((x, y))
+                house_map.putpixel((x, y), (0, 0, 0))
+
+    else:
+        i = random.choice(range(NUM_SQUARES))
+        j = random.choice(range(NUM_SQUARES))
+        robot_position = (i, j)
+
+        relations.append("robot {}".format(robot))
+        relations.append("empty {}".format(robot))
+        # relations.append("empty {}".format(robot))
+
+        i = random.choice(range(NUM_SQUARES))
+        j = random.choice(range(NUM_SQUARES))
+        print("seed", i, j)
+        while len(walled_squares) < NUM_WALLS:
+            offsets = random.sample([(1, 0), (-1, 0), (0, 1), ], 2)
+            for delta in offsets:
+                ti = i + delta[0]
+                tj = j + delta[1]
+                if (ti, tj) not in walled_squares and not (ti, tj) == robot_position:
+                    try:
+                        house_map.putpixel((tj, ti), (255, 0, 0))
+                    except Exception as e:
+                        e = e
+                        pass
+                    else:
+                        if len(walled_squares) + 1 > NUM_WALLS:
+                            break
+                        walled_squares.add((ti, tj))
+                        relations.append("is-in wall{} square{}_{}".format(len(walled_squares) - 1, ti, tj))
+            if random.randint(0, 10) < 2:
+                i = random.choice(range(NUM_SQUARES))
+                j = random.choice(range(NUM_SQUARES))
+                print("jump", i, j)
+            else:
+                i = ti
+                j = tj
+                print("cont", i, j)
 
     taken = ["square{}_{}".format(i_, j_) for i_, j_ in walled_squares]
 
@@ -303,41 +363,65 @@ def main():
             for delta in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
                 ti = i + delta[0]
                 tj = j + delta[1]
-                if ti < 0 or tj < 0 or ti >= NUM_SQUARES or tj >= NUM_SQUARES or (i, j) in walled_squares:
+                if ti < 0 or tj < 0 or ti >= NUM_SQUARES or tj >= NUM_SQUARES or (j, i) in walled_squares:
                     continue
                 else:
                     to = "{}_{}".format(ti, tj)
                     relations.append("can-move square{} square{}".format(fro, to))
-                    house_map.putpixel((j, i), (255, 255, 255))
+                    # house_map.putpixel((j, i), (0, 0, 13))
 
-
-
-    starting_position = taken[0]
-    while starting_position in taken:
-        starting_position = random.choice(squares)
+    if boring_mode:
+        starting_position = "square8_16"
+    else:
+        starting_position = taken[0]
+        while starting_position in taken:
+            starting_position = random.choice(squares)
 
     relations.append("at paul {}".format(starting_position))
+
+    x, y = starting_position[6:].split("_")
+    house_map.putpixel((int(x), int(y)), (255, 0, 0))
 
     ##################################################################
     #                                                                #
     #                       GOAL STATE                               #
     #                                                                #
     ##################################################################
-    def dist(x,y):
+    def dist(x, y):
         x = sum(ord(a) for a in x)
         y = sum(ord(a) for a in y)
-        return abs(y-x)
+        return abs(y - x)
 
-    goal_square = taken[0]
-    good_squares = squares
-    random.shuffle(good_squares)
-    while goal_square in taken or dist(goal_square, starting_position) < 70:
-        goal_square = good_squares.pop(0)
-        if not good_squares:
-            break
-    print("dist", dist(goal_square, starting_position))
+    if boring_mode:
+        goal_square = "square15_9"
+    else:
+        goal_square = taken[0]
+        good_squares = squares
+        random.shuffle(good_squares)
+        while goal_square in taken or dist(goal_square, starting_position) < 70:
+            goal_square = good_squares.pop(0)
+            if not good_squares:
+                break
+        print("dist", dist(goal_square, starting_position))
 
     goal = ["at paul {}".format(goal_square)]
+    x, y = goal_square[6:].split("_")
+    house_map.putpixel((int(x), int(y)), (0, 255, 0))
+
+    dx = 0
+    for dy in range(1, 7):
+        house_map.putpixel((int(x) - dx, int(y) - dy), (0, 0, 255))
+
+    y = 3
+    for x in range(8, 16):
+        house_map.putpixel((x, y), (0, 0, 255))
+
+    x = 8
+    for y in range(3, 16):
+        house_map.putpixel((x, y), (0, 0, 255))
+
+    house_map.save("map.png", "PNG")
+    os.system("img2txt -W {} -H {} map.png".format(2.1 * NUM_SQUARES, NUM_SQUARES))
 
     generated_problem = generate_problem("paul-goes_home", "paul-world", objects, relations, goal)
     problem_path = "generated_problem.pddl"
@@ -348,10 +432,12 @@ def main():
     domain_path = "generated_domain.pddl"
     with open(domain_path, "w") as domain:
         domain.write(generated_domain)
+    house_map.save("map.png", "PNG")
     print("../../Metric-FF-v2.1/ff -o {} -f {} -s 1".format("domain.pddl", problem_path))
     output = subprocess.check_output("../../Metric-FF-v2.1/ff -o {} -f {} -s 1".format("domain.pddl", problem_path),
                                      stderr=subprocess.STDOUT,
                                      shell=True)
+
     for row in output.splitlines():
         row = str(row).strip()
         idx = row.find("MOVE PAUL SQUARE")
@@ -361,9 +447,9 @@ def main():
             squares = code.replace("SQUARE", "").split()
             for sq in squares:
                 x, y = sq.split("_")
-                house_map.putpixel((int(y),int(x)), (0, 0, 255))
+                house_map.putpixel((int(y), int(x)), (0, 0, 255))
     house_map.save("map.png", "PNG")
-    os.system("img2txt -W {} -H {} map.png".format(2.1*NUM_SQUARES, NUM_SQUARES))
+    os.system("img2txt -W {} -H {} map.png".format(2.1 * NUM_SQUARES, NUM_SQUARES))
 
 if __name__ == "__main__":
     main()
