@@ -45,18 +45,18 @@
 
       (is-empty paul)
 
+      (should-be-cleaned-in tablecloth bathroom)
       (should-be-cleaned-in manuels-tray kitchen)
+
       (should-be-cleaned-in mccarthy-tray kitchen)
       (should-be-cleaned-in ritchie-tray kitchen)
       (should-be-cleaned-in kernighan-tray kitchen)
-      (should-be-cleaned-in tablecloth bathroom)
 
+      (should-be-stored-in tablecloth living)
       (should-be-stored-in manuels-tray kitchen)
       (should-be-stored-in mccarthy-tray kitchen)
       (should-be-stored-in ritchie-tray kitchen)
       (should-be-stored-in kernighan-tray kitchen)
-      (should-be-stored-in tablecloth kitchen)
-
 	)
 	(:goal
 		(and
@@ -65,12 +65,6 @@
             (is-clean mccarthy-tray)
             (is-clean ritchie-tray)
             (is-clean kernighan-tray)
-
-            (is-at tablecloth kitchen)
-            (is-at manuels-tray kitchen)
-            (is-at mccarthy-tray kitchen)
-            (is-at ritchie-tray kitchen)
-            (is-at kernighan-tray kitchen)
 
             (is-stored tablecloth)
             (is-stored manuels-tray)

@@ -53,9 +53,9 @@
                 (is-object ?object)
 
                 (is-at ?robot ?from-room)
-                (is-at ?object ?from-room)
-
                 (is-empty ?robot)
+
+                (is-at ?object ?from-room)
             )
 
         :effect
@@ -63,6 +63,9 @@
                 (is-at ?object ?robot)
                 (not
                   (is-empty ?robot)
+                )
+                (not
+                  (is-at ?object ?robot)
                 )
             )
     )
@@ -86,7 +89,7 @@
                 (is-at ?object ?robot)
 
                 ;; obj - room
-                (should-be-cleaned-in ?object ?to-room)
+                ; (should-be-cleaned-in ?object ?to-room)
             )
 
         :effect
@@ -131,11 +134,10 @@
             (and
                 ;; unary
                 (is-robot ?robot)
-
                 (is-object ?object)
-                (is-clean ?object)
-
                 (is-room ?from-room)
+
+                (is-clean ?object)
 
                 ;; robot - object
                 (is-at ?object ?robot)
@@ -144,27 +146,26 @@
                 ;; room - object
                 (should-be-stored-in ?object ?from-room)
             )
-
         :effect
             (and
+                (not (is-at ?object ?robot))
                 (is-at ?object ?from-room)
+
+                (is-empty ?robot)
                 (is-stored ?object)
-                (not
-                    (is-at ?object ?robot)
-                )
             )
     )
-    ;; (:action wait-dancing
-    ;;     :parameters
-    ;;         (?robot
-    ;;          ?from-room
-    ;;          )
-    ;;     :precondition
-    ;;         (and
-    ;;             (is-robot ?robot)
-    ;;             (is-empty ?robot)
-    ;;         )
-    ;;     :effect
-    ;; )
+    (:action wait-dancing
+        :parameters
+            (?robot
+             ?from-room
+             )
+        :precondition
+            (and
+                (is-robot ?robot)
+                (is-empty ?robot)
+            )
+        :effect
+            (is-empty ?robot)
+    )
 )
-    
