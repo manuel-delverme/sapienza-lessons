@@ -1,6 +1,8 @@
 import sys
+import subprocess
 import random
 import os
+from PIL import Image
 
 
 def generate_domain(domain_name, extended=False):
@@ -98,10 +100,8 @@ def generate_domain(domain_name, extended=False):
 
         :effect
             (and
-                (not
-                  (is-in ?tray ?from-square)
-                  (empty ?robot)
-                )
+                (not (is-in ?tray ?from-square))
+                (not (empty ?robot))
             )
     )
     (:action leave-tray
@@ -184,7 +184,7 @@ def generate_domain(domain_name, extended=False):
     ##################################################################
 
     domain += ")"
-    return domain[1:]
+    return domain[:]
 
 
 def generate_problem(problem_name, domain, objects, relations, goal):
@@ -231,6 +231,8 @@ def main():
     ##################################################################
     objects = []
     squares = []
+    house_map = Image.new('RGB', (NUM_SQUARES, NUM_SQUARES), (0,0,0))
+
     for i in range(NUM_SQUARES):
         for j in range(NUM_SQUARES):
             squares.append("square{}_{}".format(i, j))
@@ -255,18 +257,6 @@ def main():
     for wall in walls:
         relations.append("wall {}".format(wall))
 
-    for i in range(NUM_SQUARES):
-        for j in range(NUM_SQUARES):
-            fro = "{}_{}".format(i, j)
-            for delta in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                ti = i + delta[0]
-                tj = j + delta[1]
-                if ti < 0 or tj < 0 or ti >= NUM_SQUARES or tj >= NUM_SQUARES:
-                    continue
-                else:
-                    to = "{}_{}".format(ti, tj)
-                    relations.append("can-move square{} square{}".format(fro, to))
-
     walled_squares = set()
 
     i = random.choice(range(NUM_SQUARES))
@@ -277,14 +267,50 @@ def main():
     relations.append("empty {}".format(robot))
     # relations.append("empty {}".format(robot))
 
-    while len(walled_squares) != NUM_WALLS:
-        i = random.choice(range(NUM_SQUARES))
-        j = random.choice(range(NUM_SQUARES))
-        if (i, j) not in walled_squares and not (i, j) == robot_position:
-            walled_squares.add((i, j))
-            relations.append("is-in wall{} square{}_{}".format(len(walled_squares) - 1, i, j))
+    i = random.choice(range(NUM_SQUARES))
+    j = random.choice(range(NUM_SQUARES))
+    print("seed", i,j)
+    while len(walled_squares) < NUM_WALLS:
+        offsets = random.sample([(1, 0), (-1, 0), (0, 1),],2)
+        for delta in offsets:
+            ti = i + delta[0]
+            tj = j + delta[1]
+            if (ti, tj) not in walled_squares and not (ti, tj) == robot_position:
+                try:
+                    house_map.putpixel((tj, ti), (255, 0, 0))
+                except Exception as e:
+                    pass
+                else:
+                    if len(walled_squares)+1 > NUM_WALLS:
+                        break
+                    walled_squares.add((ti, tj))
+                    relations.append("is-in wall{} square{}_{}".format(len(walled_squares) - 1, ti, tj))
+        if random.randint(0,10) < 2:
+            i = random.choice(range(NUM_SQUARES))
+            j = random.choice(range(NUM_SQUARES))
+            print("jump", i,j)
+        else:
+            i = ti
+            j = tj
+            print("cont", i,j)
 
     taken = ["square{}_{}".format(i_, j_) for i_, j_ in walled_squares]
+
+    for i in range(NUM_SQUARES):
+        for j in range(NUM_SQUARES):
+            # print((j, i), (255, 255, 255))
+            fro = "{}_{}".format(i, j)
+            for delta in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                ti = i + delta[0]
+                tj = j + delta[1]
+                if ti < 0 or tj < 0 or ti >= NUM_SQUARES or tj >= NUM_SQUARES or (i, j) in walled_squares:
+                    continue
+                else:
+                    to = "{}_{}".format(ti, tj)
+                    relations.append("can-move square{} square{}".format(fro, to))
+                    house_map.putpixel((j, i), (255, 255, 255))
+
+
 
     starting_position = taken[0]
     while starting_position in taken:
@@ -297,9 +323,19 @@ def main():
     #                       GOAL STATE                               #
     #                                                                #
     ##################################################################
+    def dist(x,y):
+        x = sum(ord(a) for a in x)
+        y = sum(ord(a) for a in y)
+        return abs(y-x)
+
     goal_square = taken[0]
-    while goal_square in taken:
-        goal_square = random.choice(squares)
+    good_squares = squares
+    random.shuffle(good_squares)
+    while goal_square in taken or dist(goal_square, starting_position) < 70:
+        goal_square = good_squares.pop(0)
+        if not good_squares:
+            break
+    print("dist", dist(goal_square, starting_position))
 
     goal = ["at paul {}".format(goal_square)]
 
@@ -312,8 +348,22 @@ def main():
     domain_path = "generated_domain.pddl"
     with open(domain_path, "w") as domain:
         domain.write(generated_domain)
-    os.system("../Metric-FF-v2.0/ff -o {} -f {} -s 1".format(domain_path, problem_path))
-
+    print("../../Metric-FF-v2.1/ff -o {} -f {} -s 1".format("domain.pddl", problem_path))
+    output = subprocess.check_output("../../Metric-FF-v2.1/ff -o {} -f {} -s 1".format("domain.pddl", problem_path),
+                                     stderr=subprocess.STDOUT,
+                                     shell=True)
+    for row in output.splitlines():
+        row = str(row).strip()
+        idx = row.find("MOVE PAUL SQUARE")
+        if idx > 0:
+            idx += len("MOVE PAUL SQUARE")
+            code = row[idx:-1]
+            squares = code.replace("SQUARE", "").split()
+            for sq in squares:
+                x, y = sq.split("_")
+                house_map.putpixel((int(y),int(x)), (0, 0, 255))
+    house_map.save("map.png", "PNG")
+    os.system("img2txt -W {} -H {} map.png".format(2.1*NUM_SQUARES, NUM_SQUARES))
 
 if __name__ == "__main__":
     main()

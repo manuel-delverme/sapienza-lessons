@@ -13,6 +13,11 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{positioning}
+\usetikzlibrary{fit}
+\usetikzlibrary{calc}
+
+\usepackage{listings}
+
 
 
 \def\len{0.2cm}
@@ -96,7 +101,999 @@ Manuel Del Verme
 \end_layout
 
 \begin_layout Section
+Strips
+\end_layout
+
+\begin_layout Subsection
+formulation in STRIPS
+\end_layout
+
+\begin_layout Standard
+two files were written problem and domain:
+\end_layout
+
+\begin_layout Standard
+problem:
+\end_layout
+
+\begin_layout Standard
+initial state: see files
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstset{numbers=left, numberstyle=
+\backslash
+tiny, stepnumber=1,firstnumber=1,   numbersep=5pt,language=Lisp, stringstyle=
+\backslash
+ttfamily, basicstyle=
+\backslash
+footnotesize,  showstringspaces=false, breaklines=true, } 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}
+\end_layout
+
+\begin_layout Plain Layout
+
+(:goal (and (at paul square20_22) ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+domain:
+\end_layout
+
+\begin_layout Standard
+actions:
+\end_layout
+
+\begin_layout Standard
+predicates:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lstset{numbers=left, numberstyle=
+\backslash
+tiny, stepnumber=1,firstnumber=1,   numbersep=5pt,language=Lisp, stringstyle=
+\backslash
+ttfamily, basicstyle=
+\backslash
+footnotesize,  showstringspaces=false, breaklines=true, } 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{lstlisting}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:predicates
+\end_layout
+
+\begin_layout Plain Layout
+
+        (can-move ?from ?to)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (is-in ?object ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        ;;(been-at ?robot ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (carry ?robot ?object)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (at ?robot ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (square ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (wall ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (table ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (manuels-seat ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (mccarthy-seat ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (ritchie-seat ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (kernighan-seat ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (door ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (closet ?wall)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (part-of-kitchen ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (part-of-bedroom ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (part-of-livingroom ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (part-of-bathroom ?square)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+        (empty ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:action move
+\end_layout
+
+\begin_layout Plain Layout
+
+        :parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+            (?robot
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?from-square
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :precondition
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (can-move ?from-square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :effect
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not
+\end_layout
+
+\begin_layout Plain Layout
+
+                  (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                )
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:action pick-tray
+\end_layout
+
+\begin_layout Plain Layout
+
+        :parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+            (?robot
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :precondition
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (is-near ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (is-in ?tray ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (empty ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :effect
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not (is-in ?tray ?from-square))
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not (empty ?robot))
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:action leave-tray
+\end_layout
+
+\begin_layout Plain Layout
+
+        :parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+            (?robot
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?from-square
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :precondition
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (can-move ?from-square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :effect
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not
+\end_layout
+
+\begin_layout Plain Layout
+
+                  (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                )
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:action run-washing-machine
+\end_layout
+
+\begin_layout Plain Layout
+
+        :parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+            (?robot
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?from-square
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :precondition
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (can-move ?from-square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :effect
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not
+\end_layout
+
+\begin_layout Plain Layout
+
+                  (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                )
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+    (:action wait-dancing
+\end_layout
+
+\begin_layout Plain Layout
+
+        :parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+            (?robot
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?from-square
+\end_layout
+
+\begin_layout Plain Layout
+
+             ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :precondition
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (robot ?robot)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (can-move ?from-square ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        :effect
+\end_layout
+
+\begin_layout Plain Layout
+
+            (and
+\end_layout
+
+\begin_layout Plain Layout
+
+                (at ?robot ?to-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                (not
+\end_layout
+
+\begin_layout Plain Layout
+
+                  (at ?robot ?from-square)
+\end_layout
+
+\begin_layout Plain Layout
+
+                )
+\end_layout
+
+\begin_layout Plain Layout
+
+            )
+\end_layout
+
+\begin_layout Plain Layout
+
+    )
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{lstlisting}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Path computed by the planner
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename strips/basic/frozen/map.png
+	lyxscale 2000
+	scale 1000
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
 PoP
+\end_layout
+
+\begin_layout Subsection
+Primitives
+\end_layout
+
+\begin_layout Standard
+we have several primitives:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Start(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move(from,to),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:loc_{from}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\neg loc_{from,}loc_{to}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{kitch}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{tray},loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{tray}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{bath}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},loc_{bath}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(pickstuff()$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:loc_{liv}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:$
+\end_inset
+
+
+\begin_inset Formula $has_{tray},has_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(store(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},loc_{liv}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -105,7 +1102,7 @@ step 1
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -427,7 +1424,7 @@ prec Finish$
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -768,10 +1765,7 @@ conflict
 \end_layout
 
 \begin_layout Itemize
-at time 2) a conflict between
- 
-\lang english
-
+at time 2) a conflict between 
 \begin_inset ERT
 status open
 
@@ -812,7 +1806,7 @@ status open
 
 $run_{kitch} 
 \backslash
-prec run{bath}$
+prec run_{bath}$
 \end_layout
 
 \end_inset
@@ -821,10 +1815,7 @@ prec run{bath}$
 \end_layout
 
 \begin_layout Itemize
-at time 3) a conflict between
- 
-\lang english
-
+at time 3) a conflict between 
 \begin_inset ERT
 status open
 
@@ -876,7 +1867,7 @@ prec store$
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1360,7 +2351,7 @@ $loc$
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -1865,7 +2856,7 @@ prec run_{bath}$
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -2351,7 +3342,7 @@ end{tikzpicture}
 
 \begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -2867,8 +3858,558 @@ HTM
 \end_layout
 
 \begin_layout Standard
+Write a brief report to explain your solution and the adopted design choices,
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+present the problem formulation in HTN 
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Primitives
+\end_layout
+
+\begin_layout Standard
+the primitives are:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Start(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emph{\emptyset}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{kitch}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\neg at(robot,liv),\neg at(robot,bath),at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{bath}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\neg at(robot,liv),at(robot,bath),\neg at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{liv}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:at(robot,liv),\neg at(robot,bath),\neg at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{kitch}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{tray},at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{tray}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{bath}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},at(robot,bath)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(pickstuff()$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:$
+\end_inset
+
+
+\begin_inset Formula $has_{tray},has_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(store(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Finish(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},loc_{liv},stored_{tray},stored_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+HLAs:
+\end_layout
+
+\begin_layout Standard
+High level actions:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(pick()$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:$
+\end_inset
+
+
+\begin_inset Formula $has_{tray},has_{cloth},at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[(move_{liv}(),pickstuff()]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(wash(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{tray},has_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:has_{cloth},has_{tray},clean_{cloth},clean_{tray},loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{bath}(),run_{bath}(),move_{kitch}(),run_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{kitch}(),run_{kitch}(),move_{bath}(),run_{bath}(),move_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $]$
+\end_inset
+
+
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(store(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{liv}(),store{}_{liv}(),move_{kitch}(),store_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{kitch}(),store_{kitch}(),move_{liv}(),store{}_{liv}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $]$
+\end_inset
+
+
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Finish(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},at(robot,liv),liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Start(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:(loc_{kitch})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Graph:
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -2879,9 +4420,89 @@ begin{tikzpicture}
 
 \begin_layout Plain Layout
 
-[node distance = 
+[ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	node distance = 
 \backslash
-len, auto]
+len,
+\end_layout
+
+\begin_layout Plain Layout
+
+	auto,
+\end_layout
+
+\begin_layout Plain Layout
+
+	title/.style = {
+\end_layout
+
+\begin_layout Plain Layout
+
+		font=
+\backslash
+fontsize{6}{6}
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\backslash
+color{black!50}
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\backslash
+ttfamily 
+\end_layout
+
+\begin_layout Plain Layout
+
+	},
+\end_layout
+
+\begin_layout Plain Layout
+
+	typetag/.style={
+\end_layout
+
+\begin_layout Plain Layout
+
+		rectangle,
+\end_layout
+
+\begin_layout Plain Layout
+
+		draw=black!50,
+\end_layout
+
+\begin_layout Plain Layout
+
+		font=
+\backslash
+scriptsize
+\backslash
+ttfamily,
+\end_layout
+
+\begin_layout Plain Layout
+
+		anchor=west
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+]
 \end_layout
 
 \begin_layout Plain Layout
@@ -2911,42 +4532,6 @@ node[draw](F) at (5,-5) {Finish};
 \begin_layout Plain Layout
 
 	
-\backslash
-node[font=
-\backslash
-tiny] [above = of F] (c2) {$clean_{cloth}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [left =1 of c2] (c1) {$clean_{tray}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [right =1.3 of c2] (k1) {$liv_{tray}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [right = of k1] (k2) {$liv_{cloth}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
 \end_layout
 
 \begin_layout Plain Layout
@@ -2958,7 +4543,7 @@ tiny] [right = of k1] (k2) {$liv_{cloth}$};
 
 	
 \backslash
-node[draw] (S) at (5,5) {Start};
+node[draw] (S) at (5,4) {Start};
 \end_layout
 
 \begin_layout Plain Layout
@@ -2974,52 +4559,21 @@ node[draw] (S) at (5,5) {Start};
 
 	
 \backslash
-node[draw] (Sk) [above =1.3 of k1] {store-stuff};
+node[] (Sk) [above =1 of F] {store};
 \end_layout
 
 \begin_layout Plain Layout
 
 	
 \backslash
-node[font=
-\backslash
-tiny] [above =0.1 of Sk] (h1void) {$has_{tray}$};
+node[draw] (Sk_1) [below =0.2 of Sk] {$move_{liv}$};
 \end_layout
 
 \begin_layout Plain Layout
 
 	
 \backslash
-node[font=
-\backslash
-tiny] [right =0.1 of h1void] (h2void) {$has_{cloth}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [right =0.1 of h2void] (l3) {$loc_{liv}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [right =0.1 of l3] (c1void) {$clean_{cloth}$};
-\end_layout
-
-\begin_layout Plain Layout
-
-	
-\backslash
-node[font=
-\backslash
-tiny] [left =0.1 of h1void] (c2void) {$clean_{tray}$};
+node[draw] (Sk_2) [right =0.2 of Sk_1] {$store$};
 \end_layout
 
 \begin_layout Plain Layout
@@ -3035,7 +4589,74 @@ tiny] [left =0.1 of h1void] (c2void) {$clean_{tray}$};
 
 	
 \backslash
-node[draw] (mb) [above =1 of Sk] {wash-stuff};
+node[] (w) [above =4 of Sk] {wash};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_1) [below =0.6 of w] {$move_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_2) [right =0.2 of w_1] {$run_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_3) [right =0.2 of w_2] {$move_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_4) [right =0.2 of w_3] {$run_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_11) [below =1.2 of w_1] {$move_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_12) [right =0.2 of w_11] {$run_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_13) [right =0.2 of w_12] {$move_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_14) [right =0.2 of w_13] {$run_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_15) [right =0.2 of w_14] {$move_{kitch}$};
 \end_layout
 
 \begin_layout Plain Layout
@@ -3051,16 +4672,146 @@ node[draw] (mb) [above =1 of Sk] {wash-stuff};
 
 	
 \backslash
-node[draw] (p1) [above =1 of mb] {pick-stuff};
+node[] (p1) [above =1.3 of w] {pick};
 \end_layout
 
 \begin_layout Plain Layout
 
 	
 \backslash
-node[font=
+node[draw] (p1_1) [below =0.2 of p1] {$move_{liv}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
 \backslash
-tiny] [above =0.1 of p1] (l1voidvoid) {$loc_{liv}$};
+node[draw] (p1_2) [right =0.2 of p1_1] {pick-stuff};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%% Frame %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(p1) (p1_1) (p1_2)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=blue!20, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		    (w) (w_1) (w_2) (w_3)(w_4)
+\end_layout
+
+\begin_layout Plain Layout
+
+		    (w_11) (w_12) (w_13) (w_14) (w_15)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(Sk) (Sk_1) (Sk_2)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (w_up_desc) [above =0 of w_1] {bath first};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(w_1) (w_2) (w_3)(w_4)(w_up_desc)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] (w_up) {};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (w_down_desc) [above =0 of w_11] {kitch first};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(w_11) (w_12) (w_13) (w_14) (w_15) (w_down_desc)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] (w_down) {};
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -3097,7 +4848,7 @@ begin{scope}[>={Stealth[black]},
 
 \begin_layout Plain Layout
 
-    
+    %
 \backslash
 path [->] (S) edge[bend right=80,dotted] node {$
 \backslash
@@ -3121,6 +4872,44 @@ end{tikzpicture}
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+In this case the space REACH+ coincides with REACH- for every implmentation
+ 
+\end_layout
+
+\begin_layout Subsection
+Process
+\end_layout
+
+\begin_layout Standard
+show the process to generate a plan that implements the formulation
+\end_layout
+
+\begin_layout Enumerate
+the process starts with 6 HLAs (high level actions), the HPlanning algorithm
+ picks one HLA from the plan (or plans if there are several).
+\end_layout
+
+\begin_layout Enumerate
+pick is taken as first HLA.
+\end_layout
+
+\begin_layout Enumerate
+prefix is set as [Start,] and suffix is set to [wash, store, Finish].
+\end_layout
+
+\begin_layout Enumerate
+checks if the prefix is a valid solution (yes in this case)
+\end_layout
+
+\begin_layout Enumerate
+for each refinement of [Start,] given the solution at 4) and the heirarchy
+\end_layout
+
+\begin_layout Enumerate
+add to the queue (prefix, refinement, suffix).
 \end_layout
 
 \end_body
