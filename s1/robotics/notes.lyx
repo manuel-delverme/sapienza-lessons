@@ -91,6 +91,80 @@ x^{\prime\prime} & y^{\prime} & z
 
 \end_layout
 
+\begin_layout Section
+DH rototransl
+\end_layout
+
+\begin_layout Subsection
+along z
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\begin{matrix}cθ_{i} & -sθ_{i} & 0 & 0\\
+sθ_{i} & cθ_{i} & 0 & 0\\
+0 & 0 & 1 & d_{i}\\
+0 & 0 & 0 & 1
+\end{matrix}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+along x
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\begin{matrix}1 & 0 & 0 & a_{i}\\
+0 & cα_{i} & -sα_{i} & 0\\
+0 & sα_{i} & cα_{i} & 0\\
+0 & 0 & 0 & 1
+\end{matrix}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+total
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $^{n-1}T_{n}=\left[\begin{array}{ccc|c}
+\cos\theta_{n} & -\sin\theta_{n}\cos\alpha_{n} & \sin\theta_{n}\sin\alpha_{n} & r_{n}\cos\theta_{n}\\
+\sin\theta_{n} & \cos\theta_{n}\cos\alpha_{n} & -\cos\theta_{n}\sin\alpha_{n} & r_{n}\sin\theta_{n}\\
+0 & \sin\alpha_{n} & \cos\alpha_{n} & d_{n}\\
+\hline 0 & 0 & 0 & 1
+\end{array}\right]=\left[\begin{array}{ccc|c}
+ &  & \\
+ & R &  & T\\
+ &  & \\
+\hline 0 & 0 & 0 & 1
+\end{array}\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Direct Kinematics
+\end_layout
+
+\begin_layout Section
+2R robot
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\begin{cases}
+px= & l_{1}cos(q_{1})+l_{2}cos(q_{1}+q_{2})\\
+py= & l_{1}sin(q_{1})+l_{2}sin(q_{1}+q_{2})\\
+φ= & q_{1}+q_{2}
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
 \begin_layout Part
 Inverse Kinematics
 \end_layout
@@ -723,7 +797,7 @@ prismatic joint
 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 joint i is along axis 
 \begin_inset Formula $Z_{i-1}$
 \end_inset
@@ -731,14 +805,14 @@ joint i is along axis
  (DH)
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 \begin_inset Formula $Z_{i-1}$
 \end_inset
 
  is the direction (unit vector)
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 \begin_inset Formula $\dot{d_{i}}$
 \end_inset
 
@@ -867,29 +941,52 @@ Sometimes the Jacobian loses rank, the robot can't move the end-effector
 
 \end_layout
 
-\begin_layout Itemize
-Predicting singularities
+\begin_layout Subsubsection
+Find singularities
+\end_layout
+
+\begin_layout Enumerate
+if square: find when det J(q) = 0
 \end_layout
 
 \begin_deeper
-\begin_layout Itemize
-when square: just det J(q) = 0
-\backslash
-
-\end_layout
-
-\begin_layout Itemize
-all the sub square matrixes (minors) of J are singular (or, equivalently,
- such that 
+\begin_layout Enumerate
+which is all the sub square matrixes (minors) of J are singular (or, equivalentl
+y, such that 
 \begin_inset Formula $det[J(q)J^{T}(q)]=0$
 \end_inset
 
 )
 \end_layout
 
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $\begin{cases}
+\text{det(J without col \& row 1)} & =0\\
+\text{det(J without col \& row 2)} & =0\\
+\text{det(J without col \& row 3)} & =0
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
 \end_deeper
+\end_deeper
+\begin_layout Enumerate
+plug in the solutions to find how many degrees of freedom (rank 1 
+\begin_inset Formula $\rightarrow$
+\end_inset
+
+ n-1 degrees)
+\end_layout
+
 \begin_layout Itemize
 NP-hard/complete
+\end_layout
+
+\begin_layout Itemize
+visual inspection
 \end_layout
 
 \begin_layout Subsection
@@ -941,6 +1038,156 @@ spherical wrist
 
 \begin_layout Itemize
 6 joints (n), last 3 revolute and intersect somewhere
+\end_layout
+
+\begin_layout Itemize
+set 
+\begin_inset Formula $O_{6}=W$
+\end_inset
+
+ = center of spherical wrist (i.e., choose 
+\begin_inset Formula $d_{6}=0$
+\end_inset
+
+ in the DH table)
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $J(q)=\left[\begin{array}{cc}
+J_{11} & 0\\
+J_{21} & J_{22}
+\end{array}\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\text{det}J_{11}(q_{1},…,q_{3})=0$
+\end_inset
+
+ provides the arm singularities
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\text{det}J_{11}(q_{4},…,q_{5})=0$
+\end_inset
+
+ provides the wrist singularities
+\end_layout
+
+\begin_layout Section
+acceleration and up forward kinematics
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\dot{p}=J_{p}(q)\dot{q}$
+\end_inset
+
+, velocity
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\ddot{p}=J_{p}(q)\ddot{q}+\dot{J_{p}}(q)\dot{q}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\dddot{p}=J_{p}(q)\dddot{q}+2\dot{J_{p}}(q)\ddot{q}+\ddot{J_{p}}(q)\dot{q}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Inverse Differential Kinematics
+\end_layout
+
+\begin_layout Subsection
+cartesian velocity to joint velocity
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{q}=J^{\#}v_{d}+(I-J^{\#}J)\xi$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\dot{q}$
+\end_inset
+
+ is the joint speed
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $J^{\#}$
+\end_inset
+
+ can/should be replaced by 
+\begin_inset Formula $J^{-1}$
+\end_inset
+
+ if possible
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+in that case the 
+\begin_inset Formula $\xi$
+\end_inset
+
+ term disappears
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\dot{q}=J^{-1}v_{d}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Formula $v_{d}$
+\end_inset
+
+ is the goal velocity
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\xi$
+\end_inset
+
+ is any vector, if using 
+\begin_inset Formula $J^{\#}$
+\end_inset
+
+ then we have infintie solutions
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+and have to look for the minimum norm one to not fuck up things
+\end_layout
+
+\begin_layout Itemize
+all of the solutions are ok, this comes from redundancy of the robot
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+cartesian acceleration to joint acceleration
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{q}=J^{\#}v_{d}+(I-J^{\#}J)\xi$
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part
@@ -1601,6 +1848,71 @@ if motion is unfeasible (speed/acc limits) or too slow, scale time
 acceleration scales quadratically!
 \end_layout
 
+\begin_layout Part
+Contrlol system
+\end_layout
+
+\begin_layout Section
+reach position using control
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $e=p_{goal}-p(t)=p_{goal}-J(q)q(t)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\dot{q}=J^{-1}(q)[\dot{p}_{d}+K_{p}(P_{d}-f(q))]$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $K_{p}=k_{p}\text{·}I_{2\text{×}2}>0$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+that's the inverse kinematic of 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+goal velocity + big_number * error
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+error time 
+\begin_inset Formula $e_{p(t)}=e^{-k_{p}t}e_{p(0)}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Formula $\ddot{q}=J^{\text{-}1}(q)[\ddot{p}_{d}+K_{d}(\dot{p}_{d}\text{-}J(q)\dot{q})+K_{p}(p_{d}\text{-}f(q))\dot{-J(q)}\dot{q}],$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $K_{p}=100·I_{2×2},K_{d}=20·I_{2×2},$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Part
 Exams
 \end_layout
