@@ -126,7 +126,7 @@ public class World{
 	 * <p> When calling this method, the world is notified the fact that the agent
 	 * has a task associated to the task;
 	 */
-	public Task executeAction(int agId, Task agTask, Action act){
+	Task executeAction(int agId, Task agTask, Action act){
 		System.out.println("[WORLD] agent id: " + agId + " action was: " + act);
 		switch(act){
 			case moveToLocation:
@@ -160,12 +160,17 @@ public class World{
 	 * @return the current task associated with the current cell
 	 */
 	private Task executeActionMoveToLocation(int agId, Task agTask){
-		if(agTask.getCell().isVisited()){
-			System.out.printf("ALREADY VISITED: [%d, %d]\n", agTask.getCell().getRow(), agTask.getCell().getCol());
-		}
-		this.setAgentPosition(agId, agTask.getCell());
+		this.setAgentPosition(agId, moveTo(getAgentPosition(agId), agTask.getCell()));
 		agTask.markAsComplete(agId);
 		return agTask;
+	}
+
+	private Cell moveTo(Cell from, Cell to) {
+		int xDirection = Math.max(Math.min(to.getCol() - from.getCol(), 1), -1);
+		int yDirection = Math.max(Math.min(to.getRow() - from.getRow(), 1), -1);
+		int newRow = from.getRow() + yDirection;
+		int newCol = from.getCol() + xDirection;
+		return this.map[newRow][newCol];
 	}
 
 	/**
@@ -185,7 +190,7 @@ public class World{
 		if(agTask == null || agTask.isDone()){
 			int row=(int)(height*Math.random());
 			int col=(int)(width*Math.random());
-			t = new Task(new Cell(row, col), Task.Status.VISIT);
+			t = new Task(this.map[row][col], Task.Status.VISIT);
 			System.out.print("[WORLD] [" + row + "; " + col + "] task assigned to: " + agId);
 			System.out.println(" it was at [" + getAgentPosition(agId).getRow() + ", " + getAgentPosition(agId).getCol() + "]");
 		} else {

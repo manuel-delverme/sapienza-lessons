@@ -96,8 +96,10 @@ public class WorldPanel extends JPanel implements ActionListener, KeyListener {
 			for (int col = 0; col < world.getWidth(); col++) {
 				Cell cell = world.getCell(row, col);
 				if (cell.isVisited()) {
+					// System.out.println(cell.getCol() + ", " + cell.getRow() + " is visited: RED");
 					g.setColor(Color.RED);
 				} else if(cell.isWeed()){
+					// System.out.println(cell.getCol() + ", " + cell.getRow() + " is weed: GREEN");
 					g.setColor(Color.GREEN);
 				} else {
 					g.setColor(Color.WHITE);

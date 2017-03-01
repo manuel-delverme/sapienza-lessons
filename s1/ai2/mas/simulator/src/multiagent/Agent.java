@@ -205,13 +205,11 @@ public class Agent implements Serializable {
 		// If the agent is in the same cell as nextPosition maybe it needs to 
 		// either move or check/spray
 		// Do not forget the noOp operation that is used to terminate the simulation (is one of the condition in or)
-		this.currentTask = nextTask;
-
 		if (nextTask.getCell() != nextPosition) {
 			System.out.println("[AGENT] didn't arrive yet, currAct = move; teleporting");
 			this.currentAction = Action.moveToLocation;
 		} else {
-			System.out.println("[AGENT] arrived");
+			System.out.println("[AGENT] im in the goal cell");
 			if(nextTask.getCell().isVisited()){
 				System.out.println("[AGENT] was visited, currAct = publish");
 				this.currentAction = Action.publishNextTask;
@@ -220,6 +218,7 @@ public class Agent implements Serializable {
 				this.currentAction = Action.check;
 			}
 		}
+		this.currentTask = nextTask;
 	}
 
 
