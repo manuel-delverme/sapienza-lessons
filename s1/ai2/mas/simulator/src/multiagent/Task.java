@@ -11,29 +11,14 @@ import java.io.*;
  */
 public class Task implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * This class represents a task status:
-	 * <p> visit: the cell has to be visited
-	 * <p> spray: the robot needs to remove the weed in the cell
-	 *
-	 * @author Albani Dario
-	 * @version 1.0
-	 */
-	public static enum Status {
-		VISIT, SPRAY, DONE
-	}
-
 	/**
 	 * the cell associated to the task
 	 */
 	protected Cell cell;
-
 	/**
 	 * The associated cell.
 	 */
 	private Status status;
-
 	/**
 	 * The agent that accomplished the task
 	 */
@@ -87,5 +72,17 @@ public class Task implements Serializable {
 
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+
+	/**
+	 * This class represents a task status:
+	 * <p> visit: the cell has to be visited
+	 * <p> spray: the robot needs to remove the weed in the cell
+	 *
+	 * @author Albani Dario
+	 * @version 1.0
+	 */
+	public enum Status {
+		VISIT, SPRAY, DONE
 	}
 }

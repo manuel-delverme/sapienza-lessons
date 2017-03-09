@@ -1,58 +1,75 @@
 package multiagent.dpop;
 
+import java.text.MessageFormat;
+
 /**
  * Silly representation of an edge used for the DCOP problem.
  * Can be used to represent an edge in a constraint graph or in a tree.
- * For the tree structure you can assume node1 as the parent of the child node2.
+ * For the tree structure you can assume source as the parent of the destination destination.
  * Edges are bidirectional, i.e. edge(o1,o2) == edge(o2,01).
  *
  * @author Albani Dario
  **/
 class Edge {
-	private Node node1;
-	private Node node2;
+	private Node source;
+	private Node destination;
 
 	private boolean isPseudo = false;
 
 	public Edge(Node id, Node id2) {
-		this.setNode1(id);
-		this.setNode2(id2);
+		this.setSource(id);
+		this.setDestination(id2);
 	}
 
 	public Edge(Node id, Node id2, boolean isPseudo) {
-		this.setNode1(id);
-		this.setNode2(id2);
+		this.setSource(id);
+		this.setDestination(id2);
 		this.setPseudo(isPseudo);
 	}
 
-	protected Node getNode1() {
-		return node1;
+	protected Node getSource() {
+		return source;
 	}
 
-	protected void setNode1(Node node1) {
-		this.node1 = node1;
+	protected void setSource(Node source) {
+		this.source = source;
 	}
 
-	protected Node getNode2() {
-		return node2;
+	protected Node getDestination() {
+		return destination;
 	}
 
-	protected void setNode2(Node node2) {
-		this.node2 = node2;
+	protected void setDestination(Node destination) {
+		this.destination = destination;
 	}
 
 	protected boolean isPseudo() {
 		return isPseudo;
 	}
 
-	protected void setPseudo(boolean isPseudo) {
+	void setPseudo(boolean isPseudo) {
 		this.isPseudo = isPseudo;
+		if (isPseudo) {
+			this.source.remove_relation(destination);
+			this.destination.remove_relation(source);
+		} else {
+			this.source.add_relation(destination);
+			this.destination.add_relation(source);
+		}
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		Edge e = (Edge) o;
-		return (this.node1 == e.getNode1() && this.node2 == e.getNode2())
-				|| (this.node1 == e.getNode2() && this.node2 == e.getNode1());
+		return (this.source == e.getSource() && this.destination == e.getDestination());
+		// || (this.source == e.getDestination() && this.destination == e.getSource());
+	}
+
+	public String toString() {
+		String arrow = "=====>";
+		if (this.isPseudo()) {
+			arrow = " - >";
+		}
+		return MessageFormat.format("{0}{2}{1}", this.getSource(), this.getDestination(), arrow);
 	}
 }

@@ -1,5 +1,7 @@
 package multiagent;
 
+import multiagent.dpop.DepthTree;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,6 +18,33 @@ import javax.swing.*;
  */
 public class WorldPanel extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 1L;
+	/**
+	 * Simulator.
+	 */
+	private AgentSim simulator;
+	/**
+	 * When this Timer fires an ActionEvent, a new step is
+	 * performed and the panel is repainted.
+	 */
+	private Timer timer;
+	/**
+	 * Dimension of one cell in pixels.
+	 */
+	private int dim = 40;
+
+	/**
+	 * Constructor for this class.
+	 *
+	 * @param sim the simulator.
+	 * @param ms  time interval between two frames, in milliseconds.
+	 */
+	public WorldPanel(AgentSim sim, int ms) {
+		this.simulator = sim;
+		World world = simulator.world;
+
+		setPreferredSize(new Dimension(world.getWidth() * dim, world.getHeight() * dim));
+		timer = new Timer(ms, this);
+	}
 
 	/**
 	 * Creates a new WorldPanel with a new AgentSim and a new World.
@@ -39,6 +68,7 @@ public class WorldPanel extends JPanel implements ActionListener, KeyListener {
 		//AgentSim sim=new AgentSim("world.mas",agents,initialTasks);
 
 		//creating WorldPanel
+
 		WorldPanel panel = new WorldPanel(sim, 20);
 
 		//creating and setting frame
@@ -56,35 +86,6 @@ public class WorldPanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	/**
-	 * Simulator.
-	 */
-	private AgentSim simulator;
-
-	/**
-	 * When this Timer fires an ActionEvent, a new step is
-	 * performed and the panel is repainted.
-	 */
-	private Timer timer;
-
-	/**
-	 * Dimension of one cell in pixels.
-	 */
-	private int dim = 40;
-
-	/**
-	 * Constructor for this class.
-	 *
-	 * @param sim the simulator.
-	 * @param ms  time interval between two frames, in milliseconds.
-	 */
-	public WorldPanel(AgentSim sim, int ms) {
-		this.simulator = sim;
-		World world = simulator.world;
-		setPreferredSize(new Dimension(world.getWidth() * dim, world.getHeight() * dim));
-		timer = new Timer(ms, this);
-	}
-
-	/**
 	 * Displays the scene.
 	 */
 	public void paintComponent(Graphics g) {
@@ -98,7 +99,7 @@ public class WorldPanel extends JPanel implements ActionListener, KeyListener {
 				if (cell.isVisited()) {
 					// System.out.println(cell.getCol() + ", " + cell.getRow() + " is visited: RED");
 					g.setColor(Color.RED);
-				} else if(cell.isWeed()){
+				} else if (cell.isWeed()) {
 					// System.out.println(cell.getCol() + ", " + cell.getRow() + " is weed: GREEN");
 					g.setColor(Color.GREEN);
 				} else {

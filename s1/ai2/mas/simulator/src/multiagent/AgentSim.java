@@ -1,5 +1,7 @@
 package multiagent;
 
+import multiagent.dpop.DepthTree;
+
 import java.io.*;
 import java.util.*;
 
@@ -63,6 +65,7 @@ public class AgentSim implements Serializable {
 		addWeedCells(weed);
 		initTasks();
 		initAgentsRandom(ags);
+		world.setTaskAssigner(new DepthTree(world));
 	}
 
 	/**
@@ -120,7 +123,7 @@ public class AgentSim implements Serializable {
 		Agent agent = agents.get(currentAgent);
 		Action act = agent.nextAction();
 
-		if(agent.getId() == 1) {
+		if (agent.getId() == 1) {
 			Thread.sleep(500);
 		}
 
@@ -149,10 +152,7 @@ public class AgentSim implements Serializable {
 
 		currentAgent = (currentAgent + 1) % agents.size();
 
-		if (inactiveSteps >= 2 * agents.size() || this.world.getUncompletedTask().isEmpty())
-			return true;
-		else
-			return false;
+		return inactiveSteps >= 2 * agents.size() || this.world.getUncompletedTask().isEmpty();
 	}
 
 	//************************************************ Methods to retrieve information about the world and about the simulation ******
@@ -274,12 +274,12 @@ public class AgentSim implements Serializable {
 	public String statsToString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append("Total cells: " + getTotalCells());
+		builder.append("Total cells: ").append(getTotalCells());
 		builder.append("\n---> FILL ME in AgentSim.statsToString()<---\n");
 		for (int i = 0; i < this.world.getHeight(); i++) {
 			for (int j = 0; j < this.world.getWidth(); j++) {
 				if (this.world.getCell(i, j).getTask() != null) {
-					builder.append(i + " " + j + " ");
+					builder.append(i).append(" ").append(j).append(" ");
 					builder.append(this.world.getCell(i, j).getTask().getStatus());
 					builder.append("\n");
 				}

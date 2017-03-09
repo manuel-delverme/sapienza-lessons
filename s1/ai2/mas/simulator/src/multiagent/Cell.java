@@ -1,6 +1,7 @@
 package multiagent;
 
 import java.io.*;
+import java.text.MessageFormat;
 
 /**
  * This class represents a cell of the World.
@@ -12,30 +13,26 @@ import java.io.*;
  */
 public class Cell implements Serializable {
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * Location of the task this Cell is associated to (initially null)
+	 */
+	protected Task task;
 	/**
 	 * The status of the Cell.
 	 */
 	private boolean visited = false;
 	private boolean weed = false;
 	private boolean sprayed = false;
-
 	/**
 	 * Cell coordinates
 	 */
 	private int row;
 	private int col;
-
 	/**
 	 * The Agent that has visited this Cell or that has requested to execute
 	 * an action relative to this cell (-1 if there is no agent).
 	 */
 	private int agent = -1;
-
-	/**
-	 * Location of the task this Cell is associated to (initially null)
-	 */
-	protected Task task;
 
 	/**
 	 * Creates a new Cell
@@ -156,5 +153,9 @@ public class Cell implements Serializable {
 			return true;
 		Cell c = (Cell) o;
 		return row == c.row && col == c.col;
+	}
+
+	public String toString() {
+		return MessageFormat.format("[{0},{1}]", this.getRow(), this.getCol());
 	}
 }

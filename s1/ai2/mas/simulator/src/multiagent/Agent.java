@@ -138,8 +138,7 @@ public class Agent implements Serializable {
 	 * @return the action that needs to be executed.
 	 */
 	public Action nextAction() {
-		if(!this.getPosition().isVisited() && this.getCurrentTask().getCell() == this.getPosition())
-		{
+		if (!this.getPosition().isVisited() && this.getCurrentTask().getCell() == this.getPosition()) {
 			return Action.check;
 		}
 		return currentAction;
@@ -164,8 +163,8 @@ public class Agent implements Serializable {
 	public void assignTasks(List<Agent> agents) {
 
 		Task task;
-		for(Agent agent: agents){
-			if(pendingTasks.isEmpty())
+		for (Agent agent : agents) {
+			if (pendingTasks.isEmpty())
 				break;
 			task = pendingTasks.pop();
 			agent.addpTask(task);
@@ -210,7 +209,7 @@ public class Agent implements Serializable {
 			this.currentAction = Action.moveToLocation;
 		} else {
 			System.out.println("[AGENT] im in the goal cell");
-			if(nextTask.getCell().isVisited()){
+			if (nextTask.getCell().isVisited()) {
 				System.out.println("[AGENT] was visited, currAct = publish");
 				this.currentAction = Action.publishNextTask;
 			} else {
@@ -246,5 +245,9 @@ public class Agent implements Serializable {
 		System.out.print("TODO: how am I supposed to accept the task?\n");
 		// TODO Complete
 		return false;
+	}
+
+	public int calculate_distance_to_cell(Cell cell) {
+		return Math.abs(this.position.getRow() - cell.getRow()) + Math.abs(this.position.getCol() - cell.getCol());
 	}
 }
