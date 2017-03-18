@@ -1,4 +1,5 @@
 import sklearn_crfsuite as crf
+from nltk.corpus import cmudict
 import subprocess
 import sys
 import numpy as np
@@ -6,6 +7,8 @@ import pycrfsuite
 from scipy.sparse import coo_matrix
 from scipy.sparse import csr_matrix
 from collections import defaultdict
+
+from nltk.corpus import wordnet as wn
 
 import itertools
 import pickle
@@ -22,65 +25,49 @@ import sklearn_crfsuite
 from sklearn_crfsuite import scorers
 from sklearn_crfsuite import metrics
 
-DELTA = 3
-SPACE_DIMS = 26**DELTA
+d = cmudict.dict()
+DELTAS = range(14, 20)
 
-# Input: a string e.g. "drivers"
-# Output: a matrix n_chars X SPACE_DIM, a vector of target values
 def tag_word(word, target, delta):
     word = "^{}$".format(word)
-    target = target.split(",")[0] #  multiple annotations
     morphs = ["^"]
     morphs.extend([string.split(":")[0] for string in target.split(" ")])
     morphs.append("$")
 
-    # data_size = (sum([len(morph) for morph in morphs]), SPACE_DIMS)
     dimensions = set()
-    # xs = csr_matrix(data_size, dtype=np.bool)
-    # labels_size = (data_size[0], 1)
-    # ys = np.zeros(labels_size, dtype=np.uint8)
-    # offset = 0
     xs = []
     ys = []
     tags = []
     for morph in morphs:
         tags.extend(tag_morph(morph))
 
-    print(word)
     for letter_idx, letter in enumerate(word):
         x = letter_to_dict(word, letter, letter_idx, delta)
-        print(tags[letter_idx], letter, dict(x))
-
-    print(word)
-    for letter_idx, letter in enumerate(word):
-        x = letter_to_dict(word, letter, letter_idx, delta)
-        print(tags[letter_idx], letter, dict(x))
-
         dimensions.update(x.keys())
         xs.append(x)
 
     if len(xs) != len(tags):
         good_tags = [tag for tag in tags if tag != "~"]
         good_tags = good_tags[0:len(xs)-1] + [good_tags[-1]]
-        print(good_tags, tags, word, morphs)
         tags = good_tags
     return xs, dimensions, tags
 
 def letter_to_dict(word, letter, letter_idx, delta):
-    x = defaultdict(lambda: 0)
-    x[letter] = 1
+    x = {}
     for sub_morph in gen_submorphs(word, letter_idx, delta):
         x[sub_morph] = 1
-    return x
 
-def letter_to_vec(letter, morph, letter_idx, delta):
-    size = (1, SPACE_DIMS)
-    x = csr_matrix(size, dtype=np.bool)
-    x[0, str_to_id(letter)] = True
+    # def syl(word):
+    #     return [list(y for y in x if y[-1].isdigit()) for x in d[word.lower()]]
 
-    for sub_morph in gen_submorphs(morph, letter_idx, delta):
-        # print("sub_morph", sub_morph)
-        x[0, str_to_id(sub_morph)] = True
+    # try:
+    #     for syls in syl(word[1:-1]):
+    #         for syl in syls:
+    #             x[syl] = 1
+    # except KeyError as e:
+    #     pass
+    x['position'] = letter_idx
+    #     # print("skipping syl", e)
     return x
 
 def gen_submorphs(word, letter_idx, delta):
@@ -99,6 +86,7 @@ def gen_submorphs(word, letter_idx, delta):
         after_acc = after_acc + a
         yield "_" + after_acc
         # also skip 1 char
+    yield word
 
 def str_to_id(string):
     return abs(hash(string)) % SPACE_DIMS
@@ -118,15 +106,14 @@ def tag_morph(morph):
         morph_tags.append("S")
     else:
         morph_tags.append("B")
-        for _ in morph[1:-1]:
+        for idx, _ in enumerate(morph[1:-1]):
             morph_tags.append("M")
-        morph_tags.append("E")
+        morph_tags.append("M")
+        # morph_tags.append("E")
     return morph_tags
 
 
-def load_dataset(delta):
-    # dataset_path = "task1_data/training.eng.txt"
-    dataset_path = "task1_data/training.eng.txt"
+def load_dataset(dataset_path, delta):
     # wc_c = int(subprocess.check_output("awk '{print $1}' " + dataset_path + " | wc -c", shell=True)[:-1])
     # size = (wc_c, SPACE_DIMS)
     # xs = csr_matrix(size, dtype=np.bool)
@@ -135,31 +122,40 @@ def load_dataset(delta):
     dimensions = set()
     small_xs = []
     ys = []
+    words = set()
     with open(dataset_path) as fin:
         for row in fin:
-            print(row[:-1])
             word, target = row[:-1].split("\t")
+            target = target.split(",")[0] #  multiple annotations
+            words.add(word)
             x, word_dims, y = tag_word(word, target, delta)
-            dimensions.update(word_dims)
-            # print("[RETR] tag_word({}, {})".format(target, delta))
             small_xs.append(x)
             ys.append(y)
-            # xs[offset: offset + x.shape[0]] = x
-            # ys[offset: offset + y.shape[0]] = y
-            # if row[0] == 'b': break
-    print("xs", len(small_xs), "ys", len(ys))
-    print("xs", len(small_xs[0]), "ys", len(ys[0]))
-    print("expanding")
-    # xs = []
-    # while(small_xs):
-    #     small_x = small_xs.pop()
-    #     for sx in small_x:
-    #         x = {}
-    #         for dim in dimensions:
-    #             x[dim] = small_x[dim]
-    #         x = small_x
-    #         xs.append(x)
-    print("done")
+
+    if "train" in dataset_path and False:
+        with open("/usr/share/dict/american-english") as fin:
+            for row in fin:
+                word = row[:-1]
+                if len(word) > 3:
+                    continue
+                if len(word) == 1:
+                    continue
+                if "'" in word:
+                    continue
+                if word not in words:
+                    small_xs.append(x)
+                    ys.append(y)
+                # # print(word)
+                # target = row
+                # if word not in words:
+                #     x, word_dims, y = tag_word(word, target, delta)
+                #     for letter_idx, letter in enumerate(x):
+                #         for key in letter:
+                #             if key != 'position':
+                #                 x[letter_idx][key] /= 1
+                #     small_xs.append(x)
+                #     ys.append(y)
+
     return small_xs, dimensions, ys
 
 def word2features(sent, i):
@@ -220,7 +216,7 @@ def optimize_delta(training_set, test_set):
             word = "^{}$".format(word)
             model.train(blablabla)
 
-    print(eval_model(model, test_set))
+    # print(eval_model(model, test_set))
 
 def tag_to_id(tag):
     tags = [
@@ -234,31 +230,59 @@ def tag_to_id(tag):
     return tags.index(tag)
 
 try:
-    del x
-    del y
+    del X_train
 except:
     pass
 
-X, dimensions, Y = load_dataset(delta=DELTA)
-model = crf.CRF(
-        algorithm='lbfgs',
-        c1=0.1,
-        c2=0.1,
-        max_iterations=100,
-        all_possible_transitions=True,
-        verbose=True,
-)
+for delta in DELTAS:
+    print("load")
+    X_train, dimensions, y_train = load_dataset("task1_data/training.eng.txt", delta=delta)
+    model = crf.CRF(
+            algorithm='ap',
+            # algorithm='lbfgs',
+            # c1=0.1,
+            # c2=0.01,
+            max_iterations=500,
+            all_possible_transitions=True,
+            verbose=False
+    )
+    print("fit")
+    model.fit(X_train, y_train)
 
-model.fit(X, Y)
-test_word = "^{}$".format("augmented")
-print("predict", test_word)
-for letter in test_word:
-    print(letter, end="\t")
-print("")
-for letter_idx, letter in enumerate(test_word):
-    x = {}
-    small_x = letter_to_dict(test_word, letter, letter_idx, DELTA)
-    for dim in dimensions:
-        x[dim] = small_x[dim]
-    for klass in model.predict([[x]]):
-        print(klass, end="\t")
+    labels = model.classes_
+    # labels.remove("START") labels.remove("STOP")
+    print("[SCORING] delta", delta)
+    print("load")
+    X_test, dimensions, y_test = load_dataset("task1_data/dev.eng.txt", delta=delta)
+    print("predict")
+    y_predicted = model.predict(X_test)
+#    for word, yps, yts in zip(X_test, y_predicted, y_test):
+#        try:
+#            for letter, yp, yt in zip(word, yps, yts):
+#                words = [word for word in letter if "^" in word and "$" in word]
+#                if yp != yt:
+#                    print(words)
+#                    # words = [word for word in letter if "^" in word and "$" in word]
+#                    print("\nguessed:")
+#                    for y, letter in zip(yps, words[0]):
+#                        # import ipdb; ipdb.set_trace()
+#                        if y in ('B', 'S'):
+#                            print("\t", end='')
+#                        print(letter, end='')
+#                    print("\nwas:")
+#                    for y, letter in zip(yts, words[0]):
+#                        # import ipdb; ipdb.set_trace()
+#                        if y in ('B', 'S'):
+#                            print("\t", end='')
+#                        print(letter, end='')
+#                    print("\npredicted")
+#                    for y in yps: print(y, end='\t')
+#                    print("\ntest")
+#                    for y in yts: print(y, end='\t')
+#                    print("")
+#                    raise ValueError
+#        except ValueError:
+#            pass
+
+
+    print(metrics.flat_classification_report(y_test, y_predicted, labels=labels, digits=3))
