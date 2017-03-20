@@ -202,7 +202,9 @@ report['SELF_RIGHT'] = SELF_RIGHT
 report['NOTE_WORD'] = NOTE_WORD
 report['USE_E'] = USE_E
 
-for delta in DELTAS:
+# for delta in DELTAS:
+if True:
+    delta = 15
     report['delta'] = delta
     # for exp in range(-10, -1):
     print("load", delta, NOISE_LENGTH_COEFF)
@@ -218,23 +220,7 @@ for delta in DELTAS:
             all_possible_states=True,
             verbose=True,
     )
-    # variance=None, verbose=False)>
-
     model.fit(X_train, y_train)
-    # model.transition_features_[('B', 'S')] = -1000
-    # model.transition_features_[('B', 'STOP')] = -1000
-    # model.transition_features_[('E', 'E')] = -1000
-    # model.transition_features_[('E', 'M')] = -1000
-    # model.transition_features_[('M', 'B')] = -1000
-    # model.transition_features_[('M', 'S')] = -1000
-    # model.transition_features_[('M', 'STOP')] = -1000
-    # model.transition_features_[('S', 'E')] = -1000
-    # model.transition_features_[('S', 'M')] = -1000
-    # model.transition_features_[('START', 'M')] = -1000
-    # model.transition_features_[('START', 'START')] = -1000
-    # model.transition_features_[('START', 'STOP')] = -1000
-    # for s in ['STOP', 'START', 'B', 'E', 'M']:
-    #     model.transition_features_[('STOP', s)] = -1000
 
 
     labels = model.classes_
@@ -245,6 +231,10 @@ for delta in DELTAS:
     print("y like:", y_test[0])
     y_predicted = model.predict(X_test)
     with open("/tmp/results", "a") as fout:
+        print("LENS:")
+        print(len(y_test), len(y_predicted))
+        print(len(y_test[0]), len(y_predicted[0]))
+        print(y_test[0])
         result = metrics.flat_classification_report(y_test, y_predicted, labels=labels, digits=3)
         report['result'] = result
         fout.write(json.dumps(report) + "\n")
