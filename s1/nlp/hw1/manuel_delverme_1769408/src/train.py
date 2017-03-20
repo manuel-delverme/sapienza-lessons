@@ -24,9 +24,19 @@ from sklearn.grid_search import RandomizedSearchCV
 import sklearn_crfsuite
 from sklearn_crfsuite import scorers
 from sklearn_crfsuite import metrics
+import json
 
 d = cmudict.dict()
-DELTAS = range(14, 20)
+DELTAS = range(1, 30)
+UNIVERSAL_MODEL_LENGTH_MAX = 4
+NOISE_LENGTH_COEFF = 4
+USE_NOISE = True
+FEATURE_WEIGHT = 1.0
+KEEP_SELF = True
+SELF_LEFT = True
+SELF_RIGHT = True
+NOTE_WORD = True
+USE_E = False
 
 def tag_word(word, target, delta):
     word = "^{}$".format(word)
@@ -55,7 +65,7 @@ def tag_word(word, target, delta):
 def letter_to_dict(word, letter, letter_idx, delta):
     x = {}
     for sub_morph in gen_submorphs(word, letter_idx, delta):
-        x[sub_morph] = 1
+        x[sub_morph] = FEATURE_WEIGHT
 
     # def syl(word):
     #     return [list(y for y in x if y[-1].isdigit()) for x in d[word.lower()]]
@@ -66,17 +76,18 @@ def letter_to_dict(word, letter, letter_idx, delta):
     #             x[syl] = 1
     # except KeyError as e:
     #     pass
-    x['position'] = letter_idx
     #     # print("skipping syl", e)
+    # x['position'] = letter_idx
     return x
 
 def gen_submorphs(word, letter_idx, delta):
     letter = word[letter_idx]
     before = word[:letter_idx]
     after = word[letter_idx + 1:]
-    before_acc = ""  # letter
-    after_acc = ""  # letter
-    yield letter
+    before_acc = letter if SELF_LEFT else ""
+    after_acc = letter if SELF_RIGHT else ""
+    if KEEP_SELF:
+        yield letter
 
     for b in reversed(before[-delta:]):
         before_acc = b + before_acc
@@ -86,10 +97,8 @@ def gen_submorphs(word, letter_idx, delta):
         after_acc = after_acc + a
         yield "_" + after_acc
         # also skip 1 char
-    yield word
-
-def str_to_id(string):
-    return abs(hash(string)) % SPACE_DIMS
+    if NOTE_WORD:
+        yield word
 
 def tag_morph(morph):
     if morph == "^":
@@ -108,20 +117,18 @@ def tag_morph(morph):
         morph_tags.append("B")
         for idx, _ in enumerate(morph[1:-1]):
             morph_tags.append("M")
-        morph_tags.append("M")
-        # morph_tags.append("E")
+        if USE_E:
+            morph_tags.append("E")
+        else:
+            morph_tags.append("M")
     return morph_tags
 
 
-def load_dataset(dataset_path, delta):
-    # wc_c = int(subprocess.check_output("awk '{print $1}' " + dataset_path + " | wc -c", shell=True)[:-1])
-    # size = (wc_c, SPACE_DIMS)
-    # xs = csr_matrix(size, dtype=np.bool)
-    # ys = np.zeros(shape=(xs.shape[0], 1), dtype=np.uint8)
-    # offset = 0
-    dimensions = set()
-    small_xs = []
+def load_dataset(dataset_path, delta, universal_model=False):
+    xs = []
     ys = []
+    universal_model_x = []
+    universal_model_y = []
     words = set()
     with open(dataset_path) as fin:
         for row in fin:
@@ -129,160 +136,146 @@ def load_dataset(dataset_path, delta):
             target = target.split(",")[0] #  multiple annotations
             words.add(word)
             x, word_dims, y = tag_word(word, target, delta)
-            small_xs.append(x)
+            xs.append(x)
             ys.append(y)
 
-    if "train" in dataset_path and False:
+    if universal_model:
         with open("/usr/share/dict/american-english") as fin:
             for row in fin:
                 word = row[:-1]
-                if len(word) > 3:
+                if len(word) >= UNIVERSAL_MODEL_LENGTH_MAX:
                     continue
                 if len(word) == 1:
                     continue
                 if "'" in word:
                     continue
                 if word not in words:
-                    small_xs.append(x)
-                    ys.append(y)
-                # # print(word)
-                # target = row
-                # if word not in words:
-                #     x, word_dims, y = tag_word(word, target, delta)
-                #     for letter_idx, letter in enumerate(x):
-                #         for key in letter:
-                #             if key != 'position':
-                #                 x[letter_idx][key] /= 1
-                #     small_xs.append(x)
-                #     ys.append(y)
+                    x, word_dims, y = tag_word(word, target, delta)
+                    for letter_idx, letter in enumerate(x):
+                        for key in letter:
+                            if key != 'position':
+                                x[letter_idx][key] /= pow(len(letter), NOISE_LENGTH_COEFF) # or ,2
+                    universal_model_x.append(x)
+                    universal_model_y.append(y)
 
-    return small_xs, dimensions, ys
+    universal_model_x.extend(xs)
+    universal_model_y.extend(ys)
+    return universal_model_x, universal_model_y
 
-def word2features(sent, i):
-    word = sent[i][0]
-    postag = sent[i][1]
+# delta = 6
+# X_train, y_train = load_dataset("task1_data/training.eng.txt", delta=delta, universal_model=True)
+# model = crf.CRF(
+#         algorithm='ap',
+#         epsilon=10**-10,
+#         # max_iterations=200,
+#         # algorithm='lbfgs',
+#         # c1=0.1,
+#         # c2=0.01,
+#         all_possible_transitions=True,
+#         all_possible_states=False,
+#         verbose=False,
+# )
+# # variance=None, verbose=False)>
+# 
+# labels = model.classes_
+# # labels.remove("START") labels.remove("STOP")
+# print("[SCORING] delta", delta)
+# print("load")
+# X_test, y_test = load_dataset("task1_data/dev.eng.txt", delta=delta)
+# print("X like:", X_test[0][3])
+# print("y like:", y_test[0])
+# model.fit(X_train, y_train)
+# print("predict")
+# y_predicted = model.predict(X_test)
+# print(metrics.flat_classification_report(y_test, y_predicted, labels=labels, digits=3))
+# 
+# sys.exit()
 
-    features = {
-        'bias': 1.0,
-        'word.lower()': word.lower(),
-        'word[-3:]': word[-3:],
-        'word[-2:]': word[-2:],
-        'word.isupper()': word.isupper(),
-        'word.istitle()': word.istitle(),
-        'word.isdigit()': word.isdigit(),
-        'postag': postag,
-        'postag[:2]': postag[:2],
-    }
-    if i > 0:
-        word1 = sent[i-1][0]
-        postag1 = sent[i-1][1]
-        features.update({
-            '-1:word.lower()': word1.lower(),
-            '-1:word.istitle()': word1.istitle(),
-            '-1:word.isupper()': word1.isupper(),
-            '-1:postag': postag1,
-            '-1:postag[:2]': postag1[:2],
-        })
-    else:
-        features['BOS'] = True
-
-    if i < len(sent)-1:
-        word1 = sent[i+1][0]
-        postag1 = sent[i+1][1]
-        features.update({
-            '+1:word.lower()': word1.lower(),
-            '+1:word.istitle()': word1.istitle(),
-            '+1:word.isupper()': word1.isupper(),
-            '+1:postag': postag1,
-            '+1:postag[:2]': postag1[:2],
-        })
-    else:
-        features['EOS'] = True
-
-    return features
-
-def sent2features(sent):
-    return [word2features(sent, i) for i in range(len(sent))]
-
-def sent2labels(sent):
-    return [label for token, postag, label in sent]
-
-def sent2tokens(sent):
-    return [token for token, postag, label in sent]
-
-def optimize_delta(training_set, test_set):
-    for _ in range(ITERATIONS):
-        for word in training_set:
-            word = "^{}$".format(word)
-            model.train(blablabla)
-
-    # print(eval_model(model, test_set))
-
-def tag_to_id(tag):
-    tags = [
-        'START',
-        'B',
-        'M',
-        'E',
-        'S',
-        'STOP',
-    ]
-    return tags.index(tag)
-
-try:
-    del X_train
-except:
-    pass
+report = {}
+report['USE_NOISE'] = USE_NOISE
+report['UNIVERSAL_MODEL_LENGTH_MAX'] = UNIVERSAL_MODEL_LENGTH_MAX
+report['NOISE_LENGTH_COEFF'] = NOISE_LENGTH_COEFF
+report['FEATURE_WEIGHT'] = FEATURE_WEIGHT
+report['KEEP_SELF'] = KEEP_SELF
+report['SELF_LEFT'] = SELF_LEFT
+report['SELF_RIGHT'] = SELF_RIGHT
+report['NOTE_WORD'] = NOTE_WORD
+report['USE_E'] = USE_E
 
 for delta in DELTAS:
-    print("load")
-    X_train, dimensions, y_train = load_dataset("task1_data/training.eng.txt", delta=delta)
+    report['delta'] = delta
+    # for exp in range(-10, -1):
+    print("load", delta, NOISE_LENGTH_COEFF)
+    X_train, y_train = load_dataset("task1_data/training.eng.txt", delta=delta, universal_model=USE_NOISE)
     model = crf.CRF(
             algorithm='ap',
+            # epsilon=10**exp,
+            # max_iterations=30,
             # algorithm='lbfgs',
             # c1=0.1,
             # c2=0.01,
-            max_iterations=500,
             all_possible_transitions=True,
-            verbose=False
+            all_possible_states=True,
+            verbose=True,
     )
-    print("fit")
+    # variance=None, verbose=False)>
+
     model.fit(X_train, y_train)
+    # model.transition_features_[('B', 'S')] = -1000
+    # model.transition_features_[('B', 'STOP')] = -1000
+    # model.transition_features_[('E', 'E')] = -1000
+    # model.transition_features_[('E', 'M')] = -1000
+    # model.transition_features_[('M', 'B')] = -1000
+    # model.transition_features_[('M', 'S')] = -1000
+    # model.transition_features_[('M', 'STOP')] = -1000
+    # model.transition_features_[('S', 'E')] = -1000
+    # model.transition_features_[('S', 'M')] = -1000
+    # model.transition_features_[('START', 'M')] = -1000
+    # model.transition_features_[('START', 'START')] = -1000
+    # model.transition_features_[('START', 'STOP')] = -1000
+    # for s in ['STOP', 'START', 'B', 'E', 'M']:
+    #     model.transition_features_[('STOP', s)] = -1000
+
 
     labels = model.classes_
     # labels.remove("START") labels.remove("STOP")
     print("[SCORING] delta", delta)
-    print("load")
-    X_test, dimensions, y_test = load_dataset("task1_data/dev.eng.txt", delta=delta)
-    print("predict")
+    X_test, y_test = load_dataset("task1_data/dev.eng.txt", delta=delta)
+    print("X like:", X_test[0][3])
+    print("y like:", y_test[0])
     y_predicted = model.predict(X_test)
-#    for word, yps, yts in zip(X_test, y_predicted, y_test):
-#        try:
-#            for letter, yp, yt in zip(word, yps, yts):
-#                words = [word for word in letter if "^" in word and "$" in word]
-#                if yp != yt:
-#                    print(words)
-#                    # words = [word for word in letter if "^" in word and "$" in word]
-#                    print("\nguessed:")
-#                    for y, letter in zip(yps, words[0]):
-#                        # import ipdb; ipdb.set_trace()
-#                        if y in ('B', 'S'):
-#                            print("\t", end='')
-#                        print(letter, end='')
-#                    print("\nwas:")
-#                    for y, letter in zip(yts, words[0]):
-#                        # import ipdb; ipdb.set_trace()
-#                        if y in ('B', 'S'):
-#                            print("\t", end='')
-#                        print(letter, end='')
-#                    print("\npredicted")
-#                    for y in yps: print(y, end='\t')
-#                    print("\ntest")
-#                    for y in yts: print(y, end='\t')
-#                    print("")
-#                    raise ValueError
-#        except ValueError:
-#            pass
+    with open("/tmp/results", "a") as fout:
+        result = metrics.flat_classification_report(y_test, y_predicted, labels=labels, digits=3)
+        report['result'] = result
+        fout.write(json.dumps(report) + "\n")
+        print(result)
 
-
-    print(metrics.flat_classification_report(y_test, y_predicted, labels=labels, digits=3))
+def print_errors():
+    #    for word, yps, yts in zip(X_test, y_predicted, y_test):
+    #        try:
+    #            for letter, yp, yt in zip(word, yps, yts):
+    #                words = [word for word in letter if "^" in word and "$" in word]
+    #                if yp != yt:
+    #                    print(words)
+    #                    # words = [word for word in letter if "^" in word and "$" in word]
+    #                    print("\nguessed:")
+    #                    for y, letter in zip(yps, words[0]):
+    #                        # import ipdb; ipdb.set_trace()
+    #                        if y in ('B', 'S'):
+    #                            print("\t", end='')
+    #                        print(letter, end='')
+    #                    print("\nwas:")
+    #                    for y, letter in zip(yts, words[0]):
+    #                        # import ipdb; ipdb.set_trace()
+    #                        if y in ('B', 'S'):
+    #                            print("\t", end='')
+    #                        print(letter, end='')
+    #                    print("\npredicted")
+    #                    for y in yps: print(y, end='\t')
+    #                    print("\ntest")
+    #                    for y in yts: print(y, end='\t')
+    #                    print("")
+    #                    raise ValueError
+    #        except ValueError:
+    #            pass
+    pass
