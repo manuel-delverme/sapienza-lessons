@@ -1,7 +1,9 @@
 import sklearn_crfsuite as crf
+import numpy as np
 from nltk.corpus import words as nltk_words
 
-DELTAS = range(4, 5)
+# DELTAS = range(3, 10)
+DELTAS = range(4, 10, 2)
 UNIVERSAL_MODEL_LENGTH_MAX = 4
 NOISE_LENGTH_COEFF = 0
 USE_SYNTETIC_DATA = True
@@ -14,7 +16,7 @@ USE_E = True
 USE_B = True
 USE_S = True
 existing_words = set(nltk_words.words())
-
+IS_SYNTH = False
 
 def parse_dataset_row(word, target, delta):
     word = "^{}$".format(word)
@@ -60,6 +62,8 @@ def gen_features(word, letter, letter_idx, delta):
     after = word[letter_idx + 1:]
     before_acc = letter if SELF_LEFT else ""
     after_acc = letter if SELF_RIGHT else ""
+
+    yield 'bias'
     if KEEP_SELF:
         yield letter
 
@@ -71,36 +75,26 @@ def gen_features(word, letter, letter_idx, delta):
         after_acc = after_acc + a
         yield "_" + after_acc
 
-    word = word[1:-1]
+    if not IS_SYNTH:
+        word = word[1:-1]
 
-    if NOTE_WORD:
-        yield word
+        if NOTE_WORD:
+            yield word
 
-    if word[:letter_idx] in existing_words:
-        # print("right", word[:letter_idx])
-        yield 'right_of_real_word'
+        if word[:letter_idx] in existing_words:
+            # print("right", word[:letter_idx])
+            yield 'right_of_real_word'
 
-    if word[letter_idx:] in existing_words:
-        # print("left", word[letter_idx:])
-        yield 'left_of_real_word'
+        if word[letter_idx:] in existing_words:
+            # print("left", word[letter_idx:])
+            yield 'left_of_real_word'
 
-    if word in existing_words:
-        yield 'real_word'
+        if word in existing_words:
+            yield 'real_word'
 
-    # def syl(word):
-    #     return [list(y for y in x if y[-1].isdigit()) for x in d[word.lower()]]
-
-    # try:
-    #     for syls in syl(word[1:-1]):
-    #         for syl in syls:
-    #             x[syl] = 1
-    # except KeyError as e:
-    #     pass
-    #     # print("skipping syl", e)
     # x['length:' + str(len(word))] = 1
     yield '_idx_from_beginning_{}'.format(letter_idx)
     yield '_idx_to_end_{}'.format(len(word) - letter_idx)
-    yield 'bias'
 
 
 def assign_labels(morph):
@@ -126,22 +120,24 @@ def assign_labels(morph):
     return morph_tags
 
 
-def load_dataset(dataset_path, delta, synthetic_data=False):
+def load_dataset(dataset_paths, delta, synthetic_data=False):
     xs = []
     ys = []
     training_words = []
-    with open(dataset_path) as fin:
-        for row in fin:
-            word, target = row[:-1].split("\t")
-            target = target.split(",")[0]  # multiple annotations
-            training_words.append(word)
-            x, y = parse_dataset_row(word, target, delta)
-            xs.append(x)
-            ys.append(y)
+    IS_SYNTH = synthetic_data
+    if not synthetic_data:
+        for dataset_path in dataset_paths:
+            with open(dataset_path) as fin:
+                for row in fin:
+                    word, target = row[:-1].split("\t")
+                    target = target.split(",")[0]  # multiple annotations
+                    training_words.append(word)
+                    x, y = parse_dataset_row(word, target, delta)
+                    xs.append(x)
+                    ys.append(y)
 
-    training_words = frozenset(training_words)
-    if synthetic_data:
-        print("ADDING NOISE")
+        training_words = frozenset(training_words)
+    else:
         with open("clean_morphemes.csv") as fin:
             for row in fin:
                 word = row[:-1]
@@ -151,7 +147,7 @@ def load_dataset(dataset_path, delta, synthetic_data=False):
                 for letter_idx, letter in enumerate(x):
                     # del x[letter_idx]['bias']
                     x[letter_idx]['is_noise'] = 1
-                    x[letter_idx]['noise_length' + str(len(word))] = 1
+                    # x[letter_idx]['noise_length' + str(len(word))] = 1
                 xs.append(x)
                 ys.append(y)
         with open("madeupdata2") as fin:
@@ -163,25 +159,28 @@ def load_dataset(dataset_path, delta, synthetic_data=False):
                 x, y = parse_dataset_row(word, target, delta)
                 for letter_idx, letter in enumerate(x):
                     x[letter_idx]['is_made_up_2'] = 1
-                    x[letter_idx]['noise_length' + str(len(word))] = 1
+                    # x[letter_idx]['noise_length' + str(len(word))] = 1
                 xs.append(x)
                 ys.append(y)
-        # with open("madeupdata3") as fin:
-        #     for row in fin:
-        #         word, target = row[:-1].split("\t")
-        #         if word in training_words:
-        #             continue
+        with open("madeupdata3") as fin:
+            for row in fin:
+                word, target = row[:-1].split("\t")
+                if word in training_words:
+                    continue
 
-        #         x, y = parse_dataset_row(word, target, delta)
-        #         for letter_idx, letter in enumerate(x):
-        #             x[letter_idx]['is_made_up_3'] = 1
-        #             x[letter_idx]['noise_length' + str(len(word))] = 1
-        #         xs.append(x)
-        #        ys.append(y)
+                x, y = parse_dataset_row(word, target, delta)
+                for letter_idx, letter in enumerate(x):
+                    x[letter_idx]['is_made_up_3'] = 1
+                    # x[letter_idx]['noise_length' + str(len(word))] = 1
+                xs.append(x)
+                ys.append(y)
     return xs, ys
 
 
 def score_model(X_test, y_test, y_predicted):
+    assert len(X_test) > 0
+    assert len(y_test) > 0
+    assert len(y_predicted) > 0
     D = 0
     H = 0
     I = 0
@@ -208,9 +207,31 @@ def score_model(X_test, y_test, y_predicted):
     precision = H / (H + I)
     recall = H / (H + D)
     f1_score = 2 * (precision * recall) / (precision + recall)
+    # print("f1_score", f1_score)
+    return f1_score
 
-    print("f1_score", f1_score)
+def tandem_predict(model, synth_model, X, weight):
+    y_predicted = []
+    for word in X:
+        word_tags_predicted = []
 
+        ys = model.predict_marginals_single(word)
+        ys_synth = synth_model.predict_marginals_single(word)
+
+        for idx, y_synth in enumerate(ys_synth):
+            best_key = ''
+            best_val = 0
+            for key in y_synth.keys():
+                key_val = ys[idx][key] + weight * y_synth[key]
+                # key_val = max(ys[idx][key], y_synth[key])
+                # key_val = ys[idx][key] + np.exp(np.log(weight * y_synth[key]))
+                # key_val = ys[idx][key]
+                if key_val > best_val:
+                    best_val = key_val
+                    best_key = key
+            word_tags_predicted.append(best_key)
+        y_predicted.append(word_tags_predicted)
+    return y_predicted
 
 def main():
     report = {
@@ -225,34 +246,102 @@ def main():
         'USE_E': USE_E
     }
 
+    best_delta_score = 0
+    best_delta = -1
+
     for delta in DELTAS:
-        report['delta'] = delta
-        X_train, y_train = load_dataset("task1_data/training.eng.txt", delta=delta, synthetic_data=USE_SYNTETIC_DATA)
+        X_train, y_train = load_dataset(["task1_data/training.eng.txt"], delta=delta, synthetic_data=False)
         model = crf.CRF(
             algorithm='ap',
-            epsilon=10 ** -3,
-            max_iterations=1000,
-            # algorithm='lbfgs',
-            # c1=0.1,
-            # c2=0.01,
+            epsilon=10 ** -4,
+            max_iterations=100,
             # all_possible_transitions=False,
             # all_possible_states=False,
-            verbose=True,
+            verbose=False,
         )
-        print("fitting {} datapoint".format(len(X_train)))
+        # print("fitting {} datapoint on model".format(len(X_train)), end='...')
         model.fit(X_train, y_train)
-        print("Xtrain like:", X_train[0][3])
-        print("Xnoise like:", X_train[-1][3])
+
+        X_train, y_train = load_dataset([], delta=delta, synthetic_data=True)
+        synt_model = crf.CRF(
+            algorithm='ap',
+            epsilon=10 ** -4,
+            max_iterations=100,
+            # all_possible_transitions=False,
+            # all_possible_states=False,
+            verbose=False,
+        )
+        # print("fitting {} datapoint on synth".format(len(X_train)), end='...')
+        synt_model.fit(X_train, y_train)
+
+        # print("Xtrain like:", X_train[0][3])
+        # print("Xnoise like:", X_train[-1][3])
         # print("overfit?", model.score(X_train, y_train))
 
-        print("[SCORING] delta", delta)
-        X_test, y_test, = load_dataset("task1_data/dev.eng.txt", delta=delta)
+        # print("[SCORING] delta", delta, end='...')
+        X_test, y_test, = load_dataset(["task1_data/dev.eng.txt"], delta=delta)
         # print("y like:", y_test[0])
         y_predicted = model.predict(X_test)
-        score_model(X_test, y_test, y_predicted)
+        original_score = score_model(X_test, y_test, y_predicted)
+        print()
+        print("original score:", original_score)
 
-    print("READ https://en.wikipedia.org/wiki/Morpheme")
+        best_weight = -1
+        best_weight_score = 0
+        for weight in (w/100 for w in range(50, 100, 2)):
+            y_predicted = tandem_predict(model, synt_model, X_test, weight=weight)
+            weight_score = score_model(X_test, y_test, y_predicted)
+            if weight_score > best_weight_score:
+                best_weight_score = weight_score
+                best_weight = weight
+
+        print("best weight for delta={} is {} with score: {}".format(delta, best_weight, best_weight_score))
+        print("improvement over original: {}".format(best_weight_score - original_score))
+        if best_weight_score > best_delta_score:
+            print("^^^^ new best parameters ^^^^")
+            best_delta_score = best_weight_score
+            best_param = (delta, best_weight)
+
+
+    # final training
+    print("using", best_param, "to train")
+    delta, weight = best_param
+    X_train, y_train = load_dataset(["task1_data/training.eng.txt", "task1_data/dev.eng.txt"], delta=best_delta, synthetic_data=False)
+    print("fitting {} datapoint on model".format(len(X_train)))
+    model = crf.CRF(algorithm='ap',
+        epsilon=10 ** -4,
+        max_iterations=100,
+        # all_possible_transitions=False,
+        # all_possible_states=False,
+    )
+    model.fit(X_train, y_train)
+
+    X_train, y_train = load_dataset([], delta=delta, synthetic_data=True)
+    synt_model = crf.CRF(
+        algorithm='ap',
+        epsilon=10 ** -4,
+        max_iterations=100,
+        # all_possible_transitions=False,
+        # all_possible_states=False,
+        verbose=False,
+    )
+    synt_model.fit(X_train, y_train)
+
+    # print("[SCORING] delta", delta, end='...')
+    X_test, y_test, = load_dataset(["task1_data/test.eng.txt"], delta=delta)
+    # print("y like:", y_test[0])
+    y_predicted = model.predict(X_test)
+    original_score = score_model(X_test, y_test, y_predicted)
+    print("original score\t", original_score)
+
+    y_predicted = tandem_predict(model, synt_model, X_test, weight=weight)
+    voting_score = score_model(X_test, y_test, y_predicted)
+    print("voting   score\t", voting_score)
+    print("improvement:", voting_score - original_score)
 
 
 if __name__ == "__main__":
     main()
+    print("output synth from load_data instead of stupid flags!")
+    print("negative sampling [slides]")
+    print("READ https://en.wikipedia.org/wiki/Morpheme")
