@@ -1,5 +1,7 @@
 import sklearn_crfsuite as crf
+import pickle
 import numpy as np
+import itertools
 from nltk.corpus import words as nltk_words
 
 # DELTAS = range(3, 10)
@@ -15,7 +17,7 @@ NOTE_WORD = False
 USE_E = True
 USE_B = True
 USE_S = True
-existing_words = set(nltk_words.words())
+existing_words = frozenset(nltk_words.words())
 IS_SYNTH = False
 
 def parse_dataset_row(word, target, delta):
@@ -47,7 +49,7 @@ def parse_dataset_row(word, target, delta):
     #     good_tags = [tag for tag in tags if tag != "~"]
     #     good_tags = good_tags[0:len(xs) - 1] + [good_tags[-1]]
     #     tags = good_tags
-    return xs, tags
+    return xs, tags, morphs
 
 
 def letter_to_dict(word, letter, letter_idx, delta):
@@ -94,7 +96,7 @@ def gen_features(word, letter, letter_idx, delta):
 
     # x['length:' + str(len(word))] = 1
     yield '_idx_from_beginning_{}'.format(letter_idx)
-    yield '_idx_to_end_{}'.format(len(word) - letter_idx)
+    yield '_idx_to_end_{}'.format(len(word) - letter_idx + 1)
 
 
 def assign_labels(morph):
@@ -119,62 +121,68 @@ def assign_labels(morph):
             morph_tags.append("M")
     return morph_tags
 
+def parse_dataset(dataset_path, delta):
+    xsi = []
+    ysi = []
+    words = set()
+    morphs = set()
+
+    with open(dataset_path) as fin:
+        for row in fin:
+            word, target = row[:-1].split("\t")
+            words.add(word)
+            for target in target.split(","):
+                x, y, word_morphs = parse_dataset_row(word, target, delta)
+                xsi.append(x)
+                ysi.append(y)
+                morphs.update(word_morphs)
+    return xsi, ysi, words, morphs
+
 
 def load_dataset(dataset_paths, delta, synthetic_data=False):
     xs = []
     ys = []
-    training_words = []
-    IS_SYNTH = synthetic_data
-    if not synthetic_data:
-        for dataset_path in dataset_paths:
-            with open(dataset_path) as fin:
-                for row in fin:
-                    word, target = row[:-1].split("\t")
-                    target = target.split(",")[0]  # multiple annotations
-                    training_words.append(word)
-                    x, y = parse_dataset_row(word, target, delta)
-                    xs.append(x)
-                    ys.append(y)
+    synth_xs = []
+    synth_ys = []
+    training_words = set()
+    training_morphemes = set()
 
-        training_words = frozenset(training_words)
-    else:
-        with open("clean_morphemes.csv") as fin:
-            for row in fin:
-                word = row[:-1]
-                if word in training_words:
-                    continue
-                x, y = parse_dataset_row(word, word + ":TRASH ", delta)
-                for letter_idx, letter in enumerate(x):
-                    # del x[letter_idx]['bias']
-                    x[letter_idx]['is_noise'] = 1
-                    # x[letter_idx]['noise_length' + str(len(word))] = 1
-                xs.append(x)
-                ys.append(y)
-        with open("madeupdata2") as fin:
-            for row in fin:
-                word, target = row[:-1].split("\t")
-                if word in training_words:
-                    continue
+    for dataset_path in dataset_paths:
+        try:
+            with open("cache/" + dataset_path + "_parsed.pkl", 'rb') as fin:
+                xsi, ysi, words, morphs = pickle.load(fin)
+        except IOError:
+            xsi, ysi, words, morphs = parse_dataset(dataset_path, delta)
+            with open("cache/" + dataset_path + "_parsed.pkl", 'wb') as fout:
+                pickle.dump((xsi, ysi, words, morphs), fout)
 
-                x, y = parse_dataset_row(word, target, delta)
-                for letter_idx, letter in enumerate(x):
-                    x[letter_idx]['is_made_up_2'] = 1
-                    # x[letter_idx]['noise_length' + str(len(word))] = 1
-                xs.append(x)
-                ys.append(y)
-        with open("madeupdata3") as fin:
-            for row in fin:
-                word, target = row[:-1].split("\t")
-                if word in training_words:
-                    continue
+        xs.extend(xsi)
+        ys.extend(ysi)
+        training_words.update(words)
+        training_morphemes.update(morphs)
 
-                x, y = parse_dataset_row(word, target, delta)
-                for letter_idx, letter in enumerate(x):
-                    x[letter_idx]['is_made_up_3'] = 1
-                    # x[letter_idx]['noise_length' + str(len(word))] = 1
-                xs.append(x)
-                ys.append(y)
-    return xs, ys
+    if synthetic_data:
+        try:
+            with open("cache/" + dataset_path + "_synth.pkl", 'rb') as fin:
+                synth_xs, synth_ys = pickle.load(fin)
+        except IOError:
+            for radius in range(2, 5):
+                print("generating len:{} synthetic data".format(radius))
+                for candidate_morphemes in itertools.combinations(training_morphemes, radius):
+                    word = ''.join(candidate_morphemes)
+                    if word in training_words or word not in existing_words:
+                        continue
+
+                    x, y, _ = parse_dataset_row(word, word + ":TRASH ", delta)
+                    for letter_idx, letter in enumerate(x):
+                        x[letter_idx]['is_synth'] = 1
+                        x[letter_idx]['morpheme_count_' + str(radius)] = 1
+                    synth_xs.append(x)
+                    synth_ys.append(y)
+                print("generated {} samples".format(len(synth_ys)))
+            with open("cache/" + dataset_path + "_synth.pkl", 'wb') as fout:
+                pickle.dump((synth_xs, synth_ys), fout)
+    return xs, ys, synth_xs, synth_ys
 
 
 def score_model(X_test, y_test, y_predicted):
@@ -249,30 +257,23 @@ def main():
     best_delta_score = 0
     best_delta = -1
 
-    for delta in DELTAS:
-        X_train, y_train = load_dataset(["task1_data/training.eng.txt"], delta=delta, synthetic_data=False)
-        model = crf.CRF(
-            algorithm='ap',
-            epsilon=10 ** -4,
-            max_iterations=100,
-            # all_possible_transitions=False,
-            # all_possible_states=False,
-            verbose=False,
-        )
-        # print("fitting {} datapoint on model".format(len(X_train)), end='...')
-        model.fit(X_train, y_train)
+    crf_params = {
+        'algorithm':'ap',
+        'epsilon':10 ** -4,
+        'max_iterations':100,
+        'all_possible_transitions':True,
+        # all_possible_states=True,
+        'verbose':False,
+    }
 
-        X_train, y_train = load_dataset([], delta=delta, synthetic_data=True)
-        synt_model = crf.CRF(
-            algorithm='ap',
-            epsilon=10 ** -4,
-            max_iterations=100,
-            # all_possible_transitions=False,
-            # all_possible_states=False,
-            verbose=False,
-        )
-        # print("fitting {} datapoint on synth".format(len(X_train)), end='...')
-        synt_model.fit(X_train, y_train)
+    for delta in DELTAS:
+        X_train, y_train, X_synth, y_synth = load_dataset(["task1_data/training.eng.txt"], delta=delta, synthetic_data=True)
+
+        model = crf.CRF(**crf_params)
+        synt_model = crf.CRF(**crf_params)
+
+        model.fit(X_train, y_train)
+        synt_model.fit(X_synth, y_synth)
 
         # print("Xtrain like:", X_train[0][3])
         # print("Xnoise like:", X_train[-1][3])
@@ -308,23 +309,11 @@ def main():
     delta, weight = best_param
     X_train, y_train = load_dataset(["task1_data/training.eng.txt", "task1_data/dev.eng.txt"], delta=best_delta, synthetic_data=False)
     print("fitting {} datapoint on model".format(len(X_train)))
-    model = crf.CRF(algorithm='ap',
-        epsilon=10 ** -4,
-        max_iterations=100,
-        # all_possible_transitions=False,
-        # all_possible_states=False,
-    )
+    model = crf.CRF(**crf_params)
     model.fit(X_train, y_train)
 
     X_train, y_train = load_dataset([], delta=delta, synthetic_data=True)
-    synt_model = crf.CRF(
-        algorithm='ap',
-        epsilon=10 ** -4,
-        max_iterations=100,
-        # all_possible_transitions=False,
-        # all_possible_states=False,
-        verbose=False,
-    )
+    synt_model = crf.CRF(**crf_params)
     synt_model.fit(X_train, y_train)
 
     # print("[SCORING] delta", delta, end='...')
@@ -341,7 +330,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    model = main()
     print("output synth from load_data instead of stupid flags!")
     print("negative sampling [slides]")
     print("READ https://en.wikipedia.org/wiki/Morpheme")
