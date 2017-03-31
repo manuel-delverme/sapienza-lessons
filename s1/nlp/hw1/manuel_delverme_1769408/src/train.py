@@ -5,7 +5,7 @@ import itertools
 from nltk.corpus import words as nltk_words
 
 # DELTAS = range(3, 10)
-DELTAS = range(4, 10, 2)
+DELTAS = range(4, 10)
 UNIVERSAL_MODEL_LENGTH_MAX = 4
 NOISE_LENGTH_COEFF = 0
 USE_SYNTETIC_DATA = True
@@ -18,7 +18,9 @@ USE_E = True
 USE_B = True
 USE_S = True
 existing_words = frozenset(nltk_words.words())
+TRAINING_MORPHEMES = set()
 IS_SYNTH = False
+
 
 def parse_dataset_row(word, target, delta):
     word = "^{}$".format(word)
@@ -68,6 +70,9 @@ def gen_features(word, letter, letter_idx, delta):
     yield 'bias'
     if KEEP_SELF:
         yield letter
+
+    #TODO: yield left[1] 2 or 3 time
+    #TODO: position of morpheme in word, beginning middle end
 
     for b in reversed(before[-delta:]):
         before_acc = b + before_acc
@@ -121,6 +126,7 @@ def assign_labels(morph):
             morph_tags.append("M")
     return morph_tags
 
+
 def parse_dataset(dataset_path, delta):
     xsi = []
     ysi = []
@@ -161,27 +167,19 @@ def load_dataset(dataset_paths, delta, synthetic_data=False):
         training_words.update(words)
         training_morphemes.update(morphs)
 
-    if synthetic_data:
-        try:
-            with open("cache/" + dataset_path + "_synth.pkl", 'rb') as fin:
-                synth_xs, synth_ys = pickle.load(fin)
-        except IOError:
-            for radius in range(2, 5):
-                print("generating len:{} synthetic data".format(radius))
-                for candidate_morphemes in itertools.combinations(training_morphemes, radius):
-                    word = ''.join(candidate_morphemes)
-                    if word in training_words or word not in existing_words:
-                        continue
-
-                    x, y, _ = parse_dataset_row(word, word + ":TRASH ", delta)
-                    for letter_idx, letter in enumerate(x):
-                        x[letter_idx]['is_synth'] = 1
-                        x[letter_idx]['morpheme_count_' + str(radius)] = 1
-                    synth_xs.append(x)
-                    synth_ys.append(y)
-                print("generated {} samples".format(len(synth_ys)))
-            with open("cache/" + dataset_path + "_synth.pkl", 'wb') as fout:
-                pickle.dump((synth_xs, synth_ys), fout)
+        if synthetic_data:
+            try:
+                with open("cache/" + dataset_path + "_synth.pkl", 'rb') as fin:
+                    synth_xs, synth_ys = pickle.load(fin)
+            except IOError:
+                for word in existing_words:
+                    for morphemes in get_morpheme_decompositions(word):
+                        target = ' '.join([morph + ":TRASH" for morph in morphemes])
+                        x, y, _ = parse_dataset_row(word, target, delta)
+                        synth_xs.append(x)
+                        synth_ys.append(y)
+                with open("cache/" + dataset_path + "_synth.pkl", 'wb') as fout:
+                    pickle.dump((synth_xs, synth_ys), fout)
     return xs, ys, synth_xs, synth_ys
 
 
@@ -218,6 +216,7 @@ def score_model(X_test, y_test, y_predicted):
     # print("f1_score", f1_score)
     return f1_score
 
+
 def tandem_predict(model, synth_model, X, weight):
     y_predicted = []
     for word in X:
@@ -241,6 +240,26 @@ def tandem_predict(model, synth_model, X, weight):
         y_predicted.append(word_tags_predicted)
     return y_predicted
 
+
+def clean_data(model, X_synth, y_synth):
+    clean_xs = []
+    clean_ys = []
+
+    for word, tags in zip(X_synth, y_synth):
+        marginals = model.predict_marginals_single(word)
+        score = 0
+        for idx, tag in enumerate(tags):
+            score += marginals[idx][tag]
+        if score/len(tags) < 0.8:
+            clean_xs.append(word)
+            clean_ys.append(tags)
+        else:
+            pass
+    print("dropped", len(y_synth) - len(clean_ys))
+    return clean_xs, clean_ys
+
+
+
 def main():
     report = {
         'USE_SYNTETIC_DATA': USE_SYNTETIC_DATA,
@@ -258,13 +277,43 @@ def main():
     best_delta = -1
 
     crf_params = {
-        'algorithm':'ap',
-        'epsilon':10 ** -4,
-        'max_iterations':100,
-        'all_possible_transitions':True,
+        'algorithm': 'ap',
+        'epsilon': 10 ** -4,
+        'max_iterations': 1000,
+        # 'all_possible_transitions': False,
         # all_possible_states=True,
-        'verbose':False,
+        'verbose': False,
     }
+    crf_synth_params = {
+        'algorithm': 'ap',
+        'epsilon': 10 ** -4,
+        'max_iterations': 100,
+        'verbose': False,
+    }
+
+    X_train, y_train, _, _ = load_dataset(["task1_data/training.eng.txt"], delta=6)
+    model = crf.CRF(**crf_params)
+    model.fit(X_train, y_train)
+
+    done = set()
+    for row in open("annotation.csv"):
+        word = row[:-1].split(",")[0]
+        done.add(word)
+
+    for word in existing_words:
+        if word in done:
+            continue
+        xsi = []
+        for letter_idx, letter in enumerate(word):
+            x = letter_to_dict(word, letter, letter_idx, 6)
+            xsi.append(x)
+        word_tags = model.predict_single(xsi)
+        print(word, end="\t", flush=True)
+        for letter, word_tag in zip(word, word_tags):
+            print(letter, end='')
+            if word_tag == 'B' or word_tag == 'S':
+                print("\t", end='')
+        print()
 
     for delta in DELTAS:
         X_train, y_train, X_synth, y_synth = load_dataset(["task1_data/training.eng.txt"], delta=delta, synthetic_data=True)
@@ -289,9 +338,10 @@ def main():
 
         best_weight = -1
         best_weight_score = 0
-        for weight in (w/100 for w in range(50, 100, 2)):
+        for weight in (w / 100 for w in range(10, 100, 2)):
             y_predicted = tandem_predict(model, synt_model, X_test, weight=weight)
             weight_score = score_model(X_test, y_test, y_predicted)
+            print("weight", weight, weight_score)
             if weight_score > best_weight_score:
                 best_weight_score = weight_score
                 best_weight = weight
