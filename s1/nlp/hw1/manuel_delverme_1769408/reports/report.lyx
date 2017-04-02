@@ -91,11 +91,14 @@ System overview
 \end_layout
 
 \begin_layout Subsection
-How did you implement the model
+Design choices
 \end_layout
 
 \begin_layout Standard
-which language you choose, which library
+Python, and sklearn_crfsuite were used, Python allows for high an iteration
+ speed between different experiemnts, and sklearn_crfsuite uses pycrfsuite
+ which in turn uses a C implementation (Cython) to achieve high training
+ speed.
 \end_layout
 
 \begin_layout Subsection
@@ -130,6 +133,11 @@ some of the unused features are:
  slice are part of existing_word[:-1]
 \end_layout
 
+\begin_layout Standard
+since [vapnik theorem] and since [learning curve] and since [notebook],
+ a simpler feature set was tested with good results
+\end_layout
+
 \begin_layout Section
 Results and Analysis
 \end_layout
@@ -149,6 +157,10 @@ K tests are performed where at each test one of the sets is taken as test
 
 \begin_layout Itemize
 The results are averaged
+\end_layout
+
+\begin_layout Itemize
+gating 906
 \end_layout
 
 \begin_layout Standard
