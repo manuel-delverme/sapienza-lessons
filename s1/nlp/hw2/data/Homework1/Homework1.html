@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<button id = "ButtonX">Rotate X</button>
+<button id = "ButtonY">Rotate Y</button>
+<button id = "ButtonZ">Rotate Z</button>
+<button id = "ButtonT">Toggle Rotation</button>
+<button id = "ButtonShading">Toggle Shading</button>
+<button id = "ButtonSpotlight">Toggle SLight</button>
+<button id = "ButtonPointLight">Toggle PLight</button>
+<button id = "ButtonDirectionalLight">Toggle DLight</button>
+
+<script id="fragment-light-vertex-shader" type="x-shader/x-vertex">
+        precision mediump float;
+
+        attribute vec4 vertexPosition, vertexColor;
+        attribute vec3 vertexNormal;
+        attribute vec2 vertexTextureCoord;
+
+        varying vec2 fTextureCoord;
+        // varying vec3 lightDirection, vertexNormal_world, vertexToViewer;
+        varying vec4 fragmentColor;
+
+        varying vec3 fragmentNormal;
+        varying vec4 fragmentPosition;
+
+        uniform mat4 projectionMatrix, modelViewMatrix;
+            // uniform mat3 normalMatrix;
+            // uniform vec4 pointLightLocation;
+            // uniform vec4 directionalLightLocation;
+
+            // uniform float useDirectionalLight;
+            // uniform float usePointLight;
+            // uniform float useSpotLight;
+
+    void main() {
+
+        // N
+        fragmentNormal = normalize(modelViewMatrix * vec4(vertexNormal, 1.0)).xyz;
+        fragmentPosition = vertexPosition;
+
+            // L
+            // lightDirection = normalize(-directionalLightLocation).xyz;
+
+            // vertexNormal_world = normalize(modelViewMatrix * vec4(vertexNormal, 0)).xyz;
+
+            // pos
+            // vec3 vertexPosition_world = (modelViewMatrix * vertexPosition).xyz;
+
+
+            // if(useDirectionalLight == 1.0){
+            //     // light && L
+            //     lightDirection = normalize(-directionalLightLocation).xyz;
+
+            //     vertexToViewer = -vertexPosition_world; // vertex to origin vector (?)
+            // }
+            // if(usePointLight == 1.0){
+            //     // L
+            //     // vec3 lightToVertexVector = normalize(pointLightLocation.xyz - vertexPosition_world);
+            //     vec3 vertexPositionToLight = vertexPosition_world - pointLightLocation.xyz;
+            //     fragmentNormal = vertexNormal;
+            //     fragmentPosition = vertexPosition;
+            // }
+            //     // float distance = len(lightToVertexVector)
+            //     // if(pointLightLocation.z == 0.0){
+            //     //     lightDirection = normalize(pointLightLocation.xyz);
+            //     // } else {
+            //     // lightDirection = normalize(pointLightLocation).xyz - pos;
+            //     // }
+
+        fragmentColor = vertexColor;
+        fragmentColor.a = 1.0;
+
+            // non light stuff
+            gl_Position = projectionMatrix *  modelViewMatrix * vertexPosition;
+            gl_Position.z = -gl_Position.z;
+            fTextureCoord = vertexTextureCoord;
+    }
+</script>
+<script id="fragment-light-fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec2 fTextureCoord;
+        varying vec3 fragmentNormal, vertexToViewer;
+        varying vec4 fragmentColor;
+        varying vec4 fragmentPosition;
+
+        uniform sampler2D Texture0;
+        uniform sampler2D Texture1;
+
+        uniform float useDirectionalLight;
+        uniform float usePointLight;
+        uniform float useSpotLight;
+
+        uniform vec4 pointLightLocation;
+        uniform vec4 spotLightLocation;
+        uniform vec4 directionalLightLocation;
+
+        uniform float shininess;
+        uniform float attenuationConstant, attenuationLinear, attenuationQuadratic;
+        // uniform mat4 modelViewMatrix;
+        uniform vec4 ambientLight, diffuseLight, specularLight;
+
+    void main() { // runs for each pixel; sets color
+
+            // ATTENUATION
+            float attenuation = 1.0;
+
+            // account for distance from light source
+            if(usePointLight + useSpotLight > 0.0){
+                vec3 lightRay = (pointLightLocation - fragmentPosition).xyz;
+                float d = length(lightRay);
+                attenuation = (attenuationConstant + attenuationLinear * d + attenuationQuadratic * d * d);
+            }
+
+        // Ls
+        vec3 directionalLightDirection = normalize(directionalLightLocation.xyz - fragmentPosition.xyz);
+        vec3 pointLightDirection = normalize(pointLightLocation.xyz - fragmentPosition.xyz);
+
+        // 6.3.1 Ambient Reflection
+		vec4 ambientReflection = ambientLight;
+
+        // 6.3.2 Diffuse Reflection
+        vec4 diffuseIntensity = vec4(0.0, 0.0, 0.0, 0.0);
+        if(useDirectionalLight == 1.0){
+            // L
+            float diffuseReflection = max(dot(directionalLightDirection, fragmentNormal), 0.0 );
+            diffuseIntensity += diffuseLight * diffuseReflection * diffuseLight;
+        }
+        if(usePointLight == 1.0){
+            // if < 0: the light is behind so zero out
+            float diffuseReflection = max(dot(pointLightDirection, fragmentNormal), 0.0 );
+            diffuseIntensity += diffuseLight * diffuseReflection * diffuseLight;
+        }
+        if(useSpotLight == 1.0){
+            // TODO
+        }
+
+
+        // 6.3.3 Specular Reflection
+        // E
+        vec3 viewerDirection = -normalize(fragmentPosition.xzy);
+        vec4 specularIntensity = vec4(0.0, 0.0, 0.0, 0.0);
+
+        if(useDirectionalLight == 1.0){
+            vec3 halfWayVector = normalize(directionalLightDirection + viewerDirection);
+		    float specularReflection = max(pow(max(dot(fragmentNormal, halfWayVector), 0.0), shininess), 0.0);
+            vec4 specularIntensity = specularIntensity + (specularLight * specularReflection * specularLight);
+        }
+        if(usePointLight == 1.0){
+            vec3 halfWayVector = normalize(pointLightDirection + viewerDirection);
+		    float specularReflection = max(pow(max(dot(fragmentNormal, halfWayVector), 0.0), shininess), 0.0);
+            vec4 specularIntensity = specularIntensity + (specularLight * specularReflection * specularLight);
+        }
+        if(useSpotLight == 1.0){
+            // TODO
+        }
+        vec4 lightIntensity = ambientLight + (diffuseIntensity + specularIntensity) * attenuation;
+
+
+        // DONE
+		    // vec4  specular = specularCoefficent * specularLight;
+		    // 
+		    // if( dot(lightDirection, vertexNormal_world) < 0.0 ) {
+		    // 	specular = vec4(0.0, 0.0, 0.0, 1.0);
+		    // } 
+
+            // // TODO
+            // 
+
+            // vec3 fragmentWorldPosition = (modelViewMatrix * fragmentPosition).xyz;
+            // if(useDirectionalLight == 1.0){
+            //     vec3 fragmentPositionToLight = fragmentWorldPosition - pointLightLocation.xyz;
+            // }
+            // if(usePointLight == 1.0){
+            //     mat3 normalMatrix = transpose(inverse(mat3(modelViewMatrix)));
+            //     // fragment normal world coords
+            //     vec3 fragmentNormal_world = normalize(normalMatrix * fragmentNormal);
+            //     // fragment world coords
+            //     vec3 fragmentPosition_world = vec3(modelViewMatrix * vec4(fragmentPosition, 1.0));
+            //     // pixel to light vector
+            //     vec3 pixelToLight_world = pointLightPosition - fragmentPosition_world;
+            //     // float brightness =
+            //     //         dot(fragmentNormal_world, pixelToLight_world)
+            //     //         / length(pixelToLight);
+            //     // brightness = clamp(brightness, 0, 1);
+            //     float d = length(pixelToLight);
+            //     float pointLightBrightness = 1/(a + b * d + c * d * d);
+            // }
+            // if(useSpotLight == 1.0){
+            //     cosTheta = dot(lightDireciton, pixelToLight_world);
+            // }
+		    // vec3 H = normalize( lightDirection + vertexToViewer );
+
+		    // float specularCoefficent = pow(max(dot(vertexNormal_world, H), 0.0), shininess);
+		    // vec4  specular = specularCoefficent * specularLight;
+		    // 
+		    // if( dot(lightDirection, vertexNormal_world) < 0.0 ) {
+		    // 	specular = vec4(0.0, 0.0, 0.0, 1.0);
+		    // } 
+
+		gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0)// fragmentColor 
+                    // * texture2D(Texture0, fTextureCoord)
+                    // * texture2D(Texture1, fTextureCoord)
+                    * lightIntensity;
+        // gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0) * (ambient + diffuseLight + specular);
+		gl_FragColor.a = 1.0;
+    }
+</script>
+
+<script id="vertex-light-vertex-shader" type="x-shader/x-vertex">
+    // camera stuff
+    attribute vec4 vertexPosition; // position from JS; the original one
+    attribute vec4 vertexColor;
+    attribute vec3 vertexNormal;
+    attribute vec2 vertexTextureCoord;
+
+    varying vec2 fTextureCoord;
+    varying vec4 fragmentColor;
+
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    uniform vec4 ambientLight, diffuseLight, specularLight;
+    uniform vec4 pointLightLocation;
+    uniform float shininess;
+
+
+    void main() // runs for each vertex
+    {
+        vec4 worldPosition = modelViewMatrix * vertexPosition;
+        vec3 worldNormal = normalize((modelViewMatrix * vec4(vertexNormal, 1.0)).xyz);
+        vec3 worldCamera = normalize(worldPosition.xyz);
+
+        vec3 lightRay = (pointLightLocation - worldPosition).xyz;
+        vec3 lightDirection = normalize(lightRay);
+        float attenuationFactor = 100.0;
+        float attenuation = pow(length(lightRay), -2.0) * attenuationFactor;
+
+        float diffuseReflection, specularReflection;
+        diffuseReflection = dot(worldNormal, lightDirection);
+        diffuseReflection = max(diffuseReflection, 0.0);
+
+        specularReflection = dot(worldCamera, reflect(lightDirection, worldNormal));
+        specularReflection = pow(max(specularReflection, 0.0), attenuationFactor);
+
+        // vec3 lightDirection = normalize( pointLightLocation.xyz - worldPosition );
+        // vec3 vertexToViewer = normalize( -pos );
+        // vec3 H = normalize( lightDirection + vertexToViewer );
+
+        // vec3 vertexNormal_world = normalize( (modelViewMatrix * vec4(vertexNormal, 0)).xyz);
+
+        // Compute terms in the illumination equation
+        // vec4 ambient = ambientLight;
+
+        // // diffuse
+		// float diffuseCoefficent = max( dot(lightDirection, vertexNormal_world), 0.0 );
+		// vec4  diffuse = diffuseCoefficent * diffuseLight;
+        // // specular
+		// float Ks = pow( max(dot(vertexNormal_world, H), 0.0), shininess );
+		// vec4  specular = Ks * specularLight;
+		
+		// if( dot(lightDirection, vertexNormal_world) < 0.0 ) {
+		// 	specular = vec4(0.0, 0.0, 0.0, 1.0);
+		// } 
+
+        gl_Position = projectionMatrix *  modelViewMatrix * vertexPosition;
+
+		// fragmentColor = vertexColor * (ambient + diffuse + specular);
+		fragmentColor = vertexColor * (ambientLight + (diffuseLight * diffuseReflection) + (specularLight * specularReflection) * attenuation) * attenuationFactor;
+        fragmentColor.a = 1.0;
+
+        // gl_Position.z = -gl_Position.z;
+        fTextureCoord = vertexTextureCoord;
+
+    }
+</script>
+
+<script id="vertex-light-fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec4 fragmentColor;
+    varying vec2 fTextureCoord;
+
+    uniform sampler2D Texture0;
+    uniform sampler2D Texture1;
+
+    void main() {
+        gl_FragColor = fragmentColor * (texture2D(Texture0, fTextureCoord) * texture2D(Texture1, fTextureCoord));
+    }
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="1024" height="1024">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<script type="text/javascript" src="Homework1.js"></script>
+</body>
+</html>
