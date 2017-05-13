@@ -1,475 +1,385 @@
-"use strict";
+    "use strict";
 
-var canvas, gl, program;
+    var canvas, gl, program;
 
-var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
+    var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
+    var points = [];
+    var colors = [];
 
-var points = [];
-var colors = [];
-
-var vertices = [
-    vec4(-0.5, -0.5, 0.5, 1.0),
-    vec4(-0.5, 0.5, 0.5, 1.0),
-    vec4(0.5, 0.5, 0.5, 1.0),
-    vec4(0.5, -0.5, 0.5, 1.0),
-    vec4(-0.5, -0.5, -0.5, 1.0),
-    vec4(-0.5, 0.5, -0.5, 1.0),
-    vec4(0.5, 0.5, -0.5, 1.0),
-    vec4(0.5, -0.5, -0.5, 1.0)
-];
-
-// RGBA colors
-var vertexColors = [
-    vec4(1.0, 0.0, 1.0, 1.0), // red
-    vec4(0.0, 0.5, 0.5, 1.0), // gray
-    vec4(0.5, 1.0, 0.0, 1.0), // green
-    vec4(0.0, 0.0, 1.0, 1.0), // blue
-    vec4(1.0, 0.0, 0.0, 1.0), // magenta
-    vec4(0.0, 0.0, 0.0, 1.0), // black
-    vec4(0.0, 0.0, 1.0, 1.0), // blue
-    vec4(0.0, 1.0, 1.0, 1.0) // cyan
-];
-
-
-// Parameters controlling the size of the Robot's arm
-
-var BASE_HEIGHT = 5.0;
-var BASE_WIDTH = 6.0;
-var LOWER_ARM_HEIGHT = 3.0;
-var LOWER_ARM_WIDTH = 0.5;
-var UPPER_ARM_HEIGHT = 1.5;
-var UPPER_ARM_WIDTH = 0.5;
-var MIDDLE_ARM_HEIGHT = 2.0;
-var MIDDLE_ARM_WIDHT = 0.5;
-
-// Shader transformation matrices
-
-var modelViewMatrix, projectionMatrix;
-
-
-var i = 0;
-var palmId = ++i;
-
-var thumb1Id = ++i;
-var thumb2Id = ++i;
-
-var index1Id = ++i;
-var index2Id = ++i;
-var index3Id = ++i;
-
-var middle1Id = ++i;
-var middle2Id = ++i;
-var middle3Id = ++i;
-
-var ring1Id = ++i;
-var ring2Id = ++i;
-var ring3Id = ++i;
-
-var pinky1Id = ++i;
-var pinky2Id = ++i;
-var pinky3Id = ++i;
-
-var numNodes = i;
-var stack = [];
-var figure = [];
-for (var i = 0; i < numNodes; i++) figure[i] = createNode(null, null, null, null);
-
-function createNode(transform, render, sibling, child){
-    var node = {
-    transform: transform,
-    render: render,
-    sibling: sibling,
-    child: child,
+    function scale4(a, b, c) {
+        var result = mat4();
+        result[0][0] = a;
+        result[1][1] = b;
+        result[2][2] = c;
+        return result;
     }
-    return node;
+
+
+    var vertices = [
+        vec4(-0.5, -0.5, 0.5, 1.0),
+        vec4(-0.5, 0.5, 0.5, 1.0),
+        vec4(0.5, 0.5, 0.5, 1.0),
+        vec4(0.5, -0.5, 0.5, 1.0),
+        vec4(-0.5, -0.5, -0.5, 1.0),
+        vec4(-0.5, 0.5, -0.5, 1.0),
+        vec4(0.5, 0.5, -0.5, 1.0),
+        vec4(0.5, -0.5, -0.5, 1.0)
+    ];
+
+    // RGBA colors
+    var vertexColors = [
+        vec4(1.0, 0.0, 0.0, 1.0), // red
+        vec4(0.5, 0.5, 0.5, 1.0), // gray
+        vec4(0.0, 1.0, 0.0, 1.0), // green
+        vec4(0.0, 0.0, 1.0, 1.0), // blue
+        vec4(1.0, 1.0, 0.0, 1.0), // magenta
+        vec4(0.0, 0.0, 0.0, 1.0), // black
+        vec4(0.0, 0.0, 1.0, 1.0), // blue
+        vec4(0.0, 1.0, 1.0, 1.0) // cyan
+    ];
+
+
+    // Parameters controlling the size of the Robot's arm
+    var modelViewMatrix, projectionMatrix;
+    function createNode(transform, render, sibling, child, name){
+        var node = {
+            transform: transform,
+            render: render,
+            sibling: sibling,
+            child: child,
+            name: name,
+        }
+        return node;
+    }
+    var Base = 0;
+
+    var angle = 0;
+
+    var modelViewMatrixLoc;
+
+    var vBuffer, cBuffer;
+    function quad(a, b, c, d) {
+        colors.push(vertexColors[a]);
+        points.push(vertices[a]);
+        colors.push(vertexColors[a]);
+        points.push(vertices[b]);
+        colors.push(vertexColors[a]);
+        points.push(vertices[c]);
+        colors.push(vertexColors[a]);
+        points.push(vertices[a]);
+        colors.push(vertexColors[a]);
+        points.push(vertices[c]);
+        colors.push(vertexColors[a]);
+        points.push(vertices[d]);
+    }
+    function colorCube() {
+        quad(1, 0, 3, 2);
+        quad(2, 3, 7, 6);
+        quad(3, 0, 4, 7);
+        quad(6, 5, 1, 2);
+        quad(4, 5, 6, 7);
+        quad(5, 4, 0, 1);
+    }
+    function traverse(Id) {
+        if (Id == null) return;
+        var fig = figure[Id];
+
+        stack.push(modelViewMatrix);
+        modelViewMatrix = mult(modelViewMatrix, fig.transform);
+        fig.render();
+        if (fig.child != null) traverse(fig.child);
+        modelViewMatrix = stack.pop();
+        if (fig.sibling != null) traverse(fig.sibling);
+    }
+    var PALM_HEIGHT = 5.0;
+    var PALM_WIDTH = 6.0;
+    var PALM_DEPTH = 1.0;
+    var LOWER_ARM_HEIGHT = 3.0;
+    var LOWER_ARM_WIDTH = 0.5;
+    var UPPER_ARM_HEIGHT = 1.5;
+    var UPPER_ARM_WIDTH = 0.5;
+    var MIDDLE_ARM_HEIGHT = 2.0;
+    var MIDDLE_ARM_WIDTH = 0.5;
+    var FINGER_SPACING = PALM_WIDTH / 4;
+
+    var i = 0;
+    var palmId = i++;
+
+    var lowerThumbId = i++;
+    var upperThumbId = i++;
+
+    var lowerIndexId = i++;
+    var middleIndexId = i++;
+    var upperIndexId = i++;
+
+    var lowerMiddleId = i++;
+    var middleMiddleId = i++;
+    var upperMiddleId = i++;
+
+    var lowerRingId = i++;
+    var middleRingId = i++;
+    var upperRingId = i++;
+
+    var lowerPinkyId = i++;
+    var middlePinkyId = i++;
+    var upperPinkyId = i++;
+
+    var numNodes = i;
+    var stack = [];
+    var figure = [];
+    var theta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    for (var i = 0; i < numNodes; i++){
+        figure[i] = createNode(null, null, null, null, null);
+    }
+    window.onload = function init() {
+            canvas = document.getElementById("gl-canvas");
+            gl = WebGLUtils.setupWebGL(canvas);
+            if (!gl) { alert("WebGL isn't available"); }
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.clearColor(1.0, 1.0, 1.0, 1.0);
+            gl.enable(gl.DEPTH_TEST);
+            program = initShaders(gl, "vertex-shader", "fragment-shader");
+            gl.useProgram(program);
+            modelViewMatrix = mat4();
+            colorCube();
+
+            vBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+
+            var vPosition = gl.getAttribLocation(program, "vPosition");
+            gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(vPosition);
+
+            cBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+
+            var vColor = gl.getAttribLocation(program, "vColor");
+            gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(vColor);
+
+            modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+
+            projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
+            gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+        for(i=0; i<numNodes; i++) initNodes(i);
+        render();
+    }
+
+for (var i = 0; i < numNodes; i++){
+    theta[i] = Math.random()*15;
+}
+theta[palmId] = -80;
+theta[lowerThumbId] = 80;
+theta[upperThumbId] = 10;
+var limits = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+limits[palmId] = 10;
+limits[lowerThumbId] = 30;
+limits[upperThumbId] = 90;
+
+for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
+    limits[i] = 90
+    limits[i+1] = 70
+    limits[i+2] = 45
 }
 
 function initNodes(Id) {
-
     var m = mat4();
+    var draw_finger = function(){ drawFinger(0, 0.5 * LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT)};
     switch (Id) {
         case palmId:
-            m = rotate(theta[palmId], 0, 1, 0);
-            figure[palmId] = createNode(m, torso, null, headId);
+            m = translate(-0.5 * PALM_WIDTH, -0.5 * PALM_HEIGHT, -PALM_WIDTH)
+            m = mult(m, rotate(theta[Id], 0, 1, 0));
+            figure[Id] = createNode(m, palm, null, lowerThumbId, "palm");
             break;
-        case index1Id:
-        case index2Id:
-        case index3Id:
-            m = translate(0.0, torsoHeight + 0.5 * headHeight, 0.0);
-            m = mult(m, rotate(theta[head1Id], 1, 0, 0))
-            m = mult(m, rotate(theta[head2Id], 0, 1, 0));
-            m = mult(m, translate(0.0, -0.5 * headHeight, 0.0));
-            figure[headId] = createNode(m, head, leftUpperArmId, null);
+            
+        // Thumb
+        case lowerThumbId:
+            var dx = PALM_WIDTH + LOWER_ARM_WIDTH * 0.5;
+            m = translate(dx, PALM_HEIGHT/4, PALM_DEPTH/2);
+            // m = mult(m, rotate(+10, 1, 0, 0));
+            m = mult(m, rotate(+75, 1, 0, 0));
+            m = mult(m, rotate(-theta[Id], 0, 0, 1));
+            figure[Id] = createNode(m, draw_finger, Id+2, Id+1, "lowerThumb");
             break;
-
-        case middle1Id:
-        case middle2Id:
-        case middle3Id:
-            m = translate(-(torsoWidth + upperArmWidth), 0.9 * torsoHeight, 0.0);
-            m = mult(m, rotate(theta[leftUpperArmId], 1, 0, 0));
-            figure[leftUpperArmId] = createNode(m, leftUpperArm, rightUpperArmId, leftLowerArmId);
-            break;
-
-        case ring1Id:
-        case ring2Id:
-        case ring3Id:
-            m = translate(torsoWidth + upperArmWidth, 0.9 * torsoHeight, 0.0);
-            m = mult(m, rotate(theta[rightUpperArmId], 1, 0, 0));
-            figure[rightUpperArmId] = createNode(m, rightUpperArm, leftUpperLegId, rightLowerArmId);
+        case upperThumbId:
+            m = translate(0.0, UPPER_ARM_HEIGHT * 2, 0.0);
+            m = mult(m, rotate(theta[Id], 0, 0, 1));
+            figure[Id] = createNode(m, draw_finger, null, null, "lowerThumb");
             break;
 
-        case pinky1Id:
-        case pinky2Id:
-        case pinky3Id:
-            m = translate(-(torsoWidth + upperLegWidth), 0.1 * upperLegHeight, 0.0);
-            m = mult(m, rotate(theta[leftUpperLegId], 1, 0, 0));
-            figure[leftUpperLegId] = createNode(m, leftUpperLeg, rightUpperLegId, leftLowerLegId);
+        // Index
+        case lowerIndexId:
+            m = translate(FINGER_SPACING * 0, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "idx1");
+            break;
+        case lowerIndexId+1:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, upperIndexId, "idx2");
+            break;
+        case lowerIndexId+2:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, null, "idx3");
             break;
 
-        case thumb1Id:
-        case thumb2Id:
-            m = translate(0.0, upperLegHeight, 0.0);
-            m = mult(m, rotate(theta[rightLowerLegId], 1, 0, 0));
-            figure[rightLowerLegId] = createNode(m, rightLowerLeg, null, null);
+        // Middle
+        case lowerMiddleId:
+            m = translate(FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "midd1");
+            break;
+        case lowerMiddleId+1:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, Id+1, "midd2");
+            break;
+        case lowerMiddleId+2:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, null, "midd3");
+            break;
+
+        // Ring
+        case lowerRingId:
+            m = translate(2*FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "ring1");
+            break;
+        case lowerRingId+1:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, Id+1, "ring2");
+            break;
+        case lowerRingId+2:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, null, "ring3");
+            break;
+
+        // Pinky
+        case lowerPinkyId:
+            m = translate(3*FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, Id+1, "pinky1");
+            break;
+        case lowerPinkyId+1:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, Id+1, "pinky2");
+            break;
+        case lowerPinkyId+2:
+            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = mult(m, rotate(theta[Id], 1, 0, 0));
+            figure[Id] = createNode(m, draw_finger, null, null, "pinky3");
             break;
     }
 
 }
-
-function traverse(Id) {
-
-    if (Id == null) return;
-    stack.push(modelViewMatrix);
-    modelViewMatrix = mult(modelViewMatrix, figure[Id].transform);
-    figure[Id].render();
-    if (figure[Id].child != null) traverse(figure[Id].child);
-    modelViewMatrix = stack.pop();
-    if (figure[Id].sibling != null) traverse(figure[Id].sibling);
-}
-
-
-// Array of rotation angles (in degrees) for each rotation axis
-
-var Base = 0;
-var LowerArm = 1;
-var MiddleArm = 2;
-var UpperArm = 3;
-
-
-var theta = [0, 0, 0, 0];
-
-var angle = 0;
-
-var modelViewMatrixLoc;
-
-var vBuffer, cBuffer;
-
-//----------------------------------------------------------------------------
-
-function quad(a, b, c, d) {
-    colors.push(vertexColors[a]);
-    points.push(vertices[a]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[b]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[c]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[a]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[c]);
-    colors.push(vertexColors[a]);
-    points.push(vertices[d]);
-}
-
-
-function colorCube() {
-    quad(1, 0, 3, 2);
-    quad(2, 3, 7, 6);
-    quad(3, 0, 4, 7);
-    quad(6, 5, 1, 2);
-    quad(4, 5, 6, 7);
-    quad(5, 4, 0, 1);
-}
-
-//____________________________________________
-
-// Remmove when scale in MV.js supports scale matrices
-
-function scale4(a, b, c) {
-    var result = mat4();
-    result[0][0] = a;
-    result[1][1] = b;
-    result[2][2] = c;
-    return result;
-}
-
-
-//--------------------------------------------------
-
-
-window.onload = function init() {
-
-    canvas = document.getElementById("gl-canvas");
-
-    gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) {
-        alert("WebGL isn't available");
-    }
-
-    gl.viewport(0, 0, canvas.width, canvas.height);
-
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
-
-    gl.useProgram(program);
-    modelViewMatrix = mat4();
-
-    colorCube();
-
-    // Load shaders and use the resulting shader program
-
-    program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
-
-    // Create and initialize  buffer objects
-
-    vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
-
-    var vPosition = gl.getAttribLocation(program, "vPosition");
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vPosition);
-
-    cBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
-
-    var vColor = gl.getAttribLocation(program, "vColor");
-    gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(vColor);
-
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
-
-    projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-    for(i=0; i<numNodes; i++) initNodes(i);
-
-    render();
-}
-
-//----------------------------------------------------------------------------
-
-
-function base() {
-    var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
-    var instanceMatrix = mult(translate(5.0, 0.5 * BASE_HEIGHT, 0.0), s);
+function palm() {
+    var s = scale4(PALM_WIDTH, PALM_HEIGHT, PALM_DEPTH);
+    var instanceMatrix = mult(translate(0.5 * PALM_WIDTH, 0.5 * PALM_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
 }
-
-//----------------------------------------------------------------------------
-
-
-function upperArm() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, -1.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+function drawFinger(dx, dy, width, height){
+    var instanceMatrix = instanceMatrix = mult(modelViewMatrix, translate(dx, dy, 0.0) );
+	instanceMatrix = mult(instanceMatrix, scale4(width, height, width));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    // for(var i =0; i<6; i++){gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4)};
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
-
-function upperArm1() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function upperArm2() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, -2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function upperArm3() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 1.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-//----------------------------------------------------------------------------
-
-
-function middleArm() {
-    var s = scale4(MIDDLE_ARM_WIDHT, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDHT);
-    var instanceMatrix = mult(translate(0.0, 0.5 * MIDDLE_ARM_HEIGHT, -1.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function middleArm1() {
-    var s = scale4(MIDDLE_ARM_WIDHT, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDHT);
-    var instanceMatrix = mult(translate(0.0, 0.5 * MIDDLE_ARM_HEIGHT, 2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function middleArm2() {
-    var s = scale4(MIDDLE_ARM_WIDHT, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDHT);
-    var instanceMatrix = mult(translate(0.0, 0.5 * MIDDLE_ARM_HEIGHT, -2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function middleArm3() {
-    var s = scale4(MIDDLE_ARM_WIDHT, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDHT);
-    var instanceMatrix = mult(translate(0.0, 0.5 * MIDDLE_ARM_HEIGHT, 1.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-
-//----------------------------------------------------------------------------
-
-
-function lowerArm() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var r = rotate(0, 1, 0, 0);
-    var t = translate(0.0, 0.5 * LOWER_ARM_HEIGHT, -1.0);
-    var instanceMatrix = mult(r, mult(t, s));
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function lowerArm1() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function lowerArm2() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, -2.75), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function lowerArm3() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 1.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
 function lowerThumb() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var r = rotate(45, 1, 0, 0);
-    // var t = translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, -1.0 );
-    var t = translate(0.0, 0.7 * LOWER_ARM_HEIGHT, 3.0);
-    var instanceMatrix = mult(r, mult(t, s));
+    var dx = 0;// PALM_WIDTH + LOWER_ARM_WIDTH * 0.5;
+    var dy = 0.5 * LOWER_ARM_HEIGHT;
 
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+    // draw orgin frame
+    var instanceMatrix = modelViewMatrix;
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+    // draw translated frame
+    instanceMatrix = mult(instanceMatrix, translate(dx, dy, 0.0) );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+    // draw scaled frame
+	instanceMatrix = mult(instanceMatrix, scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 }
+function upperThumb() {
+    var dx = 0;
+    var dy = 0.5 * UPPER_ARM_HEIGHT;
 
+    // draw orgin frame
+    var instanceMatrix = modelViewMatrix;
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
 
-//----------------------------------------------------------------------------
+    // draw translated frame
+    instanceMatrix = mult(instanceMatrix, translate(dx, dy, 0.0) );
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+
+    // draw scaled frame
+	instanceMatrix = mult(instanceMatrix, scale4(MIDDLE_ARM_WIDTH, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDTH));
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(instanceMatrix));
+    for(var i =0; i<6; i++) gl.drawArrays(gl.TRIANGLE_FAN, 4*i, 4);
+}
 var render = function() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     traverse(palmId);
-
-    /*
-    modelViewMatrix = rotate(90, 0, 1, 0 );
-    base();
-    // mvPushMatrix();
-
-    var rot = rotate(-2*theta[LowerArm], 0, 1, 0);
-    var stack_modelViewMatrix = modelViewMatrix;
-
-    // modelViewMatrix = mult(modelViewMatrix, translate(0, up, right));
-    modelViewMatrix = mult(modelViewMatrix, rot);
-    lowerThumb();
-
-    modelViewMatrix = stack_modelViewMatrix
-
-    modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], 0, 0, 1 ));
-
-    modelViewMatrix = mult(modelViewMatrix, rotate(-10, 1, 0, 0 ));
-    lowerArm();
-    modelViewMatrix = mult(modelViewMatrix, rotate(-10, 1, 0, 0 ));
-    // modelViewMatrix = mult(modelViewMatrix, rotate(10, 0, 1, 0 ));
-    lowerArm1();
-    // modelViewMatrix = mult(modelViewMatrix, rotate(10, 0, 1, 0 ));
-    lowerArm2();
-    // modelViewMatrix = mult(modelViewMatrix, rotate(10, 0, 1, 0 ));
-    lowerArm3();
-     
-    modelViewMatrix = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[MiddleArm], 0, 0, 1 ));
-    middleArm();
-   	middleArm1();
-	middleArm2();
-	middleArm3();
-    // upperThumb();
-	
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, MIDDLE_ARM_HEIGHT, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[UpperArm], 0, 0, 1) );
-    upperArm();
-	upperArm1();
-	upperArm2();
-	upperArm3();
-
-    */
     requestAnimFrame(render);
 }
-
-function upperThumb() {
-    var s = scale4(MIDDLE_ARM_WIDHT, MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDHT);
-    // var instanceMatrix = mult(translate( -1.0, 0.7 * MIDDLE_ARM_HEIGHT, 9.0 ),s);
-    var instanceMatrix = mult(translate(-1.0, 0.0, -1.5, 9.0), s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-}
-
-function spettacolino(decade) {
-    // console.log("spettacolino", decade)
-    theta[0] = decade;
-    theta[1] = decade;
-    theta[2] = decade;
-    theta[3] = 1.0;
-    if (decade < 110) {
-        setTimeout(function() {
-            spettacolino(decade + 1)
-        }, 40);
+function spettacolino() {
+    var movement = 0;
+    var speed = 2;
+    if(theta[palmId] < limits[palmId]){
+        movement = 1
+        theta[palmId] += 1;
     }
-    /* else {
-            theta[0] = 0;
-            theta[1] = 0;
-            theta[2] = 0;
-            theta[3] = 1.0;
-       }*/
+    var finger_angle = -theta[lowerThumbId] + theta[upperThumbId];
+    if(finger_angle < 180){ // off by 1/4
+        var arclength = (75+finger_angle)/(180+75);
+        console.log(arclength);
+        if(limits[lowerThumbId] > -theta[lowerThumbId]){
+            theta[lowerThumbId] += -2;
+            movement = 1
+        }
+        if(limits[upperThumbId] > theta[upperThumbId]){
+        theta[upperThumbId] += 1;
+            movement = 1
+        }
+        if(movement == 1){
+            speed *= arclength;
+        }
+    }
+    for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
+        var finger_angle = theta[i] + theta[i+1] + theta[i+2];
+        if(finger_angle < 275-3){
+            for(var j=i; j<i+3; j++){
+                if(limits[j] > theta[j]){
+                    theta[j] += 0.8 + ((12-i)/12) * speed;
+                    movement = 1;
+                }
+            }
+        }
+    }
+    for(i=0; i<numNodes; i++) initNodes(i);
+    if (movement == 1) {
+        setTimeout(function() {
+            spettacolino()
+        }, 40);
+    } else {
+        for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
+        var finger_angle = theta[i] + theta[i+1] + theta[i+2];
+        console.log(i, finger_angle);
+        }
+        console.log(theta);
+    }
 }
