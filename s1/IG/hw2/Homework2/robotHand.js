@@ -91,16 +91,18 @@
         modelViewMatrix = stack.pop();
         if (fig.sibling != null) traverse(fig.sibling);
     }
-    var PALM_HEIGHT = 5.0;
-    var PALM_WIDTH = 6.0;
-    var PALM_DEPTH = 1.0;
-    var LOWER_ARM_HEIGHT = 3.0;
+    var HAND_SCALE = 1;
+    var PALM_HEIGHT = 4.0 * HAND_SCALE;
+    var PALM_WIDTH = 4.0 * HAND_SCALE;
+    var PALM_DEPTH = 1.0 * HAND_SCALE;
+    var LOWER_ARM_HEIGHT = 3.0 * HAND_SCALE;
     var LOWER_ARM_WIDTH = 0.5;
-    var UPPER_ARM_HEIGHT = 1.5;
-    var UPPER_ARM_WIDTH = 0.5;
-    var MIDDLE_ARM_HEIGHT = 2.0;
+    var MIDDLE_ARM_HEIGHT = 2.0 * HAND_SCALE;
     var MIDDLE_ARM_WIDTH = 0.5;
-    var FINGER_SPACING = PALM_WIDTH / 4;
+    var UPPER_ARM_HEIGHT = 1.0 * HAND_SCALE;
+    var UPPER_ARM_WIDTH = 0.5;
+    var FINGER_SPACING = (PALM_WIDTH/4 - LOWER_ARM_WIDTH)+0.15;
+    var FINGER_RADIAL_SPACING = -4;
 
     var i = 0;
     var palmId = i++;
@@ -170,9 +172,9 @@
     }
 
 for (var i = 0; i < numNodes; i++){
-    theta[i] = Math.random()*15;
+    theta[i] = 0; // Math.random()*15;
 }
-theta[palmId] = -80;
+theta[palmId] = -0;
 theta[lowerThumbId] = 80;
 theta[upperThumbId] = 10;
 var limits = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -188,10 +190,13 @@ for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
 
 function initNodes(Id) {
     var m = mat4();
-    var draw_finger = function(){ drawFinger(0, 0.5 * LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT)};
+    var draw_finger_lower = function(){ drawFinger(0, 0.5 * LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT) };
+    var draw_finger_middle = function(){ drawFinger(0, 0.5 * MIDDLE_ARM_HEIGHT, MIDDLE_ARM_WIDTH, MIDDLE_ARM_HEIGHT) };
+    var draw_finger_upper = function(){ drawFinger(0, 0.5 * UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT) };
     switch (Id) {
         case palmId:
             m = translate(-0.5 * PALM_WIDTH, -0.5 * PALM_HEIGHT, -PALM_WIDTH)
+            m = mult(m, rotate(angle, 0, 0, 1));
             m = mult(m, rotate(theta[Id], 0, 1, 0));
             figure[Id] = createNode(m, palm, null, lowerThumbId, "palm");
             break;
@@ -201,82 +206,86 @@ function initNodes(Id) {
             var dx = PALM_WIDTH + LOWER_ARM_WIDTH * 0.5;
             m = translate(dx, PALM_HEIGHT/4, PALM_DEPTH/2);
             // m = mult(m, rotate(+10, 1, 0, 0));
-            m = mult(m, rotate(+75, 1, 0, 0));
+            m = mult(m, rotate(+35, 1, 0, 0));
             m = mult(m, rotate(-theta[Id], 0, 0, 1));
-            figure[Id] = createNode(m, draw_finger, Id+2, Id+1, "lowerThumb");
+            figure[Id] = createNode(m, draw_finger_lower, Id+2, Id+1, "lowerThumb");
             break;
         case upperThumbId:
-            m = translate(0.0, UPPER_ARM_HEIGHT * 2, 0.0);
+            m = translate(0.0, LOWER_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 0, 0, 1));
-            figure[Id] = createNode(m, draw_finger, null, null, "lowerThumb");
+            figure[Id] = createNode(m, draw_finger_middle, null, null, "lowerThumb");
             break;
 
         // Index
         case lowerIndexId:
-            m = translate(FINGER_SPACING * 0, PALM_HEIGHT, PALM_DEPTH/2);
+            m = translate(FINGER_SPACING * 0 + LOWER_ARM_WIDTH * 0.5, PALM_HEIGHT, PALM_DEPTH/2);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "idx1");
+            m = mult(m, rotate(FINGER_RADIAL_SPACING * -2, 0, 0, 1));
+            figure[Id] = createNode(m, draw_finger_lower, Id+3, Id+1, "idx1");
             break;
         case lowerIndexId+1:
             m = translate(0, LOWER_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, upperIndexId, "idx2");
+            figure[Id] = createNode(m, draw_finger_middle, null, upperIndexId, "idx2");
             break;
         case lowerIndexId+2:
-            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = translate(0, MIDDLE_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, null, "idx3");
+            figure[Id] = createNode(m, draw_finger_upper, null, null, "idx3");
             break;
 
         // Middle
         case lowerMiddleId:
-            m = translate(FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = translate((FINGER_SPACING + LOWER_ARM_WIDTH) * 1  + LOWER_ARM_WIDTH * 0.5, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(FINGER_RADIAL_SPACING * -1, 0, 0, 1));
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "midd1");
+            figure[Id] = createNode(m, draw_finger_lower, Id+3, Id+1, "midd1");
             break;
         case lowerMiddleId+1:
             m = translate(0, LOWER_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, Id+1, "midd2");
+            figure[Id] = createNode(m, draw_finger_middle, null, Id+1, "midd2");
             break;
         case lowerMiddleId+2:
-            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = translate(0, MIDDLE_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, null, "midd3");
+            figure[Id] = createNode(m, draw_finger_upper, null, null, "midd3");
             break;
 
         // Ring
         case lowerRingId:
-            m = translate(2*FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = translate((FINGER_SPACING + LOWER_ARM_WIDTH) * 2  + LOWER_ARM_WIDTH * 0.5, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(FINGER_RADIAL_SPACING * 0, 0, 0, 1));
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, Id+3, Id+1, "ring1");
+            figure[Id] = createNode(m, draw_finger_lower, Id+3, Id+1, "ring1");
             break;
         case lowerRingId+1:
             m = translate(0, LOWER_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, Id+1, "ring2");
+            figure[Id] = createNode(m, draw_finger_middle, null, Id+1, "ring2");
             break;
         case lowerRingId+2:
-            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = translate(0, MIDDLE_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, null, "ring3");
+            figure[Id] = createNode(m, draw_finger_upper, null, null, "ring3");
             break;
 
         // Pinky
         case lowerPinkyId:
-            m = translate(3*FINGER_SPACING, PALM_HEIGHT, PALM_DEPTH/2);
+            m = translate((FINGER_SPACING + LOWER_ARM_WIDTH) * 3  + LOWER_ARM_WIDTH * 0.5, PALM_HEIGHT, PALM_DEPTH/2);
+            m = mult(m, rotate(FINGER_RADIAL_SPACING * 1, 0, 0, 1));
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, Id+1, "pinky1");
+            figure[Id] = createNode(m, draw_finger_lower, null, Id+1, "pinky1");
             break;
         case lowerPinkyId+1:
             m = translate(0, LOWER_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, Id+1, "pinky2");
+            figure[Id] = createNode(m, draw_finger_middle, null, Id+1, "pinky2");
             break;
         case lowerPinkyId+2:
-            m = translate(0, LOWER_ARM_HEIGHT, 0.0);
+            m = translate(0, MIDDLE_ARM_HEIGHT, 0.0);
             m = mult(m, rotate(theta[Id], 1, 0, 0));
-            figure[Id] = createNode(m, draw_finger, null, null, "pinky3");
+            figure[Id] = createNode(m, draw_finger_upper, null, null, "pinky3");
             break;
     }
 
@@ -382,4 +391,27 @@ function spettacolino() {
         }
         console.log(theta);
     }
+}
+angle = 0;
+var hand_direction = 1;
+function bye() {
+    for (var i = 0; i < numNodes; i++){
+        theta[i] = Math.random()*30;
+    }
+    theta[0] = 0;
+    wave();
+}
+function wave(){
+    if(Math.abs(angle) > 30){
+        hand_direction = -1 * hand_direction;
+    }
+    for (var i = 1; i < numNodes; i++){
+        theta[i] += 0.2 * (Math.random() - 0.5);
+    }
+    angle += hand_direction;
+    console.log("bye", angle);
+    for(i=0; i<numNodes; i++) initNodes(i);
+    setTimeout(function() {
+        wave()
+    }, 40);
 }
