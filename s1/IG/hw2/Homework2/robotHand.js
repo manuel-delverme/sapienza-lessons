@@ -54,6 +54,8 @@
     var Base = 0;
 
     var angle = 0;
+    var phi_angle = 0;
+    var MOVEMENT_OVERRIDE = false;
 
     var modelViewMatrixLoc;
 
@@ -169,16 +171,27 @@
             gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
         for(i=0; i<numNodes; i++) initNodes(i);
         render();
+        relax();
+        hover();
+        // var angles = [];
+        // angles[palmId]= 10;
+        // angles[lowerThumbId]=12;
+        // angles[lowerPinkyId]=31;
+        // angles[lowerRingId]=-100;
+        // angles[lowerMiddleId]=2;
+        // angles[lowerIndexId]=90;
+        // angles[1337]=90;
+        // go_to(angles);
     }
 
 for (var i = 0; i < numNodes; i++){
     theta[i] = 0; // Math.random()*15;
 }
-theta[palmId] = -0;
+theta[palmId] = -39;
 theta[lowerThumbId] = 80;
 theta[upperThumbId] = 10;
 var limits = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-limits[palmId] = 10;
+limits[palmId] = 40;
 limits[lowerThumbId] = 30;
 limits[upperThumbId] = 90;
 
@@ -195,8 +208,11 @@ function initNodes(Id) {
     var draw_finger_upper = function(){ drawFinger(0, 0.5 * UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT) };
     switch (Id) {
         case palmId:
-            m = translate(-0.5 * PALM_WIDTH, -0.5 * PALM_HEIGHT, -PALM_WIDTH)
+            m = rotate(0, 0, 0, 1);
+
             m = mult(m, rotate(angle, 0, 0, 1));
+            m = mult(m, rotate(phi_angle, 1, 0, 0));
+            m = mult(m, translate(-0.5 * PALM_WIDTH + width_err, -0.5 * PALM_HEIGHT + height_err, -PALM_WIDTH))
             m = mult(m, rotate(theta[Id], 0, 1, 0));
             figure[Id] = createNode(m, palm, null, lowerThumbId, "palm");
             break;
@@ -346,6 +362,23 @@ var render = function() {
     requestAnimFrame(render);
 }
 function spettacolino() {
+    MOVEMENT_OVERRIDE = true
+    var original_position = get_angles();
+    var angles = [];
+    angles[palmId]= 0;
+    angles[lowerThumbId]=80;
+    angles[lowerPinkyId]=220;
+    angles[lowerRingId]=220;
+    angles[lowerMiddleId]=220;
+    angles[lowerIndexId]=220;
+    angles[1337]=0;
+    go_to(angles, function(){
+        go_to(original_position, function(){
+            MOVEMENT_OVERRIDE = false;
+        }, true);
+    }, true);
+
+    /*
     var movement = 0;
     var speed = 2;
     if(theta[palmId] < limits[palmId]){
@@ -387,31 +420,164 @@ function spettacolino() {
     } else {
         for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
         var finger_angle = theta[i] + theta[i+1] + theta[i+2];
-        console.log(i, finger_angle);
+            console.log(i, finger_angle);
         }
-        console.log(theta);
+        MOVEMENT_OVERRIDE = false;
+        go_to(original_position);
     }
+    */
 }
 angle = 0;
 var hand_direction = 1;
 function bye() {
+    if(MOVEMENT_OVERRIDE){ return }
     for (var i = 0; i < numNodes; i++){
         theta[i] = Math.random()*30;
     }
     theta[0] = 0;
     wave();
 }
-function wave(){
+var direction_changes = 0
+function wave(callback){
     if(Math.abs(angle) > 30){
+        direction_changes += 1
         hand_direction = -1 * hand_direction;
     }
-    for (var i = 1; i < numNodes; i++){
-        theta[i] += 0.2 * (Math.random() - 0.5);
-    }
     angle += hand_direction;
-    console.log("bye", angle);
+    for(i=0; i<numNodes; i++) initNodes(i);
+    if(direction_changes < 5 && angle != 0){
+        setTimeout(function() {
+            wave(callback)
+        }, 40);
+    } else {
+        if(callback){
+            callback();
+        }
+    }
+}
+var height_err = 0;
+var width_err = 0;
+var theta_err = 0;
+var phi_error = 0;
+function hover(){
+    if(MOVEMENT_OVERRIDE) return;
+
+    for (var i = 1; i < numNodes; i++){
+        // var controllability = (theta[i] - limits[i])/(2*limits[i])
+        theta[i] += 0.3 * (Math.random() - 0.5); // / controllability;
+    }
+    height_err += 0.015 * (Math.random() - 0.5);
+    width_err += 0.005 * (Math.random() - 0.5);
+    // theta_err += 0.2 * (Math.random() - 0.5);
+    // phi_error += 0.2 * (Math.random() - 0.5);
     for(i=0; i<numNodes; i++) initNodes(i);
     setTimeout(function() {
-        wave()
-    }, 40);
+        hover()
+    }, 100);
+}
+var is_relaxing = false;
+function relax(){
+    if(Math.random() < 0.10 && !MOVEMENT_OVERRIDE && !is_relaxing){
+        is_relaxing = true;
+        var work_position = get_angles();
+        var rest_position = [];
+        rest_position[palmId]= 30;
+        rest_position[lowerThumbId]=14;
+        rest_position[lowerPinkyId]=31;
+        rest_position[lowerRingId]=40;
+        rest_position[lowerMiddleId]=35;
+        rest_position[lowerIndexId]=32;
+        rest_position[1337]=150;
+        function resume(){ 
+            wave(function(){
+                setTimeout(function() {
+                    if (MOVEMENT_OVERRIDE) return;
+                    go_to(work_position, function(){
+                        is_relaxing = false;
+                    });
+                }, 1000);
+            });
+        }
+        go_to(rest_position, resume);
+    }
+    setTimeout(relax, 1000);
+}
+function go_to(angles, callback, priority) {
+    if(!priority && MOVEMENT_OVERRIDE) return;
+    var movement = false;
+    var speed = 0.5;
+    var direction = 1;
+
+    var error = angles[palmId] - theta[palmId];
+    var direction = Math.max(-1, Math.min(1, error));
+    if(Math.abs(direction) == 1){
+	    if(Math.abs(theta[palmId]) < limits[palmId]){
+            movement = true;
+            theta[palmId] += direction * speed;
+	    }
+    }
+    var error = angles[1337] - phi_angle;
+    var direction = Math.max(-1, Math.min(1, error));
+    if(Math.abs(direction) == 1){
+        movement = true;
+        phi_angle += direction * speed;
+    }
+
+    var thumb_angle = -theta[lowerThumbId] + theta[upperThumbId];
+    error = angles[lowerThumbId] - thumb_angle;
+    direction = Math.max(-1, Math.min(1, error));
+    if(Math.abs(direction) == 1){
+        if(limits[lowerThumbId] > -theta[lowerThumbId]){
+            theta[lowerThumbId] += -direction * speed / 2;
+            movement = true;
+        }
+        if(limits[upperThumbId] > theta[upperThumbId]){
+            theta[upperThumbId] += direction * speed / 4;
+            movement = true;
+        }
+    }
+    if(movement){
+        if(direction > 0){
+            speed /= Math.abs(error/180);
+        } else {
+            speed += Math.abs(error/30);
+        }
+    }
+    for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
+        var finger_angle = theta[i] + theta[i+1] + theta[i+2];
+	    error = finger_angle - angles[i];
+    	direction = Math.max(-1, Math.min(1, -error));
+        if(Math.abs(direction) == 1){
+            for(var j=i; j<i+3; j++){
+                var finger_speed = 0.2;
+                finger_speed += Math.pow(direction * (12-i)/50, 2)
+                var step = direction * speed * finger_speed / ((j+1)/6)
+
+                if(Math.abs(limits[j]) > theta[j] + step){
+                    theta[j] += step;
+                    movement = true;
+                }
+            }
+        }
+    }
+    for(i=0; i<numNodes; i++) initNodes(i);
+    if (movement) {
+        setTimeout(function() {
+            go_to(angles, callback, priority)
+        }, 20);
+    } else {
+        if(callback){
+            callback();
+        }
+    }
+}
+function get_angles(){
+    var angles = [];
+    angles[palmId] = theta[palmId];
+    angles[1337] = phi_angle;
+    angles[lowerThumbId] = -theta[lowerThumbId] + theta[upperThumbId];
+    for(i=upperThumbId+1; i<upperPinkyId; i=i+3){
+        angles[i] = theta[i] + theta[i+1] + theta[i+2];
+    }
+    return angles;
 }
