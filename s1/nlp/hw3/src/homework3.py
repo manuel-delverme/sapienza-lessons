@@ -1,6 +1,3 @@
-print("importing spacy")
-import spacy
-print("done")
 from nltk import Tree
 import urllib
 import networkx as nx
@@ -11,19 +8,14 @@ import nltk
 import xml.etree.ElementTree as ET
 import gzip
 import glob
-print("loading en")
-try:
-    en_nlp
-except Exception:
-    en_nlp = spacy.load('en')
-print("done")
+from src.howdoesittastelike import nlp as en_nlp
 
-# nlp = spacy.load('en')
-# doc = nlp(u'atom heart mother is an album by english band pink floyd')
-wiki_path = "/home/obafedyrider/babelfied-wikipediaXML"
+wiki_path = "/mnt/netbook/home/obafedyrider/babelfied-wikipediaXML/"
 
-# archives_path = "{}/*".format(wiki_path)
 archives_path = "{}/*".format(wiki_path)
+
+print(en_nlp("the cake is a lie"))
+
 
 def generate_interesting_archives(verbs):
     pages = google_wikipedia_pages(verbs)
@@ -40,9 +32,10 @@ def generate_interesting_archives(verbs):
                     archive_glob = "{}/{}.xml.gz".format(archives_path, normalized_name)
                     archive_path = glob.glob(archive_glob)[0]
             except Exception as e:
-                import ipdb; ipdb.set_trace()
                 print("ERROR", e)
-            yield archive_path 
+                raise e
+            yield archive_path
+
 
 def google_wikipedia_pages(keywords):
     interesting_pages = defaultdict(list)
@@ -58,7 +51,7 @@ def google_wikipedia_pages(keywords):
         #     'sel_browser': 'chrome',
         # },
         'GLOBAL': {
-            'do_caching': 'False'
+            'do_caching': 'True'
         }
     }
 
@@ -72,8 +65,9 @@ def google_wikipedia_pages(keywords):
             for serp in search.serps:
                 for link in serp.links:
                     if link.link_type == 'results':
-                        interesting_pages[keyword].append(link.link.split("/")[-1]) # url parsing is hard
+                        interesting_pages[keyword].append(link.link.split("/")[-1])  # url parsing is hard
     return dict(interesting_pages)
+
 
 def to_nltk_tree(node):
     if node.n_lefts + node.n_rights > 0:
@@ -81,8 +75,9 @@ def to_nltk_tree(node):
     else:
         return node.orth_
 
+
 def main():
-    global en_nlp
+    # global en_nlp
     verbs = ["tastes like"]
     for wikipedia_archive_path in generate_interesting_archives(verbs):
         print("unzippping", wikipedia_archive_path)
@@ -90,50 +85,51 @@ def main():
             xml_page = ET.parse(fin)
         print("parsing xml")
         annotations = xml_page.findall("annotations")[0]
-        mergelist = {}
-        for annotation in annotations:
-            mention = annotation.find("mention").text
-            start = int(annotation.find("anchorStart").text)
-            end = int(annotation.find("anchorEnd").text)
-            bid = annotation.find("babelNetID").text
-            mergelist[start] = {
-                    'end': end,
-                    'bid': bid,
-                    'mention': mention,
-            }
 
         text_xml_node = xml_page.find('text')
-        word_idx = 0
-        parsed_sents = en_nlp(text_xml_node.text).sents
+        doc = en_nlp(text_xml_node.text.split("\n")[0])
+        mergelist = {}
+        print_tree(doc)
+        len_sum = 0
+        indices = [0]
+        for idx, tok in enumerate(doc._py_tokens):
+            len_sum += len(tok) + 1
+            indices.append(len_sum)
+        # for np in parsed_tree.noun_chunks:
+        #     tok = np.merge(np.root.tag_, np.text, np.root.ent_type_)
+        #     print_tree(parsed_tree)
+
+        for annotation in annotations:
+            mention = annotation.find("mention").text
+            start = indices[int(annotation.find("anchorStart").text)]
+            end = indices[int(annotation.find("anchorEnd").text)]
+            bid = annotation.find("babelNetID").text
+            print("merging", doc.text[start:end])
+            tok = doc.merge(start, end, bid=bid, mention=mention)
+            print_tree(doc)
+
         # sents = nltk.sent_tokenize(node.text.lower())
-        if word_idx == 0:
-            import ipdb; ipdb.set_trace()
-        for sent in parsed_sents:
+        for sent in doc.sents:
             for verb in verbs:
-                if verb in sent.text:
+                if verb in sent.text.lower():
                     print("FOUND", verb, "IN", sent)
                     # print_tree(sent)
                     # _ = input()
 
-def print_tree(sentence):
-    global en_nlp
-    print("parsing")
-    doc = en_nlp(sentence)
-    for np in doc.noun_chunks:
-        np.merge(np.root.tag_, np.text, np.root.ent_type_)
-    for tok in doc:
-        print(tok.text)
 
-    sent =  doc.sentences[0]
-    # import ipdb; ipdb.set_trace()
-    # _ = [to_nltk_tree(sent.root).pretty_print() for sent in doc.sents]
-    build_tree(sent)
+def print_tree(doc):
+    # for tok in doc:
+    #     print(tok.text)
+    _ = [to_nltk_tree(sent.root).pretty_print() for sent in doc.sents]
+    # build_tree(sent)
+
 
 def build_tree(node):
     if node.n_lefts + node.n_rights > 0:
         return Tree(node.orth_, [to_nltk_tree(child) for child in node.children])
     else:
         return node.orth_
+
 
 # for np in doc.noun_chunks:
 #     print(
