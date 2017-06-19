@@ -55,7 +55,7 @@
     FSNRender = Klass({
         initialize : function(fsnInstance) {
             this.word_translation = vec3(0,0,0);
-            this.avatar_position = vec3(0,5,0);
+            this.avatar_position = vec3(0,50,0);
             this.avatar = null;
             this.avatar_speed = [0,0,0,0];
             this.avatar_moved = false;
@@ -118,7 +118,7 @@
                 }
             };
             function keyDownHandler(event) {
-                var speed = 1;
+                var speed = 5;
                 if(event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_moved = true;
                     self.avatar_speed[0] = +speed;
@@ -298,7 +298,7 @@
         create_model: function (fs_node, f, s) {
             var mesh;
             if (fs_node.is_file) {
-                mesh = new Magi.Cube().setScale(4 * f * s, 9 * f * s, f * s);
+                mesh = new Magi.Cube().setScale(3 * f * s, 9 * f * s, 8 * f * s);
                 mesh.setY(0.8 * f * s);
             } else {
                 var square_size = 10;
@@ -367,6 +367,7 @@
                             var ynew;
                             var targetPosition = this.position;
                             targetPosition[1] += 1;
+                            // TODO: remove object if above some limit
 
                             model.material.floats.MaterialEmit = vec4(1.0, 1.0, 1.0, 0);
 
@@ -389,12 +390,14 @@
                             vec3.add(this.position, this.tmpVec, this.position);
                             this.changed = true; // vec3.distance(this.position, targetPosition) > Math.abs(d * 0.01);
                             this.offset[1] = this.origY + d;
+                            // this.makeRotate(5.0);
                             this.setAngle(this.rotation.angle + 0.5)
                         }
                     });
                 }
 
-                var s = fs_node.is_file? 20: 30;
+                var s = fs_node.is_file? 45: 70;
+                s *= 2;
                 var f = 0.4;
 
                 if (!rendered_object.reused) {
@@ -498,9 +501,11 @@
             // text.setAngle(text.rotation.angle + 0.5);
         },
         sceneUpdate: function () {
+	    var s = 4;
             if (this.avatar_moved) {
                 if(!this.avatar){
-                    this.avatar = new Magi.Cube().setScale(8, 8, 8);
+                    this.avatar = new Magi.Cube().setScale(s * 1, s * 1, s * 1);
+                    this.scene.appendChild(this.avatar);
                     this.avatar.material.floats.LightPos = vec4(10,0,0,1);
                     this.avatar.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
                     this.avatar.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
@@ -511,16 +516,26 @@
                     // todo update transform
                     this.scene.appendChild(this.avatar);
                 }
+                x = this.avatar_position[0];
+                y = this.avatar_position[1];
+                z = this.avatar_position[2];
+                var shadow = new Magi.Cube().setScale(s * 0.5, s * 0.5, s * 0.5);
+                shadow.setPosition(x,y,z);
+                this.scene.appendChild(shadow);
+
+
+
                 this.avatar_position[0] += this.avatar_speed[0] + this.avatar_speed[1];
                 this.avatar_position[2] += this.avatar_speed[2] + this.avatar_speed[3];
                 this.avatar.setPosition( this.avatar_position[0], this.avatar_position[1], this.avatar_position[2] );
 
                 this.move_camera(this.avatar_position, 1);
                 // calculate object position
+		        var treshold = this.avatar.scaling[0] * 2;
                 for (var i in this.objects) {
                     var rendered_model = this.objects[i];
                     var distance = vec3.distance(this.avatar_position, rendered_model.absolutePosition);
-                    if(distance < 10 && rendered_model.entry.is_file){
+                    if(distance < treshold && rendered_model.entry.is_file){
                         // var cb = this.onRelayoutNeeded;
                         // fsn.onRelayoutNeeded = null;
                         rendered_model.is_exploding = true;
