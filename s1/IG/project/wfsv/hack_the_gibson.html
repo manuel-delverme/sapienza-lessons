@@ -1,0 +1,614 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>Hack the Gibson</title>
+    <style type="text/css">
+        canvas {
+            background-color: white;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family:Monospace,serif;
+            font-size:13px;
+            text-align:center;
+            font-weight: bold;
+        }
+        #path_selector {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+<input type="file" id="path_selector" webkitdirectory directory />
+<script type="text/x-glsl-fs" id="bg-frag">
+      precision mediump float;
+      uniform sampler2D Texture0;
+      uniform float aspect;
+      varying vec2 texCoord0;
+      void main()
+      {
+        float ds = 2.0*(texCoord0.s-0.5);
+        float dt = texCoord0.t-0.5;
+        float r = sin((dt*3.0+ds*ds) * 400.0);
+        float dx = (1.1-texCoord0.s) * aspect;
+        float dy = (0.9-texCoord0.t) / aspect;
+        float d = sqrt(dx*dx + dy*dy)+0.05*r;
+        vec4 c = vec4(0.76,0.72,0.78, 0.5-0.8*d);
+        gl_FragColor = c*c.a;
+      }
+    </script>
+<script type="text/javascript" src="magi.js"></script>
+<script type="text/javascript" src="fsn.js"></script>
+
+<script type="text/javascript">
+    window.onresize = function() {
+        if (this.fsnRender) {
+            this.fsnRender.canvas.width = window.innerWidth;
+            this.fsnRender.canvas.height = window.innerHeight;
+            this.fsnRender.display.changed = true;
+        }
+    };
+    FSNRender = Klass({
+        initialize : function(fsnInstance) {
+            this.word_translation = vec3(0,0,0);
+            this.avatar_position = vec3(0,5,0);
+            this.avatar = null;
+            this.avatar_speed = [0,0,0,0];
+            this.avatar_moved = false;
+            this.setFSN(fsnInstance);
+            this.canvas = E.canvas(window.innerWidth, window.innerHeight);
+            this.display = new Magi.Scene(this.canvas);
+            this.canvas.style.position = 'absolute';
+            this.canvas.style.left = '0px';
+            this.canvas.style.top = '0px';
+            document.body.appendChild(this.canvas);
+            this.display.bg = [0.7, 0.7, 0.6, 1];
+            this.lightPos = vec4(8000, -2000, -15000, 1);
+            this.scene = this.display.scene;
+            this.camera = this.display.camera;
+            this.camera.zNear = 1;
+            this.camera.zFar = 1000;
+            this.offset = vec3(-80,120,200);
+            this.lookOffset = vec3(0,-10,0);
+            var grad = new Magi.FilterQuad('bg-frag');
+            grad.depthTest = false;
+            grad.material.floats.aspect = 4/3;
+            this.scene.appendChild(grad);
+            this.updateLayout();
+            this.display.drawOnlyWhenChanged = true;
+            var self = this;
+            this.scene.addFrameListener(function(t,dt) {
+                self.sceneUpdate(t,dt);
+            });
+            this.camera.afterTransform(function(m) {
+                var n = mat4.identity();
+                mat4.translate(n, this.position);
+                mat4.multiply(n, m, n);
+                mat4.set(m, Magi.DefaultMaterial.lightMatrix);
+            });
+            this.downX = null;
+            this.downY = null;
+
+            /* MOUSE HOOKS */
+            window.onmouseup = function(ev) {
+                if (self.downX !== null) {
+                    self.downX = null;
+                    self.downY = null;
+                    ev.preventDefault();
+                }
+            };
+            this.canvas.onmousedown = function(ev) {
+                self.downX = ev.clientX;
+                self.downY = ev.clientY;
+                ev.preventDefault();
+            };
+            this.canvas.onmousemove = function(ev) {
+                if (self.downX !== null) {
+                    var dx = ev.clientX - self.downX;
+                    var dy = ev.clientY - self.downY;
+                    self.downX = ev.clientX;
+                    self.downY = ev.clientY;
+                    self.offset[0] -= dx/2;
+                    self.offset[1] += dy/1.5;
+                    ev.preventDefault();
+                }
+            };
+            function keyDownHandler(event) {
+                var speed = 1;
+                if(event.keyCode === 39 || event.keyCode === 68) {
+                    self.avatar_moved = true;
+                    self.avatar_speed[0] = +speed;
+                }
+                else if(event.keyCode === 37 || event.keyCode === 65) {
+                    self.avatar_moved = true;
+                    self.avatar_speed[1] = -speed;
+                }
+                else if(event.keyCode === 40 || event.keyCode === 83) {
+                    self.avatar_moved = true;
+                    self.avatar_speed[2] = +speed;
+                }
+                else if(event.keyCode === 38 || event.keyCode === 87) {
+                    self.avatar_moved = true;
+                    self.avatar_speed[3] = -speed;
+                }
+            }
+            function keyUpHandler(event) {
+                if(event.keyCode === 39 || event.keyCode === 68) {
+                    self.avatar_speed[0] = 0;
+                }
+                else if(event.keyCode === 37 || event.keyCode === 65) {
+                    self.avatar_speed[1] = 0;
+                }
+                else if(event.keyCode === 40 || event.keyCode === 83) {
+                    self.avatar_speed[2] = 0;
+                }
+                else if(event.keyCode === 38 || event.keyCode === 87) {
+                    self.avatar_speed[3] = 0;
+                }
+            }
+            window.addEventListener('keydown', keyDownHandler, false);
+            window.addEventListener('keyup', keyUpHandler, false);
+        },
+
+        setFSN : function(fsnInstance) {
+            this.fsn = fsnInstance;
+            var self = this;
+            // this.fsn.onChangeDir = function(path) {
+            //     self.currentObjectIndex = path;
+            // };
+            this.fsn.onRelayoutNeeded = function(entry, full) {
+                self.updateLayoutPath(entry.getPath(), full ? null : 1);
+            };
+        },
+
+        gotoPath : function(path) {
+            if (this.objects[path]) {
+                this.currentObjectIndex = path;
+            }
+        },
+
+        updateLayout : function() {
+            var layout = this.fsn.getLayout();
+            for (var i in this.objects) {
+                var cn = this.objects[i];
+                this.destroyNode(cn);
+            }
+            this.objects = {};
+
+            this.addLayout(layout);
+        },
+
+        updateLayoutPath : function(path, maxDepth) {
+            var layout = this.fsn.getLayout(path, maxDepth);
+            var p = this.objects[path];
+            var paths = (path === '/') ? path : (path + '/');
+            for (var i in this.objects) {
+                if (i === path || i.slice(0,paths.length) === paths) {
+                    var obj = this.objects[i];
+                    obj.marked = true;
+                }
+            }
+            this.addLayout(layout, p.entry);
+            p.marked = false;
+            for (var i in this.objects) {
+                var obj = this.objects[i];
+                if (obj.marked) {
+                    this.destroyNode(obj);
+                    delete this.objects[i];
+                }
+            }
+        },
+
+        destroyNode : function(cn) {
+            for (var i=0, len=cn.childNodes.length; i<len; i++) {
+                var c = cn.childNodes[i];
+                if (c.texture) {
+                    c.texture.destroy();
+                }
+            }
+            if (cn.parentNode)
+                cn.parentNode.removeChild(cn);
+        },
+
+        unmark : function(node) {
+            node.marked = false;
+            for (var i=0; i<node.childNodes.length; i++) {
+                this.unmark(node.childNodes[i]);
+            }
+        },
+
+        create_connector_line: function (layout_entry, f, node) {
+            var dx = layout_entry.offset.x / layout_entry.offset.scale;
+            var dy = layout_entry.offset.y / layout_entry.offset.scale;
+            var dz = layout_entry.offset.z / layout_entry.offset.scale + 25 / layout_entry.offset.scale;
+            // var d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            var fs = 40 * f;
+            var connectorLine = new Magi.Node();
+            
+            var angle = Math.atan2(dz / 2, dx);
+            var hypot = Math.sqrt(dx * dx + (dz / 2 * dz / 2)) / fs;
+            var filler = 0;
+            if (angle !== -Math.PI / 2) {
+                var alpha = 0.5 * Math.abs(-Math.PI / 2 - angle);
+                filler = 0.1 * Math.tan(alpha);
+            }
+            hypot += filler;
+
+            // first to the side
+            var ramp_width_obj = new Magi.ColorQuad(0, 0, 0, 1);
+            ramp_width_obj.setScale(hypot / 2, 0.1, 1);
+            ramp_width_obj.setX(-hypot / 2);
+            var ramp_x_disp = new Magi.Node();
+            ramp_x_disp.setAxis(0, 0, 1).setAngle(Math.PI - angle);
+            ramp_x_disp.appendChild(ramp_width_obj);
+            connectorLine.appendChild(ramp_x_disp);
+
+            // then go down
+            var ramp_depth_obj = new Magi.ColorQuad(0, 0, 0, 1);
+            var len = Math.abs(dz / fs / 2) + filler;
+            ramp_depth_obj.setScale(len / 2, 0.1, 1);
+            ramp_depth_obj.setX(len / 2);
+            var ramp_depth_position = new Magi.Node();
+            ramp_depth_position.setAxis(0, 0, 1).setAngle(Math.PI / 2);
+            ramp_depth_position.appendChild(ramp_depth_obj);
+            ramp_depth_position.setPosition(dx / fs, -dz / 2 / fs - filler, 0);
+            connectorLine.appendChild(ramp_depth_position);
+
+            // ascend to the next plane
+            var ramp_height_obj = new Magi.ColorQuad(0, 0, 0, 1);
+            ramp_height_obj.setScale(dy / fs / 2, 0.1, 1);
+            // how much it goes up
+            ramp_height_obj.setX(-dy / fs / 2);
+            ramp_height_obj.setAxis(1, 0, 0).setAngle(-Math.PI / 2);
+            
+            var ramp_height_position = new Magi.Node();
+            ramp_height_position.appendChild(ramp_height_obj);
+            ramp_height_position.setAxis(0, 1, 0).setAngle(Math.PI / 2);
+
+            // angle of approach
+            var q3pp = new Magi.Node();
+            q3pp.appendChild(ramp_height_position);
+            q3pp.setAxis(1, 0, 0).setAngle(-0.1);
+            q3pp.setPosition(dx / fs, -dz / fs, 0);
+            connectorLine.appendChild(q3pp);
+
+            connectorLine.setAxis(1, 0, 0).setAngle(-Math.PI / 2);
+            connectorLine.setPosition(-dx, -dy, -dz + 20 * layout_entry.offset.scale);
+            connectorLine.setScale(fs, fs, fs);
+            node.connectorLine = connectorLine;
+            node.appendChild(connectorLine);
+        },
+        create_text_mesh: function (fs_node, f, s) {
+            var txt = new Magi.Text(fs_node.name, 50, '#fff', 'Sans-serif', true);
+            txt.setAlign(txt.leftAlign, txt.topAlign);
+            if (fs_node.is_file) {
+                txt.setScale(s * (3.2 / Math.max(320, txt.realWidth)));
+                txt.setAxis(0, 0, 1).setAngle(Math.PI / 2);
+                txt.setPosition(-2 * f * s, -3.2 * f * s, 0.6 * f * s);
+            } else {
+                txt.setScale(s * (1.6 / Math.max(220, txt.realWidth)));
+                txt.setPosition(-1 * s, 0.15 * s, 1.2 * s);
+            }
+            return txt;
+        },
+        create_model: function (fs_node, f, s) {
+            var mesh;
+            if (fs_node.is_file) {
+                mesh = new Magi.Cube().setScale(4 * f * s, 9 * f * s, f * s);
+                mesh.setY(0.8 * f * s);
+            } else {
+                var square_size = 10;
+                mesh = new Magi.Cube().setScale(square_size * s, 0.05 * s, square_size * s);
+            }
+            mesh.material.floats.LightPos = this.lightPos;
+            mesh.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
+            mesh.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
+            mesh.material.floats.MaterialEmit = vec4(0.0, 0.0, 0.0, 0);
+            mesh.material.floats.LightSpecular = vec4(0.95, 0.95, 0.95, 1);
+            mesh.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
+            mesh.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
+            return mesh;
+        },
+        addLayout : function(layout, root) {
+            var self = this;
+            for ( var j=0; j<layout.length; j++ ) {
+                var fs_node = layout[j];
+                if (root) {
+                    if (!fs_node.parent && fs_node.name !== '/') {
+                        fs_node.offset = root.offset;
+                        fs_node.parent = root.parent;
+                    }
+                }
+                var i = fs_node.path;
+
+                // var hue = (is_file ? 100 : 180) / 360;
+                var rendered_object;
+                // if was already rendered and with the right entries
+                if (this.objects[i] && typeof this.objects[i].entry.entries === typeof fs_node.entries) {
+                    rendered_object = this.objects[i];
+                    if (rendered_object.connectorLine)
+                        rendered_object.removeChild(rendered_object.connectorLine);
+                    rendered_object.reused = true;
+                    rendered_object.marked = false;
+                } else {
+                    // add a new rendered object
+                    rendered_object = new Magi.Node();
+                    this.objects[i] = rendered_object;
+                }
+                fs_node.node = rendered_object;
+                rendered_object.entry = fs_node;
+
+                var x = fs_node.offset.x;
+                var y = fs_node.offset.y;
+                var z = fs_node.offset.z;
+
+                rendered_object.offset = vec3(x, y, z);
+                rendered_object.setPosition(x, y, z);
+                rendered_object.setScale( fs_node.offset.scale );
+
+                if (fs_node.is_file) {
+                    rendered_object.position[1] += 36*fs_node.offset.scale;
+                    rendered_object.offset[1] += 36*fs_node.offset.scale;
+                }
+                rendered_object.originalPosition = vec3(rendered_object.position);
+                rendered_object.upPosition = vec3(rendered_object.position);
+                rendered_object.upPosition[1] += fs_node.offset.scale*0.4*20*9;
+                rendered_object.tmpVec = vec3();
+                rendered_object.origY = rendered_object.offset[1];
+                if (fs_node.is_file && !rendered_object.reused) {
+                    rendered_object.addFrameListener(function(t,dt) {
+                        if(this.is_exploding){
+                            var model = this.childNodes[0];
+                            var text = this.childNodes[1];
+                            var ynew;
+                            var targetPosition = this.position;
+                            targetPosition[1] += 1;
+
+                            model.material.floats.MaterialEmit = vec4(1.0, 1.0, 1.0, 0);
+
+                            /*
+                            ynew = model.position[1] + 1.0;
+                            model.setY(ynew);
+                            model.setAxis(vec3(0,0,1));
+
+                            model.setAngle(model.rotation.angle + 0.5);
+                            ynew = text.position[1] + 1.0;
+                            text.setY(ynew);
+
+                            ynew = this.position[1] + 1.0;
+                            child.setY(ynew);
+                            */
+
+                            vec3.sub(targetPosition, this.position, this.tmpVec);
+                            var d = targetPosition[1] - this.originalPosition[1];
+                            vec3.scale(this.tmpVec, 0.1);
+                            vec3.add(this.position, this.tmpVec, this.position);
+                            this.changed = true; // vec3.distance(this.position, targetPosition) > Math.abs(d * 0.01);
+                            this.offset[1] = this.origY + d;
+                            this.setAngle(this.rotation.angle + 0.5)
+                        }
+                    });
+                }
+
+                var s = fs_node.is_file? 20: 30;
+                var f = 0.4;
+
+                if (!rendered_object.reused) {
+                    rendered_object.appendChild(this.create_model(fs_node, f, s));
+                    rendered_object.appendChild(this.create_text_mesh(fs_node, f, s));
+                }
+                if (!fs_node.is_file && fs_node.parent) {
+                    this.create_connector_line(fs_node, f, rendered_object);
+                }
+
+                if (!rendered_object.reused) {
+                    if (fs_node.parent) {
+                        fs_node.parent.node.appendChild(rendered_object);
+                    } else if (root && root.parent) {
+                        root.parent.node.appendChild(rendered_object);
+                    } else {
+                        this.scene.appendChild(rendered_object);
+                    }
+                }
+            }
+            this.gotoPath(this.fsn.getCurrentPath());
+            this.display.changed = true;
+        },
+        getAbsoluteOffset : function(obj) {
+            var parents = [];
+            while (obj && obj.offset) {
+                parents.unshift(obj);
+                obj = obj.parentNode;
+            }
+            var offset = this.word_translation;
+            var scale = 1;
+            for (var i=0; i<parents.length; i++) {
+                var p = parents[i];
+                offset[0] += p.offset[0] * scale;
+                offset[1] += p.offset[1] * scale;
+                offset[2] += p.offset[2] * scale;
+                scale *= p.entry.offset.scale;
+            }
+            return {offset:offset, scale:scale};
+        },
+        move_camera: function (absolute_offset, absolute_scale) {
+            // calculate object position
+            var target_position = vec3();
+            var target_offset = this.lookOffset;
+            vec3.scale(target_offset, absolute_scale, target_position);
+            vec3.add(absolute_offset, target_position, target_position);
+
+            var new_look_at = vec3();
+            vec3.sub(target_position, this.camera.lookAt, new_look_at);
+            var d2len = vec3.lengthSquare(new_look_at);
+            vec3.scale(new_look_at, 0.08);
+            vec3.add(this.camera.lookAt, new_look_at, new_look_at);
+
+            var offset = vec3(this.offset);
+            vec3.scale(offset, absolute_scale, offset);
+            var new_camera_position = vec3();
+            vec3.add(target_position, offset, new_camera_position);
+            vec3.sub(new_camera_position, this.camera.position, new_camera_position);
+            var new_camera_position_norm = vec3.lengthSquare(new_camera_position);
+            vec3.scale(new_camera_position, 0.1);
+            vec3.add(this.camera.position, new_camera_position, new_camera_position);
+
+            vec3.set(new_camera_position, this.camera.position);
+            vec3.set(new_look_at, this.camera.lookAt);
+
+            var distanceToTarget = vec3.distance(this.camera.position, this.camera.lookAt);
+            this.camera.zNear = distanceToTarget / 8;
+            this.camera.zFar = distanceToTarget * 10;
+
+            if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
+                this.display.changed = true;
+        },
+        explode_model: function (path) {
+            if (this.objects[path]) {
+                this.explodingModel = path;
+            }
+            var model = child.childNodes[0];
+            var text = child.childNodes[1];
+            /*
+            for (var obj_name in this.objects) {
+                if (this.objects[obj_name] === child) {
+                    obj = this.objects[obj_name];
+                    break;
+                }
+            }
+            */
+            var ynew;
+
+            model.material.floats.MaterialEmit = vec4(0.0, 0.5, 0.4, 0);
+            ynew = model.position[1] + 1.0;
+            model.setY(ynew);
+            model.setAxis(vec3(0,0,1));
+
+            model.setAngle(model.rotation.angle + 0.5);
+            ynew = text.position[1] + 1.0;
+            text.setY(ynew);
+
+            ynew = child.position[1] + 1.0;
+            child.setY(ynew)
+
+            // text.setAngle(text.rotation.angle + 0.5);
+        },
+        sceneUpdate: function () {
+            if (this.avatar_moved) {
+                if(!this.avatar){
+                    this.avatar = new Magi.Cube().setScale(8, 8, 8);
+                    this.avatar.material.floats.LightPos = vec4(10,0,0,1);
+                    this.avatar.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
+                    this.avatar.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
+                    this.avatar.material.floats.MaterialEmit = vec4(0.1, 0.3, 0.3, 7);
+                    this.avatar.material.floats.LightSpecular = vec4(0.95, 0.95, 0.95, 1);
+                    this.avatar.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
+                    this.avatar.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
+                    // todo update transform
+                    this.scene.appendChild(this.avatar);
+                }
+                this.avatar_position[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                this.avatar_position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                this.avatar.setPosition( this.avatar_position[0], this.avatar_position[1], this.avatar_position[2] );
+
+                this.move_camera(this.avatar_position, 1);
+                // calculate object position
+                for (var i in this.objects) {
+                    var rendered_model = this.objects[i];
+                    var distance = vec3.distance(this.avatar_position, rendered_model.absolutePosition);
+                    if(distance < 10 && rendered_model.entry.is_file){
+                        // var cb = this.onRelayoutNeeded;
+                        // fsn.onRelayoutNeeded = null;
+                        rendered_model.is_exploding = true;
+                        // this.explode_model(rendered_model.entry.path);
+                    }
+                }
+            } else {
+                var target_object = this.objects[this.currentObjectIndex];
+                if (!target_object) return;
+                var absolute_offset = this.getAbsoluteOffset(target_object);
+                this.move_camera(absolute_offset.offset, absolute_offset.scale);
+            }
+        }
+    });
+
+    var buildTree = function(e) {
+        // Reset
+        var pathList_ = [];
+        var fileList = e.target.files;
+
+        for (var i = 0, file; file = fileList[i]; ++i) {
+            pathList_.push(file.webkitRelativePath);
+        }
+        buildTreeFromPathList(pathList_, true);
+    };
+    var buildTreeFromPathList = function(pathList_, rebaseToTopDir) {
+        var tree = FS_GRAPH.buildTreeFromPathList(pathList_);
+        fsn = new FS_GRAPH(tree);
+        if (rebaseToTopDir) {
+             for (var i in fsn.tree.entries) {
+                 fsn.tree = fsn.tree.entries[i];
+                 fsn.tree.parent = null;
+                 fsn.tree.name = '/';
+                 // fsn.cd('/');
+                 break;
+             }
+        }
+        if (!window.fsnRender) {
+            fsnRender = new FSNRender(fsn);
+        } else {
+            fsnRender.setFSN(fsn);
+            fsnRender.updateLayout();
+        }
+    };
+    replaceSubTree = function(path, pathlist) {
+        var tree = FS_GRAPH.buildTreeFromPathList(pathlist);
+        var entry = fsn.getEntry(path);
+        var parent = entry.parent;
+        tree.name = entry.name;
+        parent.removeEntry(entry);
+        parent.addEntry(tree);
+        fsnRender.updateLayoutPath(tree.getPath());
+    };
+
+    var dirsel = document.getElementById('path_selector');
+    dirsel.addEventListener('change', buildTree, false)
+    window.addEventListener('message', function(e) {
+        var message = e.data;
+        switch (message.cmd) {
+            case 'build':
+                buildTreeFromPathList(message.data);
+                break;
+            case 'replaceSubTree':
+                replaceSubTree(message.data.path, message.data.pathlist);
+                break;
+        }
+    }, false);
+    buildTreeFromPathList([
+        "robotics/Robotics1_15.09.11.pdf",
+        "robotics/Robotics1_16.06.06.pdf",
+        "robotics/Robotics1_15.02.06_long.pdf",
+        "robotics/notes.lyx",
+        "robotics/Robotics - Modelling, Planning and Control.pdf",
+        "robotics/07_PositionOrientation.pdf",
+        "robotics/09_DirectKinematics.pdf",
+        "robotics/printme.pdf",
+        "robotics/08_EulerRPYHomogeneous.pdf",
+        "robotics/notes.lyx~",
+        "robotics/general",
+        "robotics/slides/16_DynamicControlSingleAxis.pdf",
+        "robotics/slides/13_TrajectoryPlanningJoints.pdf",
+        "robotics/slides/15_KinematicControl.pdf",
+        "robotics/slides/10_InverseKinematics.pdf",
+        "robotics/slides/14_TrajectoryPlanningCartesian.pdf",
+        "robotics/slides/11_DifferentialKinematics.pdf",
+        "robotics/slides/12_InverseDiffKinStatics.pdf",
+        "robotics/exams/Robotics1_16.01.11.pdf"
+    ], true)
+</script>
+</body>
+</html>
