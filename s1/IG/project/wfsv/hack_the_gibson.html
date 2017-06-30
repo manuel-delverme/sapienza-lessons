@@ -55,6 +55,7 @@
     FSNRender = Klass({
         initialize : function(fsnInstance) {
             this.word_translation = vec3(0,0,0);
+            this.avatar_position = vec3(0,5,0);
             this.avatar = null;
             this.avatar_speed = [0,0,0,0];
             this.avatar_moved = false;
@@ -117,7 +118,8 @@
                 }
             };
             function keyDownHandler(event) {
-                var speed = 1;
+                var speed = 6;
+                // self.camera.angle += 1;
                 if(event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_moved = true;
                     self.avatar_speed[0] = +speed;
@@ -239,7 +241,7 @@
 
             // first to the side
             var ramp_width_obj = new Magi.ColorQuad(0, 0, 0, 1);
-            ramp_width_obj.setScale(hypot / 2, 0.1, 1);
+            ramp_width_obj.setScale(hypot / 2, 0.8, 1);
             ramp_width_obj.setX(-hypot / 2);
             var ramp_x_disp = new Magi.Node();
             ramp_x_disp.setAxis(0, 0, 1).setAngle(Math.PI - angle);
@@ -249,7 +251,7 @@
             // then go down
             var ramp_depth_obj = new Magi.ColorQuad(0, 0, 0, 1);
             var len = Math.abs(dz / fs / 2) + filler;
-            ramp_depth_obj.setScale(len / 2, 0.1, 1);
+            ramp_depth_obj.setScale(len / 2, 0.8, 1);
             ramp_depth_obj.setX(len / 2);
             var ramp_depth_position = new Magi.Node();
             ramp_depth_position.setAxis(0, 0, 1).setAngle(Math.PI / 2);
@@ -259,7 +261,7 @@
 
             // ascend to the next plane
             var ramp_height_obj = new Magi.ColorQuad(0, 0, 0, 1);
-            ramp_height_obj.setScale(dy / fs / 2, 0.1, 1);
+            ramp_height_obj.setScale(dy / fs / 2, 0.8, 1);
             // how much it goes up
             ramp_height_obj.setX(-dy / fs / 2);
             ramp_height_obj.setAxis(1, 0, 0).setAngle(-Math.PI / 2);
@@ -300,7 +302,7 @@
             var mesh;
             if (fs_node.is_file) {
                 mesh = new Magi.Cube().setScale(3 * f * s, 9 * f * s, 8 * f * s);
-                mesh.setY((mesh.scaling[1]/2) - 50);
+                mesh.setY(0.8 * f * s);
             } else {
                 var square_size = 5;
                 mesh = new Magi.Cube().setScale(square_size * s, 0.05 * s, square_size * s);
@@ -379,7 +381,6 @@
                             vec3.add(this.position, this.tmpVec, this.position);
                             this.changed = true; // vec3.distance(this.position, targetPosition) > Math.abs(d * 0.01);
                             this.offset[1] = this.origY + d;
-                            // this.makeRotate(5.0);
                             this.setAngle(this.rotation.angle + 0.5)
                         }
                     });
@@ -437,11 +438,11 @@
             var new_look_at = vec3();
             vec3.sub(target_position, this.camera.lookAt, new_look_at);
             var d2len = vec3.lengthSquare(new_look_at);
-            vec3.scale(new_look_at, 0.08);
+            vec3.scale(new_look_at, 0.8);
             vec3.add(this.camera.lookAt, new_look_at, new_look_at);
 
             var offset = vec3(this.offset);
-            vec3.scale(offset, absolute_scale, offset);
+            vec3.scale(offset, absolute_scale * 1.0, offset);
             var new_camera_position = vec3();
             vec3.add(target_position, offset, new_camera_position);
             vec3.sub(new_camera_position, this.camera.position, new_camera_position);
@@ -459,6 +460,36 @@
             if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
                 this.display.changed = true;
         },
+        explode_model: function (path) {
+            if (this.objects[path]) {
+                this.explodingModel = path;
+            }
+            var model = child.childNodes[0];
+            var text = child.childNodes[1];
+            /*
+            for (var obj_name in this.objects) {
+                if (this.objects[obj_name] === child) {
+                    obj = this.objects[obj_name];
+                    break;
+                }
+            }
+            */
+            var ynew;
+
+            model.material.floats.MaterialEmit = vec4(0.0, 0.5, 0.4, 0);
+            ynew = model.position[1] + 1.0;
+            model.setY(ynew);
+            model.setAxis(vec3(0,0,1));
+
+            model.setAngle(model.rotation.angle + 0.5);
+            ynew = text.position[1] + 1.0;
+            text.setY(ynew);
+
+            ynew = child.position[1] + 1.0;
+            child.setY(ynew)
+
+            // text.setAngle(text.rotation.angle + 0.5);
+        },
         sceneUpdate: function () {
             var s = 4;
             if (this.avatar_moved) {
@@ -475,41 +506,79 @@
                     // todo update transform
                     this.scene.appendChild(this.avatar);
                 }
-                console.log( this.avatar.position[0], this.avatar.position[1], this.avatar.position[2] );
-                window.dis = this;
-                var shadow = new Magi.Cube().setScale(s * 0.8, s * 0.8, s * 0.8);
-                shadow.setPosition(
-                    this.avatar.position[0],
-                    this.avatar.position[1],
-                    this.avatar.position[2]
-                    );
-                this.scene.appendChild(shadow);
-                var scene = this.scene;
-                setTimeout(function(){scene.removeChild(shadow);}, 300);
+                this.avatar_position[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                if(this.avatar.is_falling)
+                        this.avatar_position[1] += -1;
+                // this.avatar_position[1] += this.avatar.is_falling? -1:0;
+                this.avatar_position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                this.avatar.setPosition( this.avatar_position[0], this.avatar_position[1], this.avatar_position[2] );
 
-                this.avatar.position[0] += this.avatar_speed[0] + this.avatar_speed[1];
-                this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
-                this.avatar.setPosition( this.avatar.position[0], this.avatar.position[1], this.avatar.position[2] );
+                this.move_camera(this.avatar_position, 1);
 
-                this.move_camera(this.avatar.position, 1);
+                var is_falling = true;
                 // calculate object position
-                var treshold = this.avatar.scaling[0] * 2;
+		        var treshold = this.avatar.scaling[0] * 2;
                 for (var i in this.objects) {
                     var rendered_model = this.objects[i];
+                    var model_name = rendered_model.entry.name;
+                    if(this.avatar && this.avatar === rendered_model)
+                        continue;
+
                     var distance = vec3.distance(this.avatar.position, rendered_model.absolutePosition);
                     if(distance < treshold && rendered_model.entry.is_file){
+                        // var cb = this.onRelayoutNeeded;
+                        // fsn.onRelayoutNeeded = null;
                         rendered_model.is_exploding = true;
+                        // this.explode_model(rendered_model.entry.path);
+                    }
+                    var is_above = (this.avatar_position[1] - rendered_model.absolutePosition[1]) > 0;
+                    if(is_above){
+                        var is_inside = this.is_inside(this.avatar, rendered_model);
+                        if(is_above && is_inside){
+                        	is_falling = false;
+                                console.log("keeping him up")
+                        }
                     }
                 }
+		if(is_falling){
+                        console.log("no base; maybe connectors")
+                        for (var i in this.objects) {
+                                var rendered_model = this.objects[i];
+                                if(is_falling && rendered_model.connectorLine){
+                                        var model_name = rendered_model.entry.name;
+                                        var cl = rendered_model.connectorLine;
+                                        console.log("CL:", model_name);
+                                        var is_inside0 = this.is_inside(this.avatar, cl.childNodes[0]);
+                                        var is_inside1 = this.is_inside(this.avatar, cl.childNodes[1]);
+                                        var is_inside2 = this.is_inside(this.avatar, cl.childNodes[2]);
+                                        is_inside = is_inside0 || is_inside1 || is_inside2;
+                                        is_falling = !is_inside
+                                        console.log("", is_falling)
+                                }
+                        }
+		}
+                this.avatar.is_falling = is_falling;
             } else {
                 var target_object = this.objects[this.currentObjectIndex];
                 if (!target_object) return;
                 var absolute_offset = this.getAbsoluteOffset(target_object);
                 this.move_camera(absolute_offset.offset, absolute_offset.scale);
             }
-        }
+        },
+        is_inside: function(a, c){
+	   var c = c.childNodes[0];
+           var cmaxx = c.absolutePosition[0] + c.scaling[0]/2;
+           var cminx = c.absolutePosition[0] - c.scaling[0]/2;
+           var cmaxz = c.absolutePosition[2] + c.scaling[2]/2;
+           var cminz = c.absolutePosition[2] - c.scaling[2]/2;
+           var px = a.absolutePosition[0];
+           var pz = a.absolutePosition[2];
+           // if (px < cminx || pz < cminz || px > cmaxx || pz > cmaxz)
+           if (px < cminx || px > cmaxx)
+               return false; //is not within cube
+           return true; //is within cube
+        },
     });
-
     var buildTree = function(e) {
         // Reset
         var pathList_ = [];
@@ -563,25 +632,25 @@
         }
     }, false);
     buildTreeFromPathList([
-        "robotics/Robotics1_15.09.11.pdf",
-        "robotics/Robotics1_16.06.06.pdf",
-        "robotics/Robotics1_15.02.06_long.pdf",
-        "robotics/notes.lyx",
-        "robotics/Robotics - Modelling, Planning and Control.pdf",
+        // "robotics/Robotics1_15.09.11.pdf",
+        // "robotics/Robotics1_16.06.06.pdf",
+        // "robotics/Robotics1_15.02.06_long.pdf",
+        // "robotics/notes.lyx",
+        // "robotics/Robotics - Modelling, Planning and Control.pdf",
         "robotics/07_PositionOrientation.pdf",
         "robotics/09_DirectKinematics.pdf",
         "robotics/printme.pdf",
         "robotics/08_EulerRPYHomogeneous.pdf",
         "robotics/notes.lyx~",
         "robotics/general",
-        "robotics/slides/16_DynamicControlSingleAxis.pdf",
-        "robotics/slides/13_TrajectoryPlanningJoints.pdf",
-        "robotics/slides/15_KinematicControl.pdf",
-        "robotics/slides/10_InverseKinematics.pdf",
-        "robotics/slides/14_TrajectoryPlanningCartesian.pdf",
-        "robotics/slides/11_DifferentialKinematics.pdf",
-        "robotics/slides/12_InverseDiffKinStatics.pdf",
-        "robotics/exams/Robotics1_16.01.11.pdf"
+        // "robotics/slides/16_DynamicControlSingleAxis.pdf",
+        // "robotics/slides/13_TrajectoryPlanningJoints.pdf",
+        // "robotics/slides/15_KinematicControl.pdf",
+        // "robotics/slides/10_InverseKinematics.pdf",
+        // "robotics/slides/14_TrajectoryPlanningCartesian.pdf",
+        // "robotics/slides/11_DifferentialKinematics.pdf",
+        // "robotics/slides/12_InverseDiffKinStatics.pdf",
+        "robotics/exams/Robotics1_16.01.11.pdf",
     ], true)
 </script>
 </body>

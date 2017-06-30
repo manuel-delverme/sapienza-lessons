@@ -244,9 +244,9 @@ FS_GRAPH.prototype = {
                 off.scale = 1 / Math.max(3, squareSide);
                 var x = fidx % squareSide;
                 var y = Math.floor(fidx / squareSide);
-                off.x = 160 * (x - (squareSide - 1) / 2) * off.scale;
+                off.x = 60 * (x - (squareSide - 1) / 2) * off.scale;
                 off.y = 0 * off.scale;
-                off.z = -160 * (y - (squareSide - 1) / 2) * off.scale;
+                off.z = -60 * (y - (squareSide - 1) / 2) * off.scale;
                 fidx++;
             } else {
                 off.scale = Math.min(0.8, 1 / dirCount);
