@@ -55,7 +55,6 @@
     FSNRender = Klass({
         initialize : function(fsnInstance) {
             this.word_translation = vec3(0,0,0);
-            this.avatar_position = vec3(0,50,0);
             this.avatar = null;
             this.avatar_speed = [0,0,0,0];
             this.avatar_moved = false;
@@ -118,7 +117,7 @@
                 }
             };
             function keyDownHandler(event) {
-                var speed = 5;
+                var speed = 1;
                 if(event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_moved = true;
                     self.avatar_speed[0] = +speed;
@@ -228,7 +227,7 @@
             // var d = Math.sqrt(dx * dx + dy * dy + dz * dz);
             var fs = 40 * f;
             var connectorLine = new Magi.Node();
-            
+
             var angle = Math.atan2(dz / 2, dx);
             var hypot = Math.sqrt(dx * dx + (dz / 2 * dz / 2)) / fs;
             var filler = 0;
@@ -264,7 +263,7 @@
             // how much it goes up
             ramp_height_obj.setX(-dy / fs / 2);
             ramp_height_obj.setAxis(1, 0, 0).setAngle(-Math.PI / 2);
-            
+
             var ramp_height_position = new Magi.Node();
             ramp_height_position.appendChild(ramp_height_obj);
             ramp_height_position.setAxis(0, 1, 0).setAngle(Math.PI / 2);
@@ -289,9 +288,11 @@
                 txt.setScale(s * (3.2 / Math.max(320, txt.realWidth)));
                 txt.setAxis(0, 0, 1).setAngle(Math.PI / 2);
                 txt.setPosition(-2 * f * s, -3.2 * f * s, 0.6 * f * s);
+                txt.setY(txt.scaling[1]/2);
             } else {
                 txt.setScale(s * (1.6 / Math.max(220, txt.realWidth)));
                 txt.setPosition(-1 * s, 0.15 * s, 1.2 * s);
+                txt.setY(txt.scaling[1]/2);
             }
             return txt;
         },
@@ -299,10 +300,11 @@
             var mesh;
             if (fs_node.is_file) {
                 mesh = new Magi.Cube().setScale(3 * f * s, 9 * f * s, 8 * f * s);
-                mesh.setY(0.8 * f * s);
+                mesh.setY((mesh.scaling[1]/2) - 50);
             } else {
-                var square_size = 10;
+                var square_size = 5;
                 mesh = new Magi.Cube().setScale(square_size * s, 0.05 * s, square_size * s);
+                mesh.setY(-mesh.scaling[1]/2);
             }
             mesh.material.floats.LightPos = this.lightPos;
             mesh.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
@@ -370,19 +372,6 @@
                             // TODO: remove object if above some limit
 
                             model.material.floats.MaterialEmit = vec4(1.0, 1.0, 1.0, 0);
-
-                            /*
-                            ynew = model.position[1] + 1.0;
-                            model.setY(ynew);
-                            model.setAxis(vec3(0,0,1));
-
-                            model.setAngle(model.rotation.angle + 0.5);
-                            ynew = text.position[1] + 1.0;
-                            text.setY(ynew);
-
-                            ynew = this.position[1] + 1.0;
-                            child.setY(ynew);
-                            */
 
                             vec3.sub(targetPosition, this.position, this.tmpVec);
                             var d = targetPosition[1] - this.originalPosition[1];
@@ -470,42 +459,12 @@
             if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
                 this.display.changed = true;
         },
-        explode_model: function (path) {
-            if (this.objects[path]) {
-                this.explodingModel = path;
-            }
-            var model = child.childNodes[0];
-            var text = child.childNodes[1];
-            /*
-            for (var obj_name in this.objects) {
-                if (this.objects[obj_name] === child) {
-                    obj = this.objects[obj_name];
-                    break;
-                }
-            }
-            */
-            var ynew;
-
-            model.material.floats.MaterialEmit = vec4(0.0, 0.5, 0.4, 0);
-            ynew = model.position[1] + 1.0;
-            model.setY(ynew);
-            model.setAxis(vec3(0,0,1));
-
-            model.setAngle(model.rotation.angle + 0.5);
-            ynew = text.position[1] + 1.0;
-            text.setY(ynew);
-
-            ynew = child.position[1] + 1.0;
-            child.setY(ynew)
-
-            // text.setAngle(text.rotation.angle + 0.5);
-        },
         sceneUpdate: function () {
-	    var s = 4;
+            var s = 4;
             if (this.avatar_moved) {
                 if(!this.avatar){
                     this.avatar = new Magi.Cube().setScale(s * 1, s * 1, s * 1);
-                    this.scene.appendChild(this.avatar);
+                    this.avatar.setY((this.avatar.scaling[1])/2);
                     this.avatar.material.floats.LightPos = vec4(10,0,0,1);
                     this.avatar.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
                     this.avatar.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
@@ -516,30 +475,30 @@
                     // todo update transform
                     this.scene.appendChild(this.avatar);
                 }
-                x = this.avatar_position[0];
-                y = this.avatar_position[1];
-                z = this.avatar_position[2];
-                var shadow = new Magi.Cube().setScale(s * 0.5, s * 0.5, s * 0.5);
-                shadow.setPosition(x,y,z);
+                console.log( this.avatar.position[0], this.avatar.position[1], this.avatar.position[2] );
+                window.dis = this;
+                var shadow = new Magi.Cube().setScale(s * 0.8, s * 0.8, s * 0.8);
+                shadow.setPosition(
+                    this.avatar.position[0],
+                    this.avatar.position[1],
+                    this.avatar.position[2]
+                    );
                 this.scene.appendChild(shadow);
+                var scene = this.scene;
+                setTimeout(function(){scene.removeChild(shadow);}, 300);
 
+                this.avatar.position[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                this.avatar.setPosition( this.avatar.position[0], this.avatar.position[1], this.avatar.position[2] );
 
-
-                this.avatar_position[0] += this.avatar_speed[0] + this.avatar_speed[1];
-                this.avatar_position[2] += this.avatar_speed[2] + this.avatar_speed[3];
-                this.avatar.setPosition( this.avatar_position[0], this.avatar_position[1], this.avatar_position[2] );
-
-                this.move_camera(this.avatar_position, 1);
+                this.move_camera(this.avatar.position, 1);
                 // calculate object position
-		        var treshold = this.avatar.scaling[0] * 2;
+                var treshold = this.avatar.scaling[0] * 2;
                 for (var i in this.objects) {
                     var rendered_model = this.objects[i];
-                    var distance = vec3.distance(this.avatar_position, rendered_model.absolutePosition);
+                    var distance = vec3.distance(this.avatar.position, rendered_model.absolutePosition);
                     if(distance < treshold && rendered_model.entry.is_file){
-                        // var cb = this.onRelayoutNeeded;
-                        // fsn.onRelayoutNeeded = null;
                         rendered_model.is_exploding = true;
-                        // this.explode_model(rendered_model.entry.path);
                     }
                 }
             } else {
@@ -565,13 +524,13 @@
         var tree = FS_GRAPH.buildTreeFromPathList(pathList_);
         fsn = new FS_GRAPH(tree);
         if (rebaseToTopDir) {
-             for (var i in fsn.tree.entries) {
-                 fsn.tree = fsn.tree.entries[i];
-                 fsn.tree.parent = null;
-                 fsn.tree.name = '/';
-                 // fsn.cd('/');
-                 break;
-             }
+            for (var i in fsn.tree.entries) {
+                fsn.tree = fsn.tree.entries[i];
+                fsn.tree.parent = null;
+                fsn.tree.name = '/';
+                // fsn.cd('/');
+                break;
+            }
         }
         if (!window.fsnRender) {
             fsnRender = new FSNRender(fsn);

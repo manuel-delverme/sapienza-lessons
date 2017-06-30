@@ -5336,7 +5336,7 @@ Magi.Node = Klass(Magi.Motion, {
     return this;
   },
 
-setAngle : function(a) {
+  setAngle : function(a) {
     this.rotation.angle = a;
     this.changed = true;
     return this;

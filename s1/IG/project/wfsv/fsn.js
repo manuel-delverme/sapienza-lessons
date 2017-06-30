@@ -250,9 +250,9 @@ FS_GRAPH.prototype = {
                 fidx++;
             } else {
                 off.scale = Math.min(0.8, 1 / dirCount);
-                off.x = off.scale * (-(dirCount - 1) / 2 + didx) * 100;
-                off.y = off.scale * 1;
-                off.z = -160;
+                off.x = off.scale * (-(dirCount - 1) / 2 + didx) * 300;
+                off.y = off.scale * 100;
+                off.z = -400;
                 didx++;
             }
             layout.entries[entry.name] = this.createLayout(entry, off, layout, maxDepth, depth + 1);
