@@ -1,0 +1,720 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{listings}
+\lstloadlanguages{Python}
+\lstset{language=Python} 
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
+\headheight 2cm
+\headsep 2cm
+\footskip 2cm
+\columnsep 1cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+AI2 Project Report
+\end_layout
+
+\begin_layout Author
+Manuel Del Verme 1769408
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Artificial Intelligence research and games create a mutually beneficial
+ relationship.
+ Games are of interest for artificial intelligence application because they
+ are mostly well-defined and small environments.
+ 
+\end_layout
+
+\begin_layout Standard
+The general question, either for games or related categories like control
+ problems, is which action a decision maker should choose at a given time
+ in order to maximize his performance in the environment.
+ A common model for this decision making problem are Markov Decision Processes
+ (MDPs) which represent the problem as a formal structure of states, actions
+ and transitions between states, leading to a reward.
+\end_layout
+
+\begin_layout Standard
+They can be solved or approximated using methods of Dynamic Programming
+ (DP) or reinforcement learning.
+\end_layout
+
+\begin_layout Standard
+Both approaches can be used to find an optimal or nearby optimal solution
+ which allows the decision maker to maximize his reward in the MDP.
+\end_layout
+
+\begin_layout Standard
+Instead of learning from a set of predefined input-output pairs with expected
+ input and output, as used by supervised learning, reinforcement learning
+ uses the agent’s interaction with the environment to learn more or less
+ rewarding actions.
+\end_layout
+
+\begin_layout Standard
+Exact solutions to a MDP decision problem are not always possible, especially
+ for environments with a large space of possible states and actions.
+\end_layout
+
+\begin_layout Standard
+For this reason approximate methods are used, which reduce the size of the
+ search space while still maintaining a good performance if chosen well.
+\end_layout
+
+\begin_layout Standard
+A game with such a large space and complex state representations is Hearthstone:
+ Heroes of Warcraft where the decision problem has been solved quite well
+ using a Monte Carlo tree search [1].
+\end_layout
+
+\begin_layout Standard
+One disadvantage of this approach is the inability to re-use observed informatio
+ns between different matches, therefore the Monte Carlo approach is feasible
+ when evaluating but unable to learn from it’s observations.
+\end_layout
+
+\begin_layout Standard
+This work focuses on the elaboration of an approximating policy for Hearthstone,
+ which will be learned using reinforcement learning algorithms.
+\end_layout
+
+\begin_layout Standard
+We search for a value function which is capable to estimate the “quality”
+ of a game state.
+\end_layout
+
+\begin_layout Standard
+By exploiting this value function, the decision making agent could select
+ a valuable action by only evaluation the direct next state, instead of
+ using deep rollouts like a Monte Carlo tree search.
+\end_layout
+
+\begin_layout Section
+# Description of the problem
+\end_layout
+
+\begin_layout Standard
+Section 3 to introduce the game Hearthstone as problem domain for our work.
+ We have a deeper look at the game mechanics and define the logic entities
+ and properties in the game’s domain.
+ Our main work starts in Section 4, where we use the definitions and algorithms
+ of Section 2 and the domain knowledge from Section 3 to apply reinforcement
+ learning to Hearthstone.
+ Therefore, we introduce the action space for a Hearthstone agent in Section
+ 4.1 and have a deeper look at the complexity of action sequences.
+ In order to handle the large state space of the game, we develop features
+ for Hearthstone game properties to receive an approximating value function
+ in Section 4.2.
+ We will also discuss further problems like randomness in Section 4.4 or
+ the decision when to end the turn in Section 4.5.
+ Finally describe our learning approach for Hearthstone with different setups
+ in Section 4.7.
+ We evaluate our approach in Section 5 where we test the solutions from
+ the previous section in different experiments.
+ These experiments are based on a Hearthstone simulation framework for Monte
+ Carlo tree search algorithms, which we describe in Section 5.1.
+ We implement policies for different agents in Section 5.3.
+ The impact of different learning parameters on the trained agent’s performance
+ is then evaluated in Section 5.4, Section 5.5 and Section 5.6.
+ In Section 5.7 we test our approximation features for a game state and evaluate
+ the required sample size to train them.
+ After all these experiments, we summarize our results in Section 5.10 where
+ we test the best agents from the previous experiments against each other
+ in a round robin tournament.
+ After our experiments, we compare our work to related projects in Section
+ 6 while focusing on differences and similarities to them.
+ Last but not least, we conclude our work in Section 7, where we summarize
+ our overall results and the experienced issues and solutions.
+ Ideas which were out-of-scope of this thesis but valuable for future work
+ are explained in Section 8.
+\end_layout
+
+\begin_layout Subsection
+problem model
+\end_layout
+
+\begin_layout Standard
+The problem model consists of an agent, states 
+\begin_inset Formula $S$
+\end_inset
+
+ and a set of actions per state 
+\begin_inset Formula $A$
+\end_inset
+
+.
+ By performing an action 
+\begin_inset Formula $a\in A$
+\end_inset
+
+, the agent can move from state to state.
+ Executing an action in a specific state provides the agent with a reward
+ (a numerical score).
+ The goal of the agent is to maximize its total reward.
+ It does this by learning which action is optimal for each state.
+ The action that is optimal for each state is the action that has the highest
+ long-term reward.
+ This reward is a weighted sum of the [[expected value]]s of the rewards
+ of all future steps starting from the current state, where the weight for
+ a step from a state 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+ steps into the future is calculated as 
+\begin_inset Formula $\gamma^{\Delta t}$
+\end_inset
+
+.
+ Here, 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ is a number between 0 and 1 (
+\begin_inset Formula $0\le\gamma\le1$
+\end_inset
+
+) called the discount factor and trades off the importance of sooner versus
+ later rewards.
+ 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ may also be interpreted as the likelihood to succeed (or survive) at every
+ step 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The algorithm therefore has a function that calculates the Quantity of a
+ state-action combination:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $:Q:S\times A\to\mathbb{R}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+# Solution algorithm
+\end_layout
+
+\begin_layout Standard
+Before learning has started, 
+\begin_inset Formula $Q$
+\end_inset
+
+ returns an (arbitrary) fixed value, chosen by the designer.
+ Then, each time the agent selects an action, and observes a reward and
+ a new state that may depend on both the previous state and the selected
+ action, 
+\begin_inset Formula $Q$
+\end_inset
+
+ is updated.
+ The core of the algorithm is a simple [[Markov decision process#Value iteration
+|value iteration update]].
+ It assumes the old value and makes a correction based on the new information.
+\end_layout
+
+\begin_layout Standard
+:
+\begin_inset Formula $Q(s_{t},a_{t})\leftarrow\underbrace{Q(s_{t},a_{t})}_{{\rm old~value}}+\underbrace{\alpha_{t}}_{{\rm learning~rate}}\cdot\left(\overbrace{\underbrace{r_{t+1}}_{{\rm reward}}+\underbrace{\gamma}_{{\rm discount~factor}}\cdot\underbrace{\max_{a}Q(s_{t+1},a)}_{{\rm estimate~of~optimal~future~value}}}^{{\rm learned~value}}-\underbrace{Q(s_{t},a_{t})}_{{\rm old~value}}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $r_{t+1}$
+\end_inset
+
+ is the reward observed after performing 
+\begin_inset Formula $a_{t}$
+\end_inset
+
+ in 
+\begin_inset Formula $s_{t}$
+\end_inset
+
+, and where 
+\begin_inset Formula $\alpha_{t}$
+\end_inset
+
+ is the learning rate (
+\begin_inset Formula $0<\alpha_{t}\le1$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+An episode of the algorithm ends when state 
+\begin_inset Formula $s_{t+1}$
+\end_inset
+
+ is a final state (or, "absorbing state").
+ However, ''Q''-learning can also learn in non-episodic tasks.
+ If the discount factor is lower than 1, the action values are finite even
+ if the problem can contain infinite loops.
+\end_layout
+
+\begin_layout Standard
+Note that for all final states 
+\begin_inset Formula $s_{f}$
+\end_inset
+
+, 
+\begin_inset Formula $Q(s_{f},a)$
+\end_inset
+
+ is never updated but is set to the reward value 
+\begin_inset Formula $r$
+\end_inset
+
+.
+ In most cases, 
+\begin_inset Formula $Q(s_{f},a)$
+\end_inset
+
+ can be taken to be equal to zero.
+\end_layout
+
+\begin_layout Subsection
+# Implementation
+\end_layout
+
+\begin_layout Standard
+Learning rate The learning rate or step size determines to what extent the
+ newly acquired information will override the old information.
+ A factor of 0 will make the agent not learn anything, while a factor of
+ 1 would make the agent consider only the most recent information.
+ In fully deterministic environments, a learning rate of 
+\begin_inset Formula ${\displaystyle \alpha_{t}=1}$
+\end_inset
+
+ is optimal.
+ When the problem is stochastic, the algorithm still converges under some
+ technical conditions on the learning rate that require it to decrease to
+ zero.
+ In practice, often a constant learning rate is used, such as 
+\begin_inset Formula ${\displaystyle \alpha_{t}=0.1}\forall{\displaystyle t}$
+\end_inset
+
+.[1]
+\end_layout
+
+\begin_layout Standard
+Discount factor[edit] The discount factor 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ determines the importance of future rewards.
+ A factor of 0 will make the agent "myopic" (or short-sighted) by only consideri
+ng current rewards, while a factor approaching 1 will make it strive for
+ a long-term high reward.
+ If the discount factor meets or exceeds 1, the action values may diverge.
+ For 
+\begin_inset Formula $\gamma=1$
+\end_inset
+
+, without a terminal state, or if the agent never reaches one, all environment
+ histories will be infinitely long, and utilities with additive, undiscounted
+ rewards will generally be infinite.
+ Even with a discount factor only slightly lower than 1, the Q-function
+ learning leads to propagation of errors and instabilities when the value
+ function is approximated with an artificial neural network.
+ In that case, it is known that starting with a lower discount factor and
+ increasing it towards its final value yields accelerated learning.
+\end_layout
+
+\begin_layout Standard
+Initial conditions (
+\begin_inset Formula $Q_{0}$
+\end_inset
+
+) Since Q-learning is an iterative algorithm, it implicitly assumes an initial
+ condition before the first update occurs.
+ High initial values, also known as "optimistic initial conditions", can
+ encourage exploration: no matter what action is selected, the update rule
+ will cause it to have lower values than the other alternative, thus increasing
+ their choice probability.
+ Recently, it was suggested that the first reward 
+\begin_inset Formula $r$
+\end_inset
+
+ could be used to reset the initial conditions.[citation needed] According
+ to this idea, the first time an action is taken the reward is used to set
+ the value of {
+\backslash
+displaystyle Q} Q.
+ This will allow immediate learning in case of fixed deterministic rewards.
+ Surprisingly, this resetting-of-initial-conditions (RIC) approach seems
+ to be consistent with human behaviour in repeated binary choice experiments.[6]
+\end_layout
+
+\begin_layout Standard
+Implementation[edit] Q-learning at its simplest uses tables to store data.
+ This very quickly loses viability with increasing sizes of state/action
+ space of the system it is monitoring/controlling.
+ One answer to this problem is to use an (adapted) artificial neural network
+ as a function approximator, as demonstrated by Tesauro in his Backgammon
+ playing temporal difference learning research.[7]
+\end_layout
+
+\begin_layout Standard
+More generally, Q-learning can be combined with function approximation.[8]
+ This makes it possible to apply the algorithm to larger problems, even
+ when the state space is continuous, and therefore infinitely large.
+ Additionally, it may speed up learning in finite problems, due to the fact
+ that the algorithm can generalize earlier experiences to previously unseen
+ states.
+\end_layout
+
+\begin_layout Standard
+For this tutorial in my Reinforcement Learning series, we are going to be
+ exploring a family of RL algorithms called Q-Learning algorithms.
+ These are a little different than the policy-based algorithms that will
+ be looked at in the the following tutorials (Parts 1–3).
+ Instead of starting with a complex and unwieldy deep neural network, we
+ will begin by implementing a simple lookup-table version of the algorithm,
+ and then show how to implement a neural-network equivalent using Tensorflow.
+ Given that we are going back to basics, it may be best to think of this
+ as Part-0 of the series.
+ It will hopefully give an intuition into what is really happening in Q-Learning
+ that we can then build on going forward when we eventually combine the
+ policy gradient and Q-learning approaches to build state-of-the-art RL
+ agents (If you are more interested in Policy Networks, or already have
+ a grasp on Q-Learning, feel free to start the tutorial series here instead).
+ Unlike policy gradient methods, which attempt to learn functions which
+ directly map an observation to an action, Q-Learning attempts to learn
+ the value of being in a given state, and taking a specific action there.
+ While both approaches ultimately allow us to take intelligent actions given
+ a situation, the means of getting to that action differ significantly.
+ You may have heard about DeepQ-Networks which can play Atari Games.
+ These are really just larger and more complex implementations of the Q-Learning
+ algorithm we are going to discuss here.
+ Tabular Approaches for Tabular Environments
+\end_layout
+
+\begin_layout Standard
+The rules of the FrozenLake environment.
+ For this tutorial we are going to be attempting to solve the FrozenLake
+ environment from the OpenAI gym.
+ For those unfamiliar, the OpenAI gym provides an easy way for people to
+ experiment with their learning agents in an array of provided toy games.
+ The FrozenLake environment consists of a 4x4 grid of blocks, each one either
+ being the start block, the goal block, a safe frozen block, or a dangerous
+ hole.
+ The objective is to have an agent learn to navigate from the start to the
+ goal without moving onto a hole.
+ At any given time the agent can choose to move either up, down, left, or
+ right.
+ The catch is that there is a wind which occasionally blows the agent onto
+ a space they didn’t choose.
+ As such, perfect performance every time is impossible, but learning to
+ avoid the holes and reach the goal are certainly still doable.
+ The reward at every step is 0, except for entering the goal, which provides
+ a reward of 1.
+ Thus, we will need an algorithm that learns long-term expected rewards.
+ This is exactly what Q-Learning is designed to provide.
+ In it’s simplest implementation, Q-Learning is a table of values for every
+ state (row) and action (column) possible in the environment.
+ Within each cell of the table, we learn a value for how good it is to take
+ a given action within a given state.
+ In the case of the FrozenLake environment, we have 16 possible states (one
+ for each block), and 4 possible actions (the four directions of movement),
+ giving us a 16x4 table of Q-values.
+ We start by initializing the table to be uniform (all zeros), and then
+ as we observe the rewards we obtain for various actions, we update the
+ table accordingly.
+ We make updates to our Q-table using something called the Bellman equation,
+ which states that the expected long-term reward for a given action is equal
+ to the immediate reward from the current action combined with the expected
+ reward from the best future action taken at the following state.
+ In this way, we reuse our own Q-table when estimating how to update our
+ table for future actions! In equation form, the rule looks like this: Eq
+ 1.
+ 
+\begin_inset Formula $Q(s,a)=r+\gamma(max(Q(s’,a’))$
+\end_inset
+
+ This says that the Q-value for a given state (s) and action (a) should
+ represent the current reward (r) plus the maximum discounted (
+\begin_inset Formula $\gamma$
+\end_inset
+
+) future reward expected according to our own table for the next state (s’)
+ we would end up in.
+ The discount variable allows us to decide how important the possible future
+ rewards are compared to the present reward.
+ By updating in this way, the table slowly begins to obtain accurate measures
+ of the expected future reward for a given action in a given state.
+ Below is a Python walkthrough of the Q-Table algorithm implemented in the
+ FrozenLake environment:
+\end_layout
+
+\begin_layout Section
+Data structures
+\end_layout
+
+\begin_layout Standard
+The Q-table, having a dimension of 203490 (states) x 6241 (actions), cannot
+ be stored in memory, hence dictionary, disk stored, and memory cached (LRU/Freq
+uency based) was used
+\end_layout
+
+\begin_layout Standard
+states are encoded as an array and given an index as an hash (locality-preservin
+g, to allow similar states to be stored nearby and most likely to be fetched
+ and kept ram cache), a dictionary allows for lazy allocation of states
+ (since the states are sparse, and some states, while theoretically possible,
+ are almost impossible to be reached).
+\end_layout
+
+\begin_layout Standard
+The final q-table is disk size is 5MB (when optimized for read speed), 648kb
+ if optimized for storage size.
+ 
+\end_layout
+
+\begin_layout Section
+# Main implementation details
+\end_layout
+
+\begin_layout Subsection
+Simulator
+\end_layout
+
+\begin_layout Standard
+fireplace was used to simulate the game, fireplace is a state/tag based
+ simulator which tries to be as close as the original game algorithm as
+ possible, even being pure python, this implementation is very fast and
+ was integral part of the success of the project, since the environment
+ is the bottleneck here
+\end_layout
+
+\begin_layout Subsection
+Algorithm
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ was changed during learning, from 0.99 to a final 0.3 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+sim1.player.epsilon = min(0.5, player.qmiss / (player.qmiss + player.qhit))
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Formula $lr$
+\end_inset
+
+ 0.1
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\gamma$
+\end_inset
+
+ 0.95, since the states are non-deterministic, lower gammas were tried but
+ 0.95 achieved good results (1 on the other hand didn't)
+\end_layout
+
+\begin_layout Section
+# Experimental evaluation
+\end_layout
+
+\begin_layout Standard
+# GHISTS 0.6436972255729795 > 0.950413223140496 
+\end_layout
+
+\begin_layout Section
+# Use cases
+\end_layout
+
+\begin_layout Section
+# Comparative solutions 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename no-grandular-reward.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+using no granular rewards
+\end_layout
+
+\begin_layout Subsection
+granular result hard opponent
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename hard-mode.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+granular result random opponent
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename lognormal-mode.png
+
+\end_inset
+
+-
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename normal-mode.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+# Presentation of the results 
+\end_layout
+
+\begin_layout Section
+# Discussion of the results 
+\end_layout
+
+\begin_layout Section
+# Conclusions (possible future work)
+\end_layout
+
+\begin_layout Standard
+Q-Learning with Neural Networks Now, you may be thinking: tables are great,
+ but they don’t really scale, do they? While it is easy to have a 16x4 table
+ for a simple grid world, the number of possible states in any modern game
+ or real-world environment is nearly infinitely larger.
+ For most interesting problems, tables simply don’t work.
+ We instead need some way to take a description of our state, and produce
+ Q-values for actions without a table: that is where neural networks come
+ in.
+ By acting as a function approximator, we can take any number of possible
+ states that can be represented as a vector and learn to map them to Q-values.
+ In the case of the FrozenLake example, we will be using a one-layer network
+ which takes the state encoded in a one-hot vector (1x16), and produces
+ a vector of 4 Q-values, one for each action.
+ Such a simple network acts kind of like a glorified table, with the network
+ weights serving as the old cells.
+ The key difference is that we can easily expand the Tensorflow network
+ with added layers, activation functions, and different input types, whereas
+ all that is impossible with a regular table.
+ The method of updating is a little different as well.
+ Instead of directly updating our table, with a network we will be using
+ backpropagation and a loss function.
+ Our loss function will be sum-of-squares loss, where the difference between
+ the current predicted Q-values, and the “target” value is computed and
+ the gradients passed through the network.
+ In this case, our Q-target for the chosen action is the equivalent to the
+ Q-value computed in equation 1 above.
+ Eq2.
+ Loss = ∑(Q-target - Q)² Below is the Tensorflow walkthrough of implementing
+ our simple Q-Network:
+\end_layout
+
+\end_body
+\end_document
