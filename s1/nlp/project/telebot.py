@@ -9,11 +9,20 @@ from telepot.delegate import per_chat_id, create_open, pave_event_space
 from telepot.namedtuple import ReplyKeyboardRemove, KeyboardButton, ReplyKeyboardMarkup
 from collections import defaultdict
 
-import gaiaDB
+import mariaDB
 
 import telepot
 import telepot.loop
 import random
+from util import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException
+
+from enum import Enum
+
+
+class Modality(Enum):
+    querying = 1
+    enriching = 2
+
 
 MANUEL_ID = 45571984
 CLIENT_ACCESS_TOKEN = 'bbb35a4d419f48ee84ae9800be4768f6'
@@ -24,58 +33,106 @@ user_answer = defaultdict(dict)
 
 class MariaBot(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
-        super(MariaBot, self).__init__(*args, **kwargs)
-        self.db = gaiaDB.gaia_db()
+        if args or kwargs:
+            super(MariaBot, self).__init__(*args, **kwargs)
+            self.db = mariaDB.gaia_db()
+        else:
+            self.db = mariaDB.fake_db()
+
+            def print_msg(user_tid, msg, reply_markup=None):
+                print("[SENDING MESSAGE] >>>>> {}".format(msg))
+            self.sendMessage = print_msg
+
+        self.user_tid = None
+        self.domain = None
+        self.relation = None
+        self.modality = None
 
     def log_message(self, msg):
-        self.bot.sendMessage(MANUEL_ID, pprint.pformat(msg))
+        self.sendMessage(MANUEL_ID, pprint.pformat(msg))
+
+    def sendMessage(self, user_id, msg, reply_markup=None):
+        self.bot.sendMessage(user_id, msg, reply_markup=reply_markup)
+
+    def get_open_question(self, msg):
+        raise NotImplementedError()
+
+    def classify_modality(self, msg_txt):
+        if "?" == msg_txt[-1]:
+            return Modality.querying
+        if "?" in msg_txt:
+            raise ModalityDetectionFail()
+        else:
+            return Modality.enriching
+
+    def offer_user_options(self, original_msg, answer_type, options, query_msg):
+        keyboard_layout = []
+        for option in options:
+            keyboard_layout.append(KeyboardButton(text=option))
+        keyboard = ReplyKeyboardMarkup(
+            resize_keyboard=True,
+            one_time_keyboard=True,
+            keyboard=keyboard_layout)
+
+        def query_response_handler(msg):
+            markup = ReplyKeyboardRemove()
+            employee_id = msg['from']['id']
+            self.sendMessage(employee_id, "Ok, got it", reply_markup=markup)
+            answer = msg['text']
+            if answer_type == "domain":
+                print("[BOT] setting domain to: ", answer)
+                self.domain = answer
+            elif answer_type == "relation":
+                self.relation = answer
+                print("[BOT] setting relation to: ", answer)
+            del user_handler[self.user_tid]
+            self.on_message(original_msg)
+
+        user_handler[self.user_tid] = query_response_handler
+        self.sendMessage(self.user_tid, query_msg, reply_markup=keyboard)
+
+    def classify_domain(self, msg_txt):
+        raise DomainDetectionFail()
+
+        with open("BabelDomains_full/domain_list.txt") as fin:
+            possible_domains = fin.read()[:-1].split(" ")
+        if random.random() < 0.1:
+            raise DomainDetectionFail()
+        return random.choice(possible_domains)
+
+    def check_for_open_question_answer(self, user_msg_txt, domain):
+        if random.random() < 0.4:
+            return "42"
+        return False
+
+    def answer_question(self, user_msg_txt, domain):
+        raise FailToAnswerException()
+
+    def infer_question_relation(self, question_txt):
+        # babelify text
+        raise RelationDetectionFail()
 
     def analyze_request(self, msg_txt):
-        ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
-        request = ai.text_request()
-        request.query = msg_txt
-        response = request.getresponse()
-        reply = response.read()
-        reply = reply.decode("utf-8")
-        parsed_json = json.loads(reply)
-        action = parsed_json['result']['action'].lower()
-        parameters = parsed_json['result']['parameters']
-        response = parsed_json['result']['fulfillment']['speech']
-        return parameters, action, response
+        pass
+
+    def is_greeting(self, user_msg_txt):
+        msg_bow = set(user_msg_txt.split(" "))
+        GREETING_BOW = {"hello", "hi", "greetings", "sup", "what's up", }
+        return len(msg_bow.intersection(GREETING_BOW)) != 0
 
     def on_message(self, msg):
         global user_handler
 
         message_user_tid = msg['from']['id']
+        if not self.user_tid:
+            self.user_tid = message_user_tid
+        else:
+            assert message_user_tid == self.user_tid
+
         user = self.db.find_by_tid(message_user_tid)
 
         if user is None:  # if user is a new user
-            def handle_user_rename(msg):
-                # update user object
-                user = self.db.find_by_tid(msg['from']['id'])
-
-                user.name = msg['text'].lower()
-                self.db.update_one(user)
-
-                del user_handler[message_user_tid]
-                self.bot.sendMessage(message_user_tid, "Cool, {}. go ahead ask me something".format(user.name))
-
-            def should_i_use_this_name(msg):
-                msg_txt = msg['text']
-                parameters, action, response = self.analyze_request(msg_txt)
-
-                if action == "negative":
-                    user_handler[message_user_tid] = handle_user_rename
-                    self.bot.sendMessage(message_user_tid, "how should i call you then?")
-                elif action == "positive":
-                    handle_user_rename({'text': msg['from']['first_name']})
-                else:
-                    self.bot.sendMessage(message_user_tid, "wut?")
-
-            user_handler[message_user_tid] = should_i_use_this_name
-            self.db.insert_one({'tid': message_user_tid})
-            self.bot.sendMessage(message_user_tid, "Hello {}, may i address you as {}?".format(
-                msg['from']['first_name'], msg['from']['first_name']))
+            self.register_user(message_user_tid, msg)
             return
 
         elif user.tid in user_handler:
@@ -87,27 +144,116 @@ class MariaBot(telepot.helper.ChatHandler):
         except KeyError:
             self.log_message("failed to parse the message")
             self.log_message(msg)
-            self.bot.sendMessage(user.tid, "i failed to understand that; admin noticed")
+            self.sendMessage(user.tid, "i failed to understand that; admin noticed")
             return
 
-        parameters, action, response = self.analyze_request(user_msg_txt)
-        self.bot.sendMessage(user.tid, response)
-
-        msg_bow = set(user_msg_txt.split(" "))
-
-        GREETING_BOW = {"hello", "hi", "greetings", "sup", "what's up", }
-
-        if msg_bow.intersection(GREETING_BOW) or action == "greeting":
+        if self.is_greeting(user_msg_txt):
             self.greet_user(user)
+            return
 
-        elif action == 'place':
-            print("got:", action)
+        if not self.domain:
+            try:
+                self.domain = self.classify_domain(user_msg_txt)
+            except DomainDetectionFail:
+                with open("BabelDomains_full/domain_list.txt") as fin:
+                    possible_domains = fin.read()[:-1].split("\n")
+                self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
+            return
+
+        if not self.modality:
+            try:
+                self.modality = self.classify_modality(user_msg_txt)
+            except ModalityDetectionFail:
+                self.offer_user_options(msg, "modality", ["ask questions", "answer stuff"], "what do you want to do?")
+            else:
+                print("[BOT] setting modality to: ", self.modality)
+                self.on_message(msg)
+            return
+
+        if self.modality == Modality.enriching:
+            try:
+                relation, question = self.db.get_open_question(self.domain)
+            except IndexError:
+                relation, question = "place", "where is the lalalala"
+            # pick a random question
+            # ask question to user
+            # update KB
+            self.db.close_open_question(relation, question)
+
+        elif self.modality == Modality.querying:
+            if not self.relation:
+                # babelify question
+                try:
+                    self.relation = self.infer_question_relation(user_msg_txt)
+                except RelationDetectionFail:
+                    self.offer_user_options(msg, "relation", ["relation1", "relation2"], "what's the relation here?")
+                    return
+            # mumble mumble
+            # mumble mumble
+            # mumble mumble
+            # mumble mumble
+            try:
+                answer = self.answer_question(user_msg_txt, self.domain)
+            except FailToAnswerException:
+                # ask another user
+                self.db.add_open_question(user_msg_txt)
+                timeleft = 15
+                answer = "something broke; call Manuel"
+                while timeleft > 0:
+                    user_answer = self.check_for_open_question_answer(user_msg_txt, self.domain)
+                    if user_answer:
+                        answer = user_answer
+                        break
+                    self.sendMessage(self.user_tid, "mumble {}".format(timeleft))
+                    time.sleep(1)
+                    timeleft -= 1
+
+                if timeleft == 0:
+                    answer = "i don't know"
+
+            self.sendMessage(self.user_tid, answer)
+            self.domain = None
+            self.modality = None
+            self.relation = None
         else:
-            print("skipping", action)
+            print("skipping", user_msg_txt)
+
+    def register_user(self, message_user_tid, msg):
+        global user_handler
+
+        def handle_user_rename(msg):
+            # update user object
+            user = self.db.find_by_tid(msg['from']['id'])
+
+            user.name = msg['text'].lower()
+            self.db.update_one(user)
+
+            del user_handler[message_user_tid]
+            self.sendMessage(message_user_tid, "Cool, {}. go ahead ask me something".format(user.name))
+
+        def should_i_use_this_name(msg):
+            msg_txt = msg['text']
+            parameters, action, response = self.analyze_request(msg_txt)
+
+            if action == "negative":
+                user_handler[message_user_tid] = handle_user_rename
+                self.sendMessage(message_user_tid, "how should i call you then?")
+            elif action == "positive":
+                handle_user_rename({'text': msg['from']['first_name']})
+            else:
+                self.sendMessage(message_user_tid, "wut?")
+
+        user_handler[message_user_tid] = should_i_use_this_name
+        self.db.insert_one({'tid': message_user_tid})
+        self.sendMessage(message_user_tid, "Hello {}, may i address you as {}?".format(
+            msg['from']['first_name'],
+            msg['from']['first_name'])
+                         )
 
     def greet_user(self, user):
-        GREETING_RESPONSES = {"hello", "hi", "greetings", "sup", "what's up", }
-        self.bot.sendMessage(user.tid, random.choice(GREETING_RESPONSES))
+        GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
+        self.sendMessage(user.tid, random.choice(GREETING_RESPONSES))
+        self.sendMessage(user.tid, "ask away")
 
     def parse_user_msg(self, text):
         self.parse_pos(text)
@@ -121,7 +267,24 @@ def main():
         pave_event_space()(
             per_chat_id(), create_open, MariaBot, timeout=99999),
     ])
-    MessageLoop(bot).run_forever()
+    test_bot = MariaBot()
+    test_user_id = random.randint(0, 1000)
+
+    msg_flow = [
+        "sup n00b",
+        "how does your pussy smells like?",
+        "animals",
+        "relation1"
+    ]
+    for msg in msg_flow:
+        message_template = {'from': {'id': test_user_id, }, 'text': msg}
+        print("[USER WRITES]: <<<<< {}".format(message_template['text']))
+        test_bot.on_message(message_template)
+    for msg in msg_flow:
+        message_template = {'from': {'id': test_user_id, }, 'text': msg}
+        print("[USER WRITES]: <<<<< {}".format(message_template['text']))
+        test_bot.on_message(message_template)
+    # MessageLoop(bot).run_forever()
 
 
 if __name__ == "__main__":

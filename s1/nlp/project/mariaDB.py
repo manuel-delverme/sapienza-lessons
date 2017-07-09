@@ -21,6 +21,7 @@ class User:
     def __repr__(self):
         return repr(self.user_dict)
 
+
 class gaia_db:
     def __init__(self):
         with open('DB_keys') as f:
@@ -31,6 +32,11 @@ class gaia_db:
         self.db = self.client['mariadb']
         try:
             self.db.create_collection(name='users')
+            print('\nCollection created\n')
+        except pymongo.errors.CollectionInvalid:
+            print('\nCollection exists\n')
+        try:
+            self.db.create_collection(name='open_questions')
             print('\nCollection created\n')
         except pymongo.errors.CollectionInvalid:
             print('\nCollection exists\n')
@@ -70,6 +76,55 @@ class gaia_db:
         else:
             return None
 
+    def get_open_question(self, domain):
+        question = self.db.open_questions.find_one({
+            'answered': False,
+            'domain': domain,
+        })
+        return question['relation'], question['question']
+
+    def close_open_question(self, relation, question):
+        question = self.db.open_questions.find_one({
+            'answered': False,
+            'relation': relation,
+            'question': question,
+        })
+        return question['relation'], question['question']
+
+    def add_open_question(self, question):
+        self.db.open_questions.insert({
+            'question': question,
+            'answered': False
+        })
+
+class fake_db:
+    def __init__(self):
+        pass
+
+    def insert(self, users):
+        for user in users.values():
+            self.insert_one(user)
+
+    def insert_one(self, user):
+        pass
+
+    def update_one(self, user):
+        pass
+
+    def remove(self, value):
+        pass
+
+    def find_by_tid(self, value):
+        return User({'tid': value})
+
+    def get_open_question(self, domain):
+        return "relation", "question"
+
+    def close_open_question(self, relation, question):
+        pass
+
+    def add_open_question(self, question):
+        pass
 
 if __name__ == "__main__":
     pass
