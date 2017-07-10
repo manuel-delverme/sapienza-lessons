@@ -1,0 +1,1257 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{listings}
+\lstloadlanguages{Python}
+\lstset{language=Python} 
+\usepackage{graphicx}
+\usepackage{subfig}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{fit}
+\usetikzlibrary{calc}
+
+\usepackage{listings}
+
+\usepackage{soul}
+
+\def\len{0.2cm}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Homework Report 2
+\end_layout
+
+\begin_layout Author
+Manuel Del Verme
+\begin_inset Newline newline
+\end_inset
+
+1769408
+\end_layout
+
+\begin_layout Section
+HTN
+\end_layout
+
+\begin_layout Standard
+HTN tries to divide actions into different levels: High level actions (HLA)
+ which can be divided (refinement) in smaller actions, and primitives which
+ represent the building blocks and atomic actions.
+\end_layout
+
+\begin_layout Standard
+HLA takes preconditions and effects from his various implementations, we
+ can define several rules to assign preconditions and effects, Angelic determini
+sm where always take take the best representation of the primitives, demonic
+ where we always take the most negative representation of a primitive, other
+ strategies exist but are not considered.
+\end_layout
+
+\begin_layout Subsection
+Primitives
+\end_layout
+
+\begin_layout Standard
+the primitives are:
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Start(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emph{\emptyset}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{kitch}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\neg at(robot,liv),\neg at(robot,bath),at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{bath}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\neg at(robot,liv),at(robot,bath),\neg at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(move_{liv}),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:at(robot,liv),\neg at(robot,bath),\neg at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{kitch}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{tray},at(robot,kitch)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{tray}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(run_{bath}(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},at(robot,bath)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:clean_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(pickstuff()$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:$
+\end_inset
+
+
+\begin_inset Formula $has_{tray},has_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(store(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Finish(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},loc_{liv},stored_{tray},stored_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+HLAs:
+\end_layout
+
+\begin_layout Standard
+High level actions:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(pick()$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:$
+\end_inset
+
+
+\begin_inset Formula $has_{tray},has_{cloth},at(robot,liv)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[(move_{liv}(),pickstuff()]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(wash(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{tray},has_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:has_{cloth},has_{tray},clean_{cloth},clean_{tray},loc_{kitch}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{bath}(),run_{bath}(),move_{kitch}(),run_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{kitch}(),run_{kitch}(),move_{bath}(),run_{bath}(),move_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $]$
+\end_inset
+
+
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(store(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $refinement:[$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{liv}(),store{}_{liv}(),move_{kitch}(),store_{kitch}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $(move_{kitch}(),store_{kitch}(),move_{liv}(),store{}_{liv}()),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $]$
+\end_inset
+
+
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Finish(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:has_{cloth},has_{tray},clean_{cloth},clean_{tray},at(robot,liv),liv_{tray},liv_{cloth}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Action(Start(),$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $prec:\emptyset$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $effect:(loc_{kitch})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Graph:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+[ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	node distance = 
+\backslash
+len,
+\end_layout
+
+\begin_layout Plain Layout
+
+	auto,
+\end_layout
+
+\begin_layout Plain Layout
+
+	title/.style = {
+\end_layout
+
+\begin_layout Plain Layout
+
+		font=
+\backslash
+fontsize{6}{6}
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\backslash
+color{black!50}
+\end_layout
+
+\begin_layout Plain Layout
+
+		
+\backslash
+ttfamily 
+\end_layout
+
+\begin_layout Plain Layout
+
+	},
+\end_layout
+
+\begin_layout Plain Layout
+
+	typetag/.style={
+\end_layout
+
+\begin_layout Plain Layout
+
+		rectangle,
+\end_layout
+
+\begin_layout Plain Layout
+
+		draw=black!50,
+\end_layout
+
+\begin_layout Plain Layout
+
+		font=
+\backslash
+scriptsize
+\backslash
+ttfamily,
+\end_layout
+
+\begin_layout Plain Layout
+
+		anchor=west
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{scope}[every node/.style={thick}]
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%%% F %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw](F) at (5,-5) {Finish};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%%% S %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (S) at (5,4) {Start};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%%% Store %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (Sk) [above =1 of F] {store};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (Sk_1) [below =0.2 of Sk] {$move_{liv}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (Sk_2) [right =0.2 of Sk_1] {$store$};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%%% Wash Stuff %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (w) [above =4 of Sk] {wash};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_1) [below =0.6 of w] {$move_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_2) [right =0.2 of w_1] {$run_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_3) [right =0.2 of w_2] {$move_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_4) [right =0.2 of w_3] {$run_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_11) [below =1.2 of w_1] {$move_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_12) [right =0.2 of w_11] {$run_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_13) [right =0.2 of w_12] {$move_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_14) [right =0.2 of w_13] {$run_{bath}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (w_15) [right =0.2 of w_14] {$move_{kitch}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%%% Pick Stuff %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (p1) [above =1.3 of w] {pick};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (p1_1) [below =0.2 of p1] {$move_{liv}$};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[draw] (p1_2) [right =0.2 of p1_1] {pick-stuff};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	%%% Frame %%%%
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(p1) (p1_1) (p1_2)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=blue!20, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		    (w) (w_1) (w_2) (w_3)(w_4)
+\end_layout
+
+\begin_layout Plain Layout
+
+		    (w_11) (w_12) (w_13) (w_14) (w_15)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(Sk) (Sk_1) (Sk_2)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] {};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (w_up_desc) [above =0 of w_1] {bath first};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(w_1) (w_2) (w_3)(w_4)(w_up_desc)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] (w_up) {};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node[] (w_down_desc) [above =0 of w_11] {kitch first};
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\backslash
+node [draw=black!50, fit={
+\end_layout
+
+\begin_layout Plain Layout
+
+		(w_11) (w_12) (w_13) (w_14) (w_15) (w_down_desc)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}] (w_down) {};
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{scope}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{scope}[>={Stealth[black]},
+\end_layout
+
+\begin_layout Plain Layout
+
+              every node/.style={},
+\end_layout
+
+\begin_layout Plain Layout
+
+              every edge/.style={draw=black}]
+\end_layout
+
+\begin_layout Plain Layout
+
+    %
+\backslash
+path [->] (S) edge[bend right=80,dotted] node {$
+\backslash
+prec$} (F);
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{scope}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this case the space REACH+ coincides with REACH- for every implmentation
+ as there is no preondition-effect difference for any of the implementaion,
+ if a difference would have arised, the reachability of the goal would have
+ been first checked against REACH+ and if successful, against REACH- since
+ the latter guarantees solution, if a solution is reachable by REACH+ but
+ not REACH- a search must be performed.
+\end_layout
+
+\begin_layout Subsection
+Process
+\end_layout
+
+\begin_layout Standard
+show the process to generate a plan that implements the formulation
+\end_layout
+
+\begin_layout Enumerate
+the process starts with 6 HLAs (high level actions), the HPlanning algorithm
+ picks one HLA from the plan (or plans if there are several).
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Quotes eld
+\end_inset
+
+pick
+\begin_inset Quotes erd
+\end_inset
+
+ is taken as first HLA.
+\end_layout
+
+\begin_layout Enumerate
+prefix is set as [Start,] and suffix is set to [wash, store, Finish].
+\end_layout
+
+\begin_layout Enumerate
+checks if the prefix is a valid solution (yes in this case)
+\end_layout
+
+\begin_layout Enumerate
+for each refinement of [Start,] given the solution at 4) and the heirarchy
+\end_layout
+
+\begin_layout Enumerate
+add to the queue ([Start,], [
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$move_{liv}$,pick-stuff
+\end_layout
+
+\end_inset
+
+], suffix).
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Quotes eld
+\end_inset
+
+wash
+\begin_inset Quotes erd
+\end_inset
+
+ is taken as HLA
+\end_layout
+
+\begin_layout Enumerate
+split prefix, wash, suffix 
+\end_layout
+
+\begin_layout Enumerate
+prefix is checked for solution
+\end_layout
+
+\begin_layout Enumerate
+[prefix, bath first, suffix] refinement is added to the queue
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Quotes eld
+\end_inset
+
+store
+\begin_inset Quotes erd
+\end_inset
+
+ is taken as HLA
+\end_layout
+
+\begin_layout Enumerate
+split prefix, store, suffix
+\end_layout
+
+\begin_layout Enumerate
+prefix checked for solution
+\end_layout
+
+\begin_layout Enumerate
+the [prefix, only refinement, suffix] is pushed back
+\end_layout
+
+\begin_layout Enumerate
+the process repeats for 
+\begin_inset Quotes eld
+\end_inset
+
+kitch first is
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+...
+\end_layout
+
+\begin_layout Enumerate
+...
+\end_layout
+
+\begin_layout Enumerate
+HLA is null
+\end_layout
+
+\begin_layout Enumerate
+outcome intersects the goal (as seen in the previous points)
+\end_layout
+
+\begin_layout Enumerate
+the plan is returned
+\end_layout
+
+\begin_layout Standard
+Continue untill either the queue is empty (failure) or there are no more
+ HLA and the plan satisfies the problem
+\end_layout
+
+\end_body
+\end_document

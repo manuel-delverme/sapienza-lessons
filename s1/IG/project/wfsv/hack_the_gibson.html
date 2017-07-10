@@ -6,14 +6,16 @@
         canvas {
             background-color: white;
         }
+
         body {
             margin: 0;
             overflow: hidden;
-            font-family:Monospace,serif;
-            font-size:13px;
-            text-align:center;
+            font-family: Monospace, serif;
+            font-size: 13px;
+            text-align: center;
             font-weight: bold;
         }
+
         #path_selector {
             position: absolute;
             top: 0;
@@ -23,7 +25,7 @@
     </style>
 </head>
 <body>
-<input type="file" id="path_selector" webkitdirectory directory />
+<input type="file" id="path_selector" webkitdirectory directory/>
 <script type="text/x-glsl-fs" id="bg-frag">
       precision mediump float;
       uniform sampler2D Texture0;
@@ -40,12 +42,13 @@
         vec4 c = vec4(0.76,0.72,0.78, 0.5-0.8*d);
         gl_FragColor = c*c.a;
       }
-    </script>
+
+</script>
 <script type="text/javascript" src="magi.js"></script>
 <script type="text/javascript" src="fsn.js"></script>
 
 <script type="text/javascript">
-    window.onresize = function() {
+    window.onresize = function () {
         if (this.fsnRender) {
             this.fsnRender.canvas.width = window.innerWidth;
             this.fsnRender.canvas.height = window.innerHeight;
@@ -53,11 +56,10 @@
         }
     };
     FSNRender = Klass({
-        initialize : function(fsnInstance) {
-            this.word_translation = vec3(0,0,0);
-            this.avatar_position = vec3(0,5,0);
+        initialize: function (fsnInstance) {
+            this.word_translation = vec3(0, 0, 0);
             this.avatar = null;
-            this.avatar_speed = [0,0,0,0];
+            this.avatar_speed = [0, 0, 0, 0];
             this.avatar_moved = false;
             this.setFSN(fsnInstance);
             this.canvas = E.canvas(window.innerWidth, window.innerHeight);
@@ -72,19 +74,19 @@
             this.camera = this.display.camera;
             this.camera.zNear = 1;
             this.camera.zFar = 1000;
-            this.offset = vec3(-80,120,200);
-            this.lookOffset = vec3(0,-10,0);
+            this.offset = vec3(-80, 120, 200);
+            this.lookOffset = vec3(0, -10, 0);
             var grad = new Magi.FilterQuad('bg-frag');
             grad.depthTest = false;
-            grad.material.floats.aspect = 4/3;
+            grad.material.floats.aspect = 4 / 3;
             this.scene.appendChild(grad);
             this.updateLayout();
             this.display.drawOnlyWhenChanged = true;
             var self = this;
-            this.scene.addFrameListener(function(t,dt) {
-                self.sceneUpdate(t,dt);
+            this.scene.addFrameListener(function (t, dt) {
+                self.sceneUpdate(t, dt);
             });
-            this.camera.afterTransform(function(m) {
+            this.camera.afterTransform(function (m) {
                 var n = mat4.identity();
                 mat4.translate(n, this.position);
                 mat4.multiply(n, m, n);
@@ -94,85 +96,86 @@
             this.downY = null;
 
             /* MOUSE HOOKS */
-            window.onmouseup = function(ev) {
+            window.onmouseup = function (ev) {
                 if (self.downX !== null) {
                     self.downX = null;
                     self.downY = null;
                     ev.preventDefault();
                 }
             };
-            this.canvas.onmousedown = function(ev) {
+            this.canvas.onmousedown = function (ev) {
                 self.downX = ev.clientX;
                 self.downY = ev.clientY;
                 ev.preventDefault();
             };
-            this.canvas.onmousemove = function(ev) {
+            this.canvas.onmousemove = function (ev) {
                 if (self.downX !== null) {
                     var dx = ev.clientX - self.downX;
                     var dy = ev.clientY - self.downY;
                     self.downX = ev.clientX;
                     self.downY = ev.clientY;
-                    self.offset[0] -= dx/2;
-                    self.offset[1] += dy/1.5;
+                    self.offset[0] -= dx / 2;
+                    self.offset[1] += dy / 1.5;
                     ev.preventDefault();
                 }
             };
             function keyDownHandler(event) {
                 var speed = 6;
-                // self.camera.angle += 1;
-                if(event.keyCode === 39 || event.keyCode === 68) {
+                if (event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_moved = true;
                     self.avatar_speed[0] = +speed;
                 }
-                else if(event.keyCode === 37 || event.keyCode === 65) {
+                else if (event.keyCode === 37 || event.keyCode === 65) {
                     self.avatar_moved = true;
                     self.avatar_speed[1] = -speed;
                 }
-                else if(event.keyCode === 40 || event.keyCode === 83) {
+                else if (event.keyCode === 40 || event.keyCode === 83) {
                     self.avatar_moved = true;
                     self.avatar_speed[2] = +speed;
                 }
-                else if(event.keyCode === 38 || event.keyCode === 87) {
+                else if (event.keyCode === 38 || event.keyCode === 87) {
                     self.avatar_moved = true;
                     self.avatar_speed[3] = -speed;
                 }
             }
+
             function keyUpHandler(event) {
-                if(event.keyCode === 39 || event.keyCode === 68) {
+                if (event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_speed[0] = 0;
                 }
-                else if(event.keyCode === 37 || event.keyCode === 65) {
+                else if (event.keyCode === 37 || event.keyCode === 65) {
                     self.avatar_speed[1] = 0;
                 }
-                else if(event.keyCode === 40 || event.keyCode === 83) {
+                else if (event.keyCode === 40 || event.keyCode === 83) {
                     self.avatar_speed[2] = 0;
                 }
-                else if(event.keyCode === 38 || event.keyCode === 87) {
+                else if (event.keyCode === 38 || event.keyCode === 87) {
                     self.avatar_speed[3] = 0;
                 }
             }
+
             window.addEventListener('keydown', keyDownHandler, false);
             window.addEventListener('keyup', keyUpHandler, false);
         },
 
-        setFSN : function(fsnInstance) {
+        setFSN: function (fsnInstance) {
             this.fsn = fsnInstance;
             var self = this;
             // this.fsn.onChangeDir = function(path) {
             //     self.currentObjectIndex = path;
             // };
-            this.fsn.onRelayoutNeeded = function(entry, full) {
+            this.fsn.onRelayoutNeeded = function (entry, full) {
                 self.updateLayoutPath(entry.getPath(), full ? null : 1);
             };
         },
 
-        gotoPath : function(path) {
+        gotoPath: function (path) {
             if (this.objects[path]) {
                 this.currentObjectIndex = path;
             }
         },
 
-        updateLayout : function() {
+        updateLayout: function () {
             var layout = this.fsn.getLayout();
             for (var i in this.objects) {
                 var cn = this.objects[i];
@@ -183,12 +186,12 @@
             this.addLayout(layout);
         },
 
-        updateLayoutPath : function(path, maxDepth) {
+        updateLayoutPath: function (path, maxDepth) {
             var layout = this.fsn.getLayout(path, maxDepth);
             var p = this.objects[path];
             var paths = (path === '/') ? path : (path + '/');
             for (var i in this.objects) {
-                if (i === path || i.slice(0,paths.length) === paths) {
+                if (i === path || i.slice(0, paths.length) === paths) {
                     var obj = this.objects[i];
                     obj.marked = true;
                 }
@@ -204,8 +207,8 @@
             }
         },
 
-        destroyNode : function(cn) {
-            for (var i=0, len=cn.childNodes.length; i<len; i++) {
+        destroyNode: function (cn) {
+            for (var i = 0, len = cn.childNodes.length; i < len; i++) {
                 var c = cn.childNodes[i];
                 if (c.texture) {
                     c.texture.destroy();
@@ -215,9 +218,9 @@
                 cn.parentNode.removeChild(cn);
         },
 
-        unmark : function(node) {
+        unmark: function (node) {
             node.marked = false;
-            for (var i=0; i<node.childNodes.length; i++) {
+            for (var i = 0; i < node.childNodes.length; i++) {
                 this.unmark(node.childNodes[i]);
             }
         },
@@ -290,11 +293,11 @@
                 txt.setScale(s * (3.2 / Math.max(320, txt.realWidth)));
                 txt.setAxis(0, 0, 1).setAngle(Math.PI / 2);
                 txt.setPosition(-2 * f * s, -3.2 * f * s, 0.6 * f * s);
-                txt.setY(txt.scaling[1]/2);
+                txt.setY(txt.scaling[1] / 2);
             } else {
                 txt.setScale(s * (1.6 / Math.max(220, txt.realWidth)));
                 txt.setPosition(-1 * s, 0.15 * s, 1.2 * s);
-                txt.setY(txt.scaling[1]/2);
+                txt.setY(txt.scaling[1] / 2);
             }
             return txt;
         },
@@ -306,7 +309,7 @@
             } else {
                 var square_size = 5;
                 mesh = new Magi.Cube().setScale(square_size * s, 0.05 * s, square_size * s);
-                mesh.setY(-mesh.scaling[1]/2);
+                mesh.setY(-mesh.scaling[1] / 2);
             }
             mesh.material.floats.LightPos = this.lightPos;
             mesh.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
@@ -317,9 +320,9 @@
             mesh.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
             return mesh;
         },
-        addLayout : function(layout, root) {
+        addLayout: function (layout, root) {
             var self = this;
-            for ( var j=0; j<layout.length; j++ ) {
+            for (var j = 0; j < layout.length; j++) {
                 var fs_node = layout[j];
                 if (root) {
                     if (!fs_node.parent && fs_node.name !== '/') {
@@ -352,20 +355,20 @@
 
                 rendered_object.offset = vec3(x, y, z);
                 rendered_object.setPosition(x, y, z);
-                rendered_object.setScale( fs_node.offset.scale );
+                rendered_object.setScale(fs_node.offset.scale);
 
                 if (fs_node.is_file) {
-                    rendered_object.position[1] += 36*fs_node.offset.scale;
-                    rendered_object.offset[1] += 36*fs_node.offset.scale;
+                    rendered_object.position[1] += 36 * fs_node.offset.scale;
+                    rendered_object.offset[1] += 36 * fs_node.offset.scale;
                 }
                 rendered_object.originalPosition = vec3(rendered_object.position);
                 rendered_object.upPosition = vec3(rendered_object.position);
-                rendered_object.upPosition[1] += fs_node.offset.scale*0.4*20*9;
+                rendered_object.upPosition[1] += fs_node.offset.scale * 0.4 * 20 * 9;
                 rendered_object.tmpVec = vec3();
                 rendered_object.origY = rendered_object.offset[1];
                 if (fs_node.is_file && !rendered_object.reused) {
-                    rendered_object.addFrameListener(function(t,dt) {
-                        if(this.is_exploding){
+                    rendered_object.addFrameListener(function (t, dt) {
+                        if (this.is_exploding) {
                             var model = this.childNodes[0];
                             var text = this.childNodes[1];
                             var ynew;
@@ -386,7 +389,7 @@
                     });
                 }
 
-                var s = fs_node.is_file? 45: 70;
+                var s = fs_node.is_file ? 45 : 70;
                 s *= 2;
                 var f = 0.4;
 
@@ -411,7 +414,7 @@
             this.gotoPath(this.fsn.getCurrentPath());
             this.display.changed = true;
         },
-        getAbsoluteOffset : function(obj) {
+        getAbsoluteOffset: function (obj) {
             var parents = [];
             while (obj && obj.offset) {
                 parents.unshift(obj);
@@ -419,14 +422,14 @@
             }
             var offset = this.word_translation;
             var scale = 1;
-            for (var i=0; i<parents.length; i++) {
+            for (var i = 0; i < parents.length; i++) {
                 var p = parents[i];
                 offset[0] += p.offset[0] * scale;
                 offset[1] += p.offset[1] * scale;
                 offset[2] += p.offset[2] * scale;
                 scale *= p.entry.offset.scale;
             }
-            return {offset:offset, scale:scale};
+            return {offset: offset, scale: scale};
         },
         move_camera: function (absolute_offset, absolute_scale) {
             // calculate object position
@@ -467,19 +470,19 @@
             var model = child.childNodes[0];
             var text = child.childNodes[1];
             /*
-            for (var obj_name in this.objects) {
-                if (this.objects[obj_name] === child) {
-                    obj = this.objects[obj_name];
-                    break;
-                }
-            }
-            */
+             for (var obj_name in this.objects) {
+             if (this.objects[obj_name] === child) {
+             obj = this.objects[obj_name];
+             break;
+             }
+             }
+             */
             var ynew;
 
             model.material.floats.MaterialEmit = vec4(0.0, 0.5, 0.4, 0);
             ynew = model.position[1] + 1.0;
             model.setY(ynew);
-            model.setAxis(vec3(0,0,1));
+            model.setAxis(vec3(0, 0, 1));
 
             model.setAngle(model.rotation.angle + 0.5);
             ynew = text.position[1] + 1.0;
@@ -493,10 +496,10 @@
         sceneUpdate: function () {
             var s = 4;
             if (this.avatar_moved) {
-                if(!this.avatar){
+                if (!this.avatar) {
                     this.avatar = new Magi.Cube().setScale(s * 1, s * 1, s * 1);
-                    this.avatar.setY((this.avatar.scaling[1])/2);
-                    this.avatar.material.floats.LightPos = vec4(10,0,0,1);
+                    this.avatar.setY((this.avatar.scaling[1]) / 2 + 100);
+                    this.avatar.material.floats.LightPos = vec4(10, 0, 0, 1);
                     this.avatar.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
                     this.avatar.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
                     this.avatar.material.floats.MaterialEmit = vec4(0.1, 0.3, 0.3, 7);
@@ -506,57 +509,59 @@
                     // todo update transform
                     this.scene.appendChild(this.avatar);
                 }
-                this.avatar_position[0] += this.avatar_speed[0] + this.avatar_speed[1];
-                if(this.avatar.is_falling)
-                        this.avatar_position[1] += -1;
-                // this.avatar_position[1] += this.avatar.is_falling? -1:0;
-                this.avatar_position[2] += this.avatar_speed[2] + this.avatar_speed[3];
-                this.avatar.setPosition( this.avatar_position[0], this.avatar_position[1], this.avatar_position[2] );
+                this.avatar.position[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                if (this.avatar.is_falling)
+                    this.avatar.position[1] += -1;
+                // this.avatar.position[1] += this.avatar.is_falling? -1:0;
+                this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
 
-                this.move_camera(this.avatar_position, 1);
+                // this.avatar.setPosition(this.avatar.position[0], this.avatar.position[1], this.avatar.position[2]);
+                this.avatar.changed = true;
+
+                this.move_camera(this.avatar.position, 1);
 
                 var is_falling = true;
                 // calculate object position
-		        var treshold = this.avatar.scaling[0] * 2;
+                var treshold = this.avatar.scaling[0] * 2;
                 for (var i in this.objects) {
                     var rendered_model = this.objects[i];
                     var model_name = rendered_model.entry.name;
-                    if(this.avatar && this.avatar === rendered_model)
+                    if (this.avatar && this.avatar === rendered_model)
                         continue;
 
                     var distance = vec3.distance(this.avatar.position, rendered_model.absolutePosition);
-                    if(distance < treshold && rendered_model.entry.is_file){
+                    if (distance < treshold && rendered_model.entry.is_file) {
                         // var cb = this.onRelayoutNeeded;
                         // fsn.onRelayoutNeeded = null;
                         rendered_model.is_exploding = true;
                         // this.explode_model(rendered_model.entry.path);
                     }
-                    var is_above = (this.avatar_position[1] - rendered_model.absolutePosition[1]) > 0;
-                    if(is_above){
+                    var is_above = (this.avatar.position[1] - rendered_model.absolutePosition[1]) > 0;
+                    if (is_above) {
                         var is_inside = this.is_inside(this.avatar, rendered_model);
-                        if(is_above && is_inside){
-                        	is_falling = false;
-                                console.log("keeping him up")
+                        if (is_above && is_inside) {
+                            is_falling = false;
+                            console.log(model_name, "keeping him up")
                         }
                     }
                 }
-		if(is_falling){
-                        console.log("no base; maybe connectors")
-                        for (var i in this.objects) {
-                                var rendered_model = this.objects[i];
-                                if(is_falling && rendered_model.connectorLine){
-                                        var model_name = rendered_model.entry.name;
-                                        var cl = rendered_model.connectorLine;
-                                        console.log("CL:", model_name);
-                                        var is_inside0 = this.is_inside(this.avatar, cl.childNodes[0]);
-                                        var is_inside1 = this.is_inside(this.avatar, cl.childNodes[1]);
-                                        var is_inside2 = this.is_inside(this.avatar, cl.childNodes[2]);
-                                        is_inside = is_inside0 || is_inside1 || is_inside2;
-                                        is_falling = !is_inside
-                                        console.log("", is_falling)
-                                }
+                if (is_falling) {
+                    console.log("no base; maybe connectors")
+                    for (var i in this.objects) {
+                        var rendered_model = this.objects[i];
+                        if (is_falling && rendered_model.connectorLine) {
+                            var model_name = rendered_model.entry.name;
+                            var cl = rendered_model.connectorLine;
+                            console.log("CL:", model_name);
+                            var is_inside0 = this.is_inside(this.avatar, cl.childNodes[0]);
+                            var is_inside1 = this.is_inside(this.avatar, cl.childNodes[1]);
+                            var is_inside2 = this.is_inside(this.avatar, cl.childNodes[2]);
+                            is_inside = is_inside0 || is_inside1 || is_inside2;
+                            is_falling = !is_inside;
+                            console.log("", is_falling)
                         }
-		}
+                    }
+                }
                 this.avatar.is_falling = is_falling;
             } else {
                 var target_object = this.objects[this.currentObjectIndex];
@@ -565,21 +570,21 @@
                 this.move_camera(absolute_offset.offset, absolute_offset.scale);
             }
         },
-        is_inside: function(a, c){
-	   var c = c.childNodes[0];
-           var cmaxx = c.absolutePosition[0] + c.scaling[0]/2;
-           var cminx = c.absolutePosition[0] - c.scaling[0]/2;
-           var cmaxz = c.absolutePosition[2] + c.scaling[2]/2;
-           var cminz = c.absolutePosition[2] - c.scaling[2]/2;
-           var px = a.absolutePosition[0];
-           var pz = a.absolutePosition[2];
-           // if (px < cminx || pz < cminz || px > cmaxx || pz > cmaxz)
-           if (px < cminx || px > cmaxx)
-               return false; //is not within cube
-           return true; //is within cube
+        is_inside: function (a, c) {
+            var c = c.childNodes[0];
+            var cmaxx = c.absolutePosition[0] + c.scaling[0] / 2;
+            var cminx = c.absolutePosition[0] - c.scaling[0] / 2;
+            var cmaxz = c.absolutePosition[2] + c.scaling[2] / 2;
+            var cminz = c.absolutePosition[2] - c.scaling[2] / 2;
+            var px = a.absolutePosition[0];
+            var pz = a.absolutePosition[2];
+            if (px < cminx || pz < cminz || px > cmaxx || pz > cmaxz)
+            // if (px < cminx || px > cmaxx)
+                return false; //is not within cube
+            return true; //is within cube
         },
     });
-    var buildTree = function(e) {
+    var buildTree = function (e) {
         // Reset
         var pathList_ = [];
         var fileList = e.target.files;
@@ -589,7 +594,7 @@
         }
         buildTreeFromPathList(pathList_, true);
     };
-    var buildTreeFromPathList = function(pathList_, rebaseToTopDir) {
+    var buildTreeFromPathList = function (pathList_, rebaseToTopDir) {
         var tree = FS_GRAPH.buildTreeFromPathList(pathList_);
         fsn = new FS_GRAPH(tree);
         if (rebaseToTopDir) {
@@ -608,7 +613,7 @@
             fsnRender.updateLayout();
         }
     };
-    replaceSubTree = function(path, pathlist) {
+    replaceSubTree = function (path, pathlist) {
         var tree = FS_GRAPH.buildTreeFromPathList(pathlist);
         var entry = fsn.getEntry(path);
         var parent = entry.parent;
@@ -620,7 +625,7 @@
 
     var dirsel = document.getElementById('path_selector');
     dirsel.addEventListener('change', buildTree, false)
-    window.addEventListener('message', function(e) {
+    window.addEventListener('message', function (e) {
         var message = e.data;
         switch (message.cmd) {
             case 'build':
