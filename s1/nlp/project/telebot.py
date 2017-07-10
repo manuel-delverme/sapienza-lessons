@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+from collections import OrderedDict
+import numpy as np
 import pprint
 import time
 import apiai
@@ -28,7 +30,18 @@ MANUEL_ID = 45571984
 CLIENT_ACCESS_TOKEN = 'bbb35a4d419f48ee84ae9800be4768f6'
 
 user_handler = {}
-user_answer = defaultdict(dict)
+
+domain_vectors = {}
+with open("BabelDomains_full/domain_vectors.txt") as fin:
+    for row in fin:
+        row = row[:-2].split("\t")
+        domain = row.pop(0)
+        domain_vectors[domain] = {}
+        for dim in row:
+            name, value = dim.split(" ")
+            domain_vectors[domain][name] = float(value)
+
+spacy_classifier = spacy.load("en_core_web_md")
 
 
 class MariaBot(telepot.helper.ChatHandler):
@@ -41,6 +54,7 @@ class MariaBot(telepot.helper.ChatHandler):
 
             def print_msg(user_tid, msg, reply_markup=None):
                 print("[SENDING MESSAGE] >>>>> {}".format(msg))
+
             self.sendMessage = print_msg
 
         self.user_tid = None
@@ -57,7 +71,8 @@ class MariaBot(telepot.helper.ChatHandler):
     def get_open_question(self, msg):
         raise NotImplementedError()
 
-    def classify_modality(self, msg_txt):
+    @staticmethod
+    def classify_modality(msg_txt):
         if "?" == msg_txt[-1]:
             return Modality.querying
         if "?" in msg_txt:
@@ -91,31 +106,62 @@ class MariaBot(telepot.helper.ChatHandler):
         user_handler[self.user_tid] = query_response_handler
         self.sendMessage(self.user_tid, query_msg, reply_markup=keyboard)
 
-    def classify_domain(self, msg_txt):
-        raise DomainDetectionFail()
-
+    @staticmethod
+    def classify_domain(msg_txt):
+        # raise DomainDetectionFail()
         with open("BabelDomains_full/domain_list.txt") as fin:
-            possible_domains = fin.read()[:-1].split(" ")
-        if random.random() < 0.1:
-            raise DomainDetectionFail()
-        return random.choice(possible_domains)
+            possible_domains = fin.read()[:-1].split("\n")
 
-    def check_for_open_question_answer(self, user_msg_txt, domain):
+        classified_domains = OrderedDict({d: 0 for d in possible_domains})
+        for word in msg_txt.split(" "):  # nltk tokenize
+            for d in possible_domains:
+                try:
+                    classified_domains[d] += domain_vectors[d][word]
+                except KeyError:
+                    pass
+                else:
+                    print("adding weight domain:", d, "word:", word, "weight", domain_vectors[d][word])
+        result = sorted(classified_domains, key=lambda x: classified_domains[x], reverse=True)
+        best_guess = result[0]
+        print("best guess", best_guess, classified_domains[best_guess])
+        if classified_domains[best_guess] < 10:  # HYPER PARAM
+            raise DomainDetectionFail()
+        return best_guess
+
+    @staticmethod
+    def check_for_open_question_answer(user_msg_txt, domain):
         if random.random() < 0.4:
             return "42"
         return False
 
-    def answer_question(self, user_msg_txt, domain):
+    @staticmethod
+    def answer_question(user_msg_txt, domain, relation):
+        # requests all the answer for domain
+        # offer a list of possible answers
         raise FailToAnswerException()
 
-    def infer_question_relation(self, question_txt):
+    @staticmethod
+    def infer_question_relation(question_txt, domain):
+        with open("chatbot_maps/domains_to_relations.tsv") as fin:
+            possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[domain]
         # babelify text
-        raise RelationDetectionFail()
+        guesses = []
+        # stem stuff
+        for possible_relation in possible_relations:
+            if possible_relation in question_txt:
+                guesses.append(possible_relation)
+        # TODO: offer a distribution of relations
+        if not guesses:
+            raise RelationDetectionFail()
+        else:
+            best_guess = random.choice(guesses)
+        return best_guess
 
     def analyze_request(self, msg_txt):
         pass
 
-    def is_greeting(self, user_msg_txt):
+    @staticmethod
+    def is_greeting(user_msg_txt):
         msg_bow = set(user_msg_txt.split(" "))
         GREETING_BOW = {"hello", "hi", "greetings", "sup", "what's up", }
         return len(msg_bow.intersection(GREETING_BOW)) != 0
@@ -158,6 +204,8 @@ class MariaBot(telepot.helper.ChatHandler):
                 with open("BabelDomains_full/domain_list.txt") as fin:
                     possible_domains = fin.read()[:-1].split("\n")
                 self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
+            else:
+                self.on_message(msg)
             return
 
         if not self.modality:
@@ -184,7 +232,7 @@ class MariaBot(telepot.helper.ChatHandler):
             if not self.relation:
                 # babelify question
                 try:
-                    self.relation = self.infer_question_relation(user_msg_txt)
+                    self.relation = self.infer_question_relation(user_msg_txt, self.domain)
                 except RelationDetectionFail:
                     self.offer_user_options(msg, "relation", ["relation1", "relation2"], "what's the relation here?")
                     return
@@ -193,7 +241,7 @@ class MariaBot(telepot.helper.ChatHandler):
             # mumble mumble
             # mumble mumble
             try:
-                answer = self.answer_question(user_msg_txt, self.domain)
+                answer = self.answer_question(user_msg_txt, self.domain, self.relation)
             except FailToAnswerException:
                 # ask another user
                 self.db.add_open_question(user_msg_txt)
@@ -211,6 +259,7 @@ class MariaBot(telepot.helper.ChatHandler):
                 if timeleft == 0:
                     answer = "i don't know"
 
+            # apply emotive state
             self.sendMessage(self.user_tid, answer)
             self.domain = None
             self.modality = None
@@ -272,8 +321,8 @@ def main():
 
     msg_flow = [
         "sup n00b",
-        "how does your pussy smells like?",
-        "animals",
+        "how does your pussy tastes like?",
+        # "animals",
         "relation1"
     ]
     for msg in msg_flow:
@@ -284,7 +333,7 @@ def main():
         message_template = {'from': {'id': test_user_id, }, 'text': msg}
         print("[USER WRITES]: <<<<< {}".format(message_template['text']))
         test_bot.on_message(message_template)
-    # MessageLoop(bot).run_forever()
+        # MessageLoop(bot).run_forever()
 
 
 if __name__ == "__main__":
