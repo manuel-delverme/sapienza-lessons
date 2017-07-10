@@ -1,63 +1,66 @@
-KnowledgeBase Server
-Documentation
+import requests
+
+with open("_PRIVATE_babelkey") as fin:
+    _babelkey = fin.read()[:-1]
+
+_url = "http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/{}"
+_header = "Content-Type: application/json"
 
 
-Server coordinates:
-host: 151.100.179.26
-port: 8080
-path: /KnowledgeBaseServer/rest-api/
-Endpoints:
-items_number_from
-Use this endpoint to get the number of items that has an id greater or equal to the given id. The number of such items is returned as long.
-Parameters:
-id: the id from which you want to start count the items.
-key: your access key
+def items_number_from(start_id=0):
+    response = requests.get(
+        _url.format("items_number_from"),
+        params={
+            'id': start_id,
+            'key': _babelkey,
+        })
+    count = response.json()
+    return count
 
 
-Example:
-curl “http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/items_number_from?id=0&key=X”
+def items_from(start_id=0):
+    last_id = start_id
+    while True:
+        response = requests.get(
+            _url.format("items_from"),
+            params={
+                'id': last_id,
+                'key': _babelkey,
+            })
+        batch = response.json()
+        if not batch:
+            yield StopIteration
 
-items_from
-Use this endpoint to get the 5000 items with id greater or equal to the given id.
-To retrieve more you will need to implement a pagination mechanism.
-A json list of DataEntry is returned.
-Parameters:
-id: the lowest id you want to retrieve
-key: your access key
-Example:
-Get the next 5000 elements:
-curl “http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/items_from?id=0&key=X”
-
-Paginating:
-curl “http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/items_from?id=0&key=X”
-last_id=get_last_id_from_list() + 1
-curl “http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/items_from?id=$last_id&key=X”
-
-add_item
-Use this endpoint with a post query to add an entry to the database. Will be returned 1 if the operation is successful -1 otherwise.
-Parameters:
-key: your access key
-POST body:
-The body of the post request must be a json containing a DataEntry.
-Example:
-curl -H "Content-Type: application/json" -X POST --data '{"question":"q","answer":"a", "relation":"size", "context":"c", "domains":"d", "c1":"c1", "c2":"c2"}' http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/add_item?key=X
-
-add_items
-Use this endpoint to issue a post query to add multiple entries ad once into the database. Will be returned 1 if all the documents have been added, the list of the index of the document that couldn’t have been added due to some errors.
-Parameters:
-key: your access key
-POST body
-The body of the post reqeust must be a json containing a list of DataEntry.
-Example
-curl -H "Content-Type: application/json" -X POST --data '[{"question":"q","answer":"a", "relation":"size", "context":"c", "domains":"d", "c1":"c1", "c2":"c2"}, {"question":"q2","answer":"a2", "relation":"size", "context":"c2", "domains":"d2", "c1":"c1_2", "c2":"c2_2"}]' http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/add_item?key=X
+        last_id = len(batch) + 1
+        yield from batch
 
 
+def add_item(item, dry_run=False):
+    assert (item['question'])
+    assert (item['answer'])
+    assert (item['relation'])
+    assert (item['context'])
+    assert (item['domains'])
+    assert (item['c1'])
+    assert (item['c2'])
 
-Exception Handling:
-In any request if a ill-formed json is given as input than a bad request is returned as response status.
+    response = requests.post(
+        _url.format("add_item" if dry_run else "add_item_test"),
+        params={'key': _babelkey, },
+        data=item,
+    )
+    success = response.body == "1"
+    return success
 
-Testing:
-If you want to test your methods to add entries please use “add_items_test” and “add_item” endpoints. They work exactly the same as “add_items” and “add_item” but do not modify the database.
 
-FAQ:
-this section will be filled during the project implementation.
+def add_items(items, dry_run=False):
+    for item in items:
+        # TODO: use add_items endpoint
+        add_item(item, dry_run)
+
+
+if __name__ == "__main__":
+    print(items_number_from(0))
+    for idx, itm in enumerate(items_from(0)):
+        if idx > 10: break
+        print(itm)
