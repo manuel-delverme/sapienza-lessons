@@ -1,6 +1,7 @@
 import requests
+import time
 
-with open("_PRIVATE_babelkey") as fin:
+with open("/home/yitef/sapienza-lessons/s1/nlp/project/_PRIVATE_babelkey") as fin:
     _babelkey = fin.read()[:-1]
 
 _url = "http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/{}"
@@ -18,9 +19,28 @@ def items_number_from(start_id=0):
     return count
 
 
+def batches_from(start_id=0):
+    last_id = start_id
+    while True:
+        response = requests.get(
+            _url.format("items_from"),
+            params={
+                'id': last_id,
+                'key': _babelkey,
+            })
+        batch = response.json()
+        if not batch:
+            yield StopIteration
+
+        last_id = len(batch) + 1
+        yield batch
+
+
 def items_from(start_id=0):
     last_id = start_id
     while True:
+        # time.sleep(1)
+        # print("sleeping", last_id)
         response = requests.get(
             _url.format("items_from"),
             params={
@@ -62,5 +82,6 @@ def add_items(items, dry_run=False):
 if __name__ == "__main__":
     print(items_number_from(0))
     for idx, itm in enumerate(items_from(0)):
-        if idx > 10: break
+        if idx > 10:
+            break
         print(itm)
