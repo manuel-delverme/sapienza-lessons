@@ -244,15 +244,15 @@ FS_GRAPH.prototype = {
                 off.scale = 1 / Math.max(3, squareSide);
                 var x = fidx % squareSide;
                 var y = Math.floor(fidx / squareSide);
-                off.x = 60 * (x - (squareSide - 1) / 2) * off.scale;
+                off.x = 150 * (x - (squareSide - 1) / 2) * off.scale;
                 off.y = 0 * off.scale;
-                off.z = -60 * (y - (squareSide - 1) / 2) * off.scale;
+                off.z = -100 * (y - (squareSide - 1) / 2) * off.scale;
                 fidx++;
             } else {
                 off.scale = Math.min(0.8, 1 / dirCount);
-                off.x = off.scale * (-(dirCount - 1) / 2 + didx) * 300;
-                off.y = off.scale * 100;
-                off.z = -400;
+                off.x = off.scale * (-(dirCount - 1) / 2 + didx) * 600;
+                off.y = 0; // off.scale * 1;
+                off.z = -600;
                 didx++;
             }
             layout.entries[entry.name] = this.createLayout(entry, off, layout, maxDepth, depth + 1);

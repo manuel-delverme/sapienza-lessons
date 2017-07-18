@@ -5,11 +5,11 @@
     <style type="text/css">
         canvas {
             background-color: white;
+            display: none;
         }
 
         body {
             margin: 0;
-            overflow: hidden;
             font-family: Monospace, serif;
             font-size: 13px;
             text-align: center;
@@ -22,10 +22,99 @@
             left: 0;
             z-index: 10;
         }
+
+
+
+        .myButton {
+            -moz-box-shadow:inset 0px 2px 0px 0px #a4e271;
+            -webkit-box-shadow:inset 0px 2px 0px 0px #a4e271;
+            box-shadow:inset 0px 2px 0px 0px #a4e271;
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #89c403), color-stop(1, #77a809));
+            background:-moz-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-webkit-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-o-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-ms-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:linear-gradient(to bottom, #89c403 5%, #77a809 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#89c403', endColorstr='#77a809',GradientType=0);
+            background-color:#89c403;
+            -moz-border-radius:42px;
+            -webkit-border-radius:42px;
+            border-radius:42px;
+            border:1px solid #74b807;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Georgia;
+            font-size:28px;
+            font-weight:bold;
+            padding:32px 76px;
+            text-decoration:none;
+            text-shadow:6px 13px 4px #528009;
+        }
+        .myButton:hover {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #77a809), color-stop(1, #89c403));
+            background:-moz-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-webkit-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-o-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-ms-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:linear-gradient(to bottom, #77a809 5%, #89c403 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77a809', endColorstr='#89c403',GradientType=0);
+            background-color:#77a809;
+        }
+        .myButton:active {
+            position:relative;
+            bottom:100px;
+        }
+
+        .myButton2 {
+            -moz-box-shadow:inset 0px 2px 0px 0px #a4e271;
+            -webkit-box-shadow:inset 0px 2px 0px 0px #a4e271;
+            box-shadow:inset 0px 2px 0px 0px #a4e271;
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #89c403), color-stop(1, #77a809));
+            background:-moz-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-webkit-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-o-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:-ms-linear-gradient(top, #89c403 5%, #77a809 100%);
+            background:linear-gradient(to bottom, #89c403 5%, #77a809 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#89c403', endColorstr='#77a809',GradientType=0);
+            background-color:#89c403;
+            -moz-border-radius:42px;
+            -webkit-border-radius:42px;
+            border-radius:42px;
+            border:1px solid #74b807;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Georgia;
+            font-size:20px;
+            font-weight:bold;
+            padding:15px 27px;
+            text-decoration:none;
+            text-shadow:6px 13px 4px #528009;
+        }
+        .myButton2:hover {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #77a809), color-stop(1, #89c403));
+            background:-moz-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-webkit-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-o-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:-ms-linear-gradient(top, #77a809 5%, #89c403 100%);
+            background:linear-gradient(to bottom, #77a809 5%, #89c403 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#77a809', endColorstr='#89c403',GradientType=0);
+            background-color:#77a809;
+        }
+        .myButton2:active {
+            position:relative;
+            top:1px;
+        }
+
+
+
+
     </style>
+    <script src="fsn.js"></script>
 </head>
-<body>
-<input type="file" id="path_selector" webkitdirectory directory/>
+
+<body bgcolor="black">
 <script type="text/x-glsl-fs" id="bg-frag">
       precision mediump float;
       uniform sampler2D Texture0;
@@ -43,9 +132,387 @@
         gl_FragColor = c*c.a;
       }
 
+
+
+
+
+
+
+
 </script>
 <script type="text/javascript" src="magi.js"></script>
 <script type="text/javascript" src="fsn.js"></script>
+<script>
+    function start_game(files) {
+        window.audio.pause();
+        window.audio = new Audio('Chop_Suey_8 Bit.mp3');
+        window.audio.play();
+
+        if (window.use_colors) {
+            var e = document.getElementById("pdfColor");
+            var pdfColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("pyColor");
+            var pyColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("htmlColor");
+            var htmlColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("jsColor");
+            var jsColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("pptColor");
+            var pptColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("txtColor");
+            var txtColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("imgColor");
+            var imgColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("mp3Color");
+            var mp3Color = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("mp4Color");
+            var mp4Color = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("zipColor");
+            var zipColor = eval(e.options[e.selectedIndex].value);
+            var e = document.getElementById("unkColor");
+            var unkColor = eval(e.options[e.selectedIndex].value);
+
+
+
+            window.config = {
+                'textures': {
+                    // 'pdf': 'pdf.jpg',
+                    'pdf': {'colors': pdfColor},
+                    'py': {'colors': pyColor},
+                    'html': {'colors': htmlColor},
+                    'js': {'colors': jsColor},
+                    'ppt': {'colors': pptColor},
+                    'txt': {'colors': txtColor},
+                    'png': {'colors': imgColor},
+                    'jpg': {'colors': imgColor},
+                    'mp3': {'colors': mp3Color},
+                    'mp4': {'colors': mp4Color},
+                    'mkv': {'colors': mp4Color},
+                    'zip': {'colors': zipColor},
+                    '*': {'colors': unkColor},
+                }
+            }
+        } else {
+            window.config = {
+                'textures': {
+                    'pdf': 'pdf.jpg',
+                    'py': 'python.jpg',
+                    'html': 'html.jpg',
+                    'js': 'js.jpg',
+                    'ppt': 'ppt.jpg',
+                    '*': 'qmark.jpg',
+                    'txt': 'txt.jpg',
+                    'png': 'jpg.jpg',
+                    'jpg': 'jpg.jpg',
+                    'mp3': 'audio.jpg',
+                    'mp4': 'video.jpg',
+                    'mkv': 'video.jpg',
+                    'zip': 'zip.jpg'
+                }
+            }
+        }
+        if(files){
+            buildTreeFromPathList(files, true);
+
+        } else
+            buildTreeFromPathList([
+                "robotics/Robotics1_15.09.11.mkv",
+                "robotics/Robotics1_16.06.06.mp3",
+                "robotics/Robotics1_15.02.06_long.py",
+                "robotics/notes.mp4",
+                "robotics/Robotics - Modelling, Planning and Control.zip",
+                "robotics/07_PositionOrientation.png",
+                "robotics/09_DirectKinematics.jpg",
+                "robotics/printme.js",
+                "robotics/08_EulerRPYHomogeneous.ppt",
+                "robotics/notes.html",
+                //"robotics/general",
+                "robotics/slides/16_DynamicControlSingleAxis.pdf",
+                "robotics/slides/13_TrajectoryPlanningJoints.pdf",
+                "robotics/slides/15_KinematicControl.pdf",
+                "robotics/slides/10_InverseKinematics.pdf",
+                "robotics/slides/14_TrajectoryPlanningCartesian.pdf",
+                "robotics/slides/11_DifferentialKinematics.pdf",
+                "robotics/slides/12_InverseDiffKinStatics.pdf",
+                "robotics/exams/Robotics1_16.01.11.pdf"
+            ], true)
+
+        document.getElementsByTagName('canvas')[0].style['display'] = 'block';
+        document.getElementsByTagName('body')[0].style['overflow'] = 'hidden';
+        document.getElementById('settings').style['display'] = 'none';
+    }
+    function hide_colors() {
+        window.use_colors = false;
+        var els = document.getElementsByClassName('colorChoice');
+        for (var index = 0; index < els.length; ++index) {
+            els[index].style['display'] = 'none';
+        }
+    }
+    function show_colors() {
+        window.use_colors = true;
+        var els = document.getElementsByClassName('colorChoice');
+        for (var index = 0; index < els.length; ++index) {
+            els[index].style['display'] = 'block';
+        }
+    }
+   window.audio = new Audio('geomDash.mp3');
+   audio.play();
+
+</script>
+<div id="settings">
+
+    <div id="printableArea">
+        <div align="center"><h1><font color="#00C200" style="font-size: 100pt;">Hackers</font></h1></div>
+    </div>
+
+
+    <ul id="menu">
+        <a href="#" id="playButton" class="myButton" onclick="start_game()" align="center" style="position:absolute; top:650px; left:900px">Play</a>
+        <div align="center" style="position:absolute; top:220px; left:140px"><font color="#00C200"
+                                                                                   style="font-size: 20pt;">Please,
+            select a path. </font></div>
+        <lig align="center" style="position:absolute; top:224px; left:650px">
+
+            <input type="file" id="path_selector" class="myButton2" webkitdirectory directory>Select folder</input>
+        </div>
+        <div align="center" style="position:absolute; top:290px; left:140px"><font color="#00C200"
+                                                                                   style="font-size: 20pt;">Configure
+            Textures:</font></div>
+        <div align="center" style="position:absolute; top:330px; left:160px">
+            <input onclick="hide_colors()" type="radio" name="rd" value="1" checked="checked">
+        </div>
+        <div align="center" style="position:absolute; top:365px; left:160px">
+            <input onclick="show_colors()"  type="radio" name="rd" value="2"></div>
+        <div align="center" style="position:absolute; top:360px; left:180px"><font color="#00C200"
+                                                                                   style="font-size: 20pt;">Choose
+            a color for each type of file</font></div>
+        <div align="center" style="position:absolute; top:325px; left:180px"><font color="#00C200"
+                                                                                   style="font-size: 20pt;">Use
+            Icon</font></div>
+        <div class="colorChoice" align="center" style="position:absolute; top:403px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Img</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:453px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Pdf</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:503px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Python</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:553px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Html</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:603px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Zip</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:653px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Power
+            Point</font></div>
+        <div class="colorChoice" align="center" style="position:absolute; top:703px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Txt</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:503px; left:800px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Unknown</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:403px; left:800px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Audio</font>
+        </div>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:453px; left:800px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Video</font>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:753px; left:230px"><font color="#00C200"
+                                                                                                       style="font-size: 20pt;">Java Script</font>
+        </div>
+        <div class="colorChoice"align="center" style="position:absolute; top:410px; left:440px">
+            <form>
+                <select name="colors"  id="imgColor" >
+                    <option selected="selected" value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:460px; left:440px">
+            <form>
+                <select name="colors" id="pdfColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option selected="selected" value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:510px; left:440px">
+            <form>
+                <select name="colors" id="pyColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option selected="selected" value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:560px; left:440px">
+            <form>
+                <select name="colors" id="htmlColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option selected="selected" value="[1,0,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:610px; left:440px">
+            <form>
+                <select name="colors" id="zipColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option selected="selected" value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:660px; left:440px">
+            <form>
+                <select name="colors" id="pptColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option selected="selected" value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:710px; left:440px">
+            <form>
+                <select name="colors" id="txtColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option selected="selected" value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:760px; left:440px">
+            <form>
+                <select name="colors" id="jsColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option selected="selected" value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="colorChoice" align="center" style="position:absolute; top:410px; left:1100px">
+            <form>
+                <select name="colors" id="mp3Color">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option selected="selected" value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select></form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:460px; left:1100px">
+            <form>
+                <select name="colors" id="mp4Color">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option selected="selected" value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+        <div class="colorChoice" align="center" style="position:absolute; top:510px; left:1100px">
+            <form>
+                <select name="colors" id="unkColor">
+                    <option value="[0,0,1]">Blue</option>
+                    <option value="[0,1,0]">Green</option>
+                    <option value="[0,0,0]">Black</option>
+                    <option value="[1,1,0]">Yellow</option>
+                    <option value="[0.647059,0.164706,0.164706]">Brown</option>
+                    <option value="[1,0,0]">Red</option>
+                    <option value="[1,0.647059,0]">Orange</option>
+                    <option value="[0,1,1]">Cyan</option>
+                    <option value="[0.941176,0.901961,0.54902]">khaki</option>
+                    <option value="[0.933333,0.509804,0.933333]">Violet</option>
+                    <option selected="selected" value="[0.627451,0.12549,0.941176]">Purple</option>
+                </select>
+            </form>
+        </div>
+    </ul>
+
+</div>
 
 <script type="text/javascript">
     window.onresize = function () {
@@ -57,6 +524,8 @@
     };
     FSNRender = Klass({
         initialize: function (fsnInstance) {
+            this.line_width = 2;
+            this.fuckinglookAt = vec3(0, 5, 0);
             this.word_translation = vec3(0, 0, 0);
             this.avatar = null;
             this.avatar_speed = [0, 0, 0, 0];
@@ -74,11 +543,12 @@
             this.camera = this.display.camera;
             this.camera.zNear = 1;
             this.camera.zFar = 1000;
-            this.offset = vec3(-80, 120, 200);
-            this.lookOffset = vec3(0, -10, 0);
+            this.offset = vec3(0, 10, 180);
+            this.lookOffset = vec3(0, 0, -150);
             var grad = new Magi.FilterQuad('bg-frag');
             grad.depthTest = false;
             grad.material.floats.aspect = 4 / 3;
+
             this.scene.appendChild(grad);
             this.updateLayout();
             this.display.drawOnlyWhenChanged = true;
@@ -110,17 +580,22 @@
             };
             this.canvas.onmousemove = function (ev) {
                 if (self.downX !== null) {
-                    var dx = ev.clientX - self.downX;
+                    var dx =self.downX - ev.clientX;
                     var dy = ev.clientY - self.downY;
+                    // dy = Math.max(Math.min(dy,1), -1);
+                    // dx = Math.max(Math.min(dx,1), -1);
                     self.downX = ev.clientX;
                     self.downY = ev.clientY;
-                    self.offset[0] -= dx / 2;
-                    self.offset[1] += dy / 1.5;
+                    if (dx != 0 || dy != 0) {
+                        self.fuckinglookAt[0] += dx / 10;
+                        self.fuckinglookAt[1] += dy / 15;
+                    }
                     ev.preventDefault();
                 }
             };
+
             function keyDownHandler(event) {
-                var speed = 6;
+                var speed = 2;
                 if (event.keyCode === 39 || event.keyCode === 68) {
                     self.avatar_moved = true;
                     self.avatar_speed[0] = +speed;
@@ -227,7 +702,7 @@
 
         create_connector_line: function (layout_entry, f, node) {
             var dx = layout_entry.offset.x / layout_entry.offset.scale;
-            var dy = layout_entry.offset.y / layout_entry.offset.scale;
+            var dy = layout_entry.offset.y / layout_entry.offset.scale + 0.001;
             var dz = layout_entry.offset.z / layout_entry.offset.scale + 25 / layout_entry.offset.scale;
             // var d = Math.sqrt(dx * dx + dy * dy + dz * dz);
             var fs = 40 * f;
@@ -243,8 +718,9 @@
             hypot += filler;
 
             // first to the side
+            line_width = this.line_width;
             var ramp_width_obj = new Magi.ColorQuad(0, 0, 0, 1);
-            ramp_width_obj.setScale(hypot / 2, 0.8, 1);
+            ramp_width_obj.setScale(hypot / 2, line_width, 1);
             ramp_width_obj.setX(-hypot / 2);
             var ramp_x_disp = new Magi.Node();
             ramp_x_disp.setAxis(0, 0, 1).setAngle(Math.PI - angle);
@@ -254,7 +730,7 @@
             // then go down
             var ramp_depth_obj = new Magi.ColorQuad(0, 0, 0, 1);
             var len = Math.abs(dz / fs / 2) + filler;
-            ramp_depth_obj.setScale(len / 2, 0.8, 1);
+            ramp_depth_obj.setScale(len / 2, line_width, 1);
             ramp_depth_obj.setX(len / 2);
             var ramp_depth_position = new Magi.Node();
             ramp_depth_position.setAxis(0, 0, 1).setAngle(Math.PI / 2);
@@ -264,7 +740,7 @@
 
             // ascend to the next plane
             var ramp_height_obj = new Magi.ColorQuad(0, 0, 0, 1);
-            ramp_height_obj.setScale(dy / fs / 2, 0.8, 1);
+            ramp_height_obj.setScale(dy / fs / 2, line_width, 1);
             // how much it goes up
             ramp_height_obj.setX(-dy / fs / 2);
             ramp_height_obj.setAxis(1, 0, 0).setAngle(-Math.PI / 2);
@@ -287,46 +763,75 @@
             node.appendChild(connectorLine);
         },
         create_text_mesh: function (fs_node, f, s) {
-            var txt = new Magi.Text(fs_node.name, 50, '#fff', 'Sans-serif', true);
+            var txt = new Magi.Text(fs_node.name, 50, '#fff', 'Arial', true);
             txt.setAlign(txt.leftAlign, txt.topAlign);
             if (fs_node.is_file) {
-                txt.setScale(s * (3.2 / Math.max(320, txt.realWidth)));
-                txt.setAxis(0, 0, 1).setAngle(Math.PI / 2);
-                txt.setPosition(-2 * f * s, -3.2 * f * s, 0.6 * f * s);
-                txt.setY(txt.scaling[1] / 2);
+                txt.setScale(s * (4 / Math.max(320, txt.realWidth)));
+                //txt.setAxis(0, 0, 0).setAngle(0);
+                txt.setPosition(-3.5 * f * s, -3.2 * f * s, 4.5 * f * s);
+                txt.setY(50);
+                txt.setZ(3);
             } else {
-                txt.setScale(s * (1.6 / Math.max(220, txt.realWidth)));
-                txt.setPosition(-1 * s, 0.15 * s, 1.2 * s);
-                txt.setY(txt.scaling[1] / 2);
+                txt.setColor('#0f0');
+                txt.setScale(s * (3 / Math.max(220, txt.realWidth)));
+                txt.setPosition(-1 * s, 0.8 * s, 1.2 * s);
+                txt.setZ(-20);
+                txt.setY(80);
             }
             return txt;
         },
         create_model: function (fs_node, f, s) {
             var mesh;
+
             if (fs_node.is_file) {
-                mesh = new Magi.Cube().setScale(3 * f * s, 9 * f * s, 8 * f * s);
-                mesh.setY(0.8 * f * s);
+                var name, file_extention;
+                file_extention = fs_node.name.split('.')
+                if (file_extention.length > 1) {
+                    name = file_extention[file_extention.length - 1];
+                    if (!window.config['textures'][name]) name = '*';
+                } else {
+                    name = "*"
+                }
+
+                if (window.config['textures'][name]['colors']) {
+                    mesh = new Magi.ColorQuad(
+                        window.config['textures'][name]['colors'][0],
+                        window.config['textures'][name]['colors'][1],
+                        window.config['textures'][name]['colors'][2],
+                        1
+                    );
+                } else {
+                    var texture_file = window.config['textures'][name];
+                    if (!texture_file) texture_file = window.config['textures']['*'];
+                    mesh = new Magi.Cube();
+                    Magi.Texture.load(texture_file, function (tex) {
+                        //mesh.material.textures.SpecTex = tex;
+                        mesh.material.textures.EmitTex = tex;
+                        //mesh.material.textures.DiffTex = tex;
+                    });
+                }
+                mesh.setScale(10 * f * s, 15 * f * s, 7 * f * s);
+                mesh.setY(3 * f * s);
+
             } else {
                 var square_size = 5;
+
+
                 mesh = new Magi.Cube().setScale(square_size * s, 0.05 * s, square_size * s);
                 mesh.setY(-mesh.scaling[1] / 2);
+                mesh.material.floats.LightPos = this.lightPos;
+                mesh.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
+                mesh.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
+                mesh.material.floats.MaterialEmit = vec4(0.0, 0.0, 0.0, 0);
+                mesh.material.floats.LightSpecular = vec4(0.5, 0.5, 0.5, 1);
+                mesh.material.floats.LightDiffuse = vec4(0.4, 0.4, 0.4, 1);
+                mesh.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
+
+                Magi.Texture.load("dir.jpg", function (tex) {
+                        mesh.material.textures.EmitTex = tex;
+                });
             }
-            // var videoTex = new Magi.FlipFilterQuad();
-            mesh.material.floats.LightPos = this.lightPos;
-            mesh.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
-            mesh.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
-            mesh.material.floats.MaterialEmit = vec4(0.0, 0.0, 0.0, 0);
-            mesh.material.floats.LightSpecular = vec4(0.95, 0.95, 0.95, 1);
-            mesh.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
-            mesh.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
 
-
-            Magi.Texture.load("img_fjords.jpg", function(tex) {
-                mesh.material.textures.SpecTex = tex;
-            });
-            // mesh.material.textures.Texture0 = new Magi.Texture();
-            // mesh.material.textures.Texture0.image = video;
-            // mesh.material.textures.Texture0.generateMipmaps = false;
             return mesh;
         },
         addLayout: function (layout, root) {
@@ -383,9 +888,9 @@
                             var ynew;
                             var targetPosition = this.position;
                             targetPosition[1] += 1;
-                            // TODO: remove object if above some limit
 
-                            model.material.floats.MaterialEmit = vec4(1.0, 1.0, 1.0, 0);
+                            model.material.floats.MaterialEmit = vec4(1.0, 0.0, 0.0, 1);
+                            model.material.floats.MaterialDiffuse = vec4(1.0, 0.0, 0.0, 0.3);
 
                             vec3.sub(targetPosition, this.position, this.tmpVec);
                             var d = targetPosition[1] - this.originalPosition[1];
@@ -393,13 +898,12 @@
                             vec3.add(this.position, this.tmpVec, this.position);
                             this.changed = true; // vec3.distance(this.position, targetPosition) > Math.abs(d * 0.01);
                             this.offset[1] = this.origY + d;
-                            this.setAngle(this.rotation.angle + 0.5)
+                            this.setAngle(this.rotation.angle + 0.5);
                         }
                     });
                 }
 
-                var s = fs_node.is_file ? 45 : 70;
-                s *= 2;
+                var s = fs_node.is_file ? 20 : 30;
                 var f = 0.4;
 
                 if (!rendered_object.reused) {
@@ -440,37 +944,94 @@
             }
             return {offset: offset, scale: scale};
         },
-        move_camera: function (absolute_offset, absolute_scale) {
+        move_camera_intro: function (absolute_offset, absolute_scale) {
             // calculate object position
             var target_position = vec3();
             var target_offset = this.lookOffset;
             vec3.scale(target_offset, absolute_scale, target_position);
             vec3.add(absolute_offset, target_position, target_position);
 
+
             var new_look_at = vec3();
             vec3.sub(target_position, this.camera.lookAt, new_look_at);
             var d2len = vec3.lengthSquare(new_look_at);
-            vec3.scale(new_look_at, 0.8);
+            vec3.scale(new_look_at, 0.1);
             vec3.add(this.camera.lookAt, new_look_at, new_look_at);
 
             var offset = vec3(this.offset);
-            vec3.scale(offset, absolute_scale * 1.0, offset);
+            vec3.scale(offset, absolute_scale, offset);
             var new_camera_position = vec3();
             vec3.add(target_position, offset, new_camera_position);
             vec3.sub(new_camera_position, this.camera.position, new_camera_position);
             var new_camera_position_norm = vec3.lengthSquare(new_camera_position);
-            vec3.scale(new_camera_position, 0.1);
+            vec3.scale(new_camera_position, 0.8);
             vec3.add(this.camera.position, new_camera_position, new_camera_position);
 
             vec3.set(new_camera_position, this.camera.position);
-            vec3.set(new_look_at, this.camera.lookAt);
+            //vec3.set(new_look_at, this.camera.lookAt);
+            vec3.set(absolute_offset, this.camera.lookAt);
 
             var distanceToTarget = vec3.distance(this.camera.position, this.camera.lookAt);
             this.camera.zNear = distanceToTarget / 8;
-            this.camera.zFar = distanceToTarget * 10;
+            this.camera.zFar = distanceToTarget * 20;
 
             if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
                 this.display.changed = true;
+        },
+        move_camera: function (camera_position) {
+            camera_position = vec3(camera_position);
+            // camera_position[2] += 15;
+            // camera_position[1] += 4;
+            camera_position[2] += 100;
+            camera_position[1] += 30;
+            vec3.set(camera_position, this.camera.position);
+
+
+            var new_look_at = vec3();
+            console.log("lat", this.fuckinglookAt);
+            vec3.sub(this.fuckinglookAt, camera_position, new_look_at);
+            vec3.scale(new_look_at, 0.5);
+            vec3.add(this.fuckinglookAt, new_look_at, new_look_at);
+            vec3.set(new_look_at, this.camera.lookAt);
+            console.log("lat", this.fuckinglookAt);
+
+
+            this.display.changed = true;
+
+            /*
+             // calculate object position
+             var target_position = vec3();
+             var target_offset = this.lookOffset;
+             vec3.scale(target_offset, absolute_scale, target_position);
+             vec3.add(absolute_offset, target_position, target_position);
+
+
+             var new_look_at = vec3();
+             vec3.sub(target_position, this.camera.lookAt, new_look_at);
+             var d2len = vec3.lengthSquare(new_look_at);
+             vec3.scale(new_look_at, 0.1);
+             vec3.add(this.camera.lookAt, new_look_at, new_look_at);
+
+             var offset = vec3(this.offset);
+             vec3.scale(offset, absolute_scale, offset);
+             var new_camera_position = vec3();
+             vec3.add(target_position, offset, new_camera_position);
+             vec3.sub(new_camera_position, this.camera.position, new_camera_position);
+             var new_camera_position_norm = vec3.lengthSquare(new_camera_position);
+             vec3.scale(new_camera_position, 0.8);
+             vec3.add(this.camera.position, new_camera_position, new_camera_position);
+
+             vec3.set(new_camera_position, this.camera.position);
+             //vec3.set(new_look_at, this.camera.lookAt);
+             vec3.set(absolute_offset, this.camera.lookAt);
+
+             var distanceToTarget = vec3.distance(this.camera.position, this.camera.lookAt);
+             this.camera.zNear = distanceToTarget / 8;
+             this.camera.zFar = distanceToTarget * 50;
+
+             if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
+             this.display.changed = true;
+             */
         },
         explode_model: function (path) {
             if (this.objects[path]) {
@@ -503,35 +1064,201 @@
             // text.setAngle(text.rotation.angle + 0.5);
         },
         sceneUpdate: function () {
-            var s = 4;
             if (this.avatar_moved) {
                 if (!this.avatar) {
-                    this.avatar = new Magi.Cube().setScale(s * 1, s * 1, s * 1);
-                    this.avatar.setY((this.avatar.scaling[1]) / 2 + 100);
-                    this.avatar.material.floats.LightPos = vec4(10, 0, 0, 1);
+                    this.avatar = new Magi.Cube().setScale(-1, 1, -1);
+                    this.avatar.material.floats.LightPos = vec4(0, 0, 0, 1);
                     this.avatar.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
                     this.avatar.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
-                    this.avatar.material.floats.MaterialEmit = vec4(0.1, 0.3, 0.3, 7);
+                    this.avatar.material.floats.MaterialEmit = vec4(0.1, 0.3, 0.3, 1);
                     this.avatar.material.floats.LightSpecular = vec4(0.95, 0.95, 0.95, 1);
                     this.avatar.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
                     this.avatar.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
                     // todo update transform
+                    this.avatar.setY(0.5);
+
+                    var body;
+                    body = new Magi.Cube().setScale(2, 4, 2);
+                    body.setPosition(0, 5.5, -1.5);
+
+
+                    var legl;
+                    legl = new Magi.Cube().setScale(0.5, 1, 0.5);
+                    legl.setPosition(-0.5, -1, 0);
+                    body.appendChild(legl);
+
+
+                    var legr;
+                    legr = new Magi.Cube().setScale(0.5, 1, 0.5);
+                    legr.setPosition(+0.5, -1, 0);
+                    body.appendChild(legr);
+
+
+                    var armr;
+                    armr = new Magi.Cube().setScale(0.3, 1, 0.5);
+                    armr.setPosition(+0.8, 0.0, 0);
+                    armr.setAxis(0, 0, 1);
+                    armr.setAngle(0.5);
+                    body.appendChild(armr);
+
+                    var arml;
+                    arml = new Magi.Cube().setScale(0.3, 1, 0.5);
+                    arml.setPosition(-0.8, 0.0, 0);
+                    arml.setAxis(0, 0, 1);
+                    arml.setAngle(-0.5);
+                    body.appendChild(arml);
+
+                    var head;
+                    head = new Magi.Cube().setScale(0.8, 0.5, 0.8);
+                    head.setPosition(0, 0.9, 0);
+
+                    Magi.Texture.load("head3.jpg", function (tex) {
+                        head.material.textures.EmitTex = tex;
+
+                    });
+
+                    Magi.Texture.load("arm.jpg", function (tex) {
+                        //body.material.textures.EmitTex = tex;
+                        arml.material.textures.EmitTex = tex;
+                    });
+
+                    Magi.Texture.load("head1.jpg", function (tex) {
+                        //head.material.textures.EmitTex = tex;
+                        body.material.textures.EmitTex = tex;
+                        legr.material.textures.EmitTex = tex;
+                        legl.material.textures.EmitTex = tex;
+                        armr.material.textures.EmitTex = tex;
+                        //arml.material.textures.EmitTex = tex;
+                    });
+
+
+                    arml.material.floats.LightPos = this.lightPos;
+                    arml.material.floats.MaterialDiffuse = vec4(0.1, 0.1, 0.1, 1);
+                    arml.material.floats.MaterialSpecular = vec4(0.5, 0.5, 0.5, 0);
+                    arml.material.floats.MaterialEmit = vec4(0.0, 0.0, 0.0, 0);
+                    arml.material.floats.LightSpecular = vec4(0.1, 0.1, 0.1, 1);
+                    arml.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
+                    arml.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
+
+                    armr.material.floats.LightSpecular = vec4(0.1, 0.1, 0.1, 1);
+                    legl.material.floats.LightSpecular = vec4(0.1, 0.1, 0.1, 1);
+                    legr.material.floats.LightSpecular = vec4(0.1, 0.1, 0.1, 1);
+                    head.material.floats.LightSpecular = vec4(0.6, 0.6, 0.6, 1);
+                    body.appendChild(head);
+
+                    // mesh = new Magi.Cube().setScale(1, 9, 1);
+                    // mesh.setPosition(+1, 0.15, 1.2);
+                    // body.appendChild(mesh);
+
+                    this.avatar.appendChild(body);
                     this.scene.appendChild(this.avatar);
                 }
-                this.avatar.position[0] += this.avatar_speed[0] + this.avatar_speed[1];
-                if (this.avatar.is_falling)
-                    this.avatar.position[1] += -1;
-                // this.avatar.position[1] += this.avatar.is_falling? -1:0;
-                this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+
+
+                if (this.avatar.is_falling) {
+                	if(this.avatar.position[1]<-300)
+                		window.location.href='gameover.html';
+                    this.avatar.position[1] += -0.5;
+                }
+                else{
+                    var displacement = this.avatar_speed[0] + this.avatar_speed[1];
+                    if (displacement != 0) {
+
+
+                        this.avatar.position[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                        this.fuckinglookAt[0] += this.avatar_speed[0] + this.avatar_speed[1];
+                        var body = this.avatar.childNodes[0];
+                        body.childNodes[3].setPosition(-0.8, 0.0, 0);
+                        if (displacement > 0) {
+                            body.setAngle(-2.14 / 4);
+                        } else {
+                            body.setAngle(2.14 / 4);
+                        }
+
+                    /*
+                         var left_leg = body.childNodes[0];
+                         left_leg.setAxis(0, 0, 1);
+                         // var new_angle = left_leg.rotation.angle + displacement * 0.01
+                         var new_angle = Math.sin(this.avatar.position[0] * 0.2)/2;
+                         left_leg.setAngle(new_angle);
+                         var following_leg = Math.sin(this.avatar.position[0] * 0.2)/5;
+                         body.childNodes[1].setAxis(0, 0, 1);
+                         body.childNodes[1].setAngle(-new_angle);
+                         */
+
+                        var body = this.avatar.childNodes[0];
+                        var left_leg = body.childNodes[0];
+                        left_leg.setAxis(1, 0, 0);
+                    // var new_angle = left_leg.rotation.angle + displacement * 0.01
+                        var new_angle = Math.sin(this.avatar.position[0] * 0.1) / 2;
+
+                        left_leg.setAngle(new_angle)
+                        body.childNodes[1].setAxis(1, 0, 0);
+                        body.childNodes[1].setAngle(-new_angle);
+
+                        body.childNodes[2].setAxis(1, 0, 0);
+                        body.childNodes[2].setAngle(-new_angle);
+                        body.childNodes[3].setAxis(1, 0, 0);
+                        body.childNodes[3].setAngle(new_angle);
+
+                    }
+
+
+
+
+                    // this.avatar.position[1] += this.avatar.is_falling? -1:0;
+                    var displacement = this.avatar_speed[2] + this.avatar_speed[3];
+                    if (displacement < 0) {
+
+                        this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                        this.fuckinglookAt[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                        var body = this.avatar.childNodes[0];
+                        body.setAngle(0);
+                        var left_leg = body.childNodes[0];
+                        left_leg.setAxis(1, 0, 0);
+                        // var new_angle = left_leg.rotation.angle + displacement * 0.01
+                        var new_angle = Math.sin(this.avatar.position[2] * 0.1) / 2;
+                        left_leg.setAngle(new_angle)
+                        body.childNodes[1].setAxis(1, 0, 0);
+                        body.childNodes[1].setAngle(-new_angle);
+
+                        //body.childNodes[3].setPosition(-0.8, 0.0, 0);
+
+                        body.childNodes[2].setAxis(1, 0, 0);
+                        body.childNodes[2].setAngle(-new_angle);
+                        body.childNodes[3].setAxis(1, 0, 0);
+                        body.childNodes[3].setAngle(new_angle);
+                        body.childNodes[3].setPosition(-0.8, 0.0, 0);
+                    }
+                    else if (displacement > 0) {
+                        this.avatar.position[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                        this.fuckinglookAt[2] += this.avatar_speed[2] + this.avatar_speed[3];
+                        var body = this.avatar.childNodes[0];
+                        body.setAngle(3.14);
+                        var left_leg = body.childNodes[0];
+                        left_leg.setAxis(1, 0, 0);
+                        // var new_angle = left_leg.rotation.angle + displacement * 0.01
+                        var new_angle = Math.sin(this.avatar.position[2] * 0.1) / 2;
+                        left_leg.setAngle(new_angle)
+                        body.childNodes[1].setAxis(1, 0, 0);
+                        body.childNodes[1].setAngle(-new_angle);
+
+                        body.childNodes[2].setAxis(1, 0, 0);
+                        body.childNodes[2].setAngle(-new_angle);
+                        body.childNodes[3].setAxis(1, 0, 0);
+                        body.childNodes[3].setAngle(new_angle);
+                        body.childNodes[3].setPosition(-0.8, 0.0, 0);
+                    }
+                }
 
                 // this.avatar.setPosition(this.avatar.position[0], this.avatar.position[1], this.avatar.position[2]);
                 this.avatar.changed = true;
 
-                this.move_camera(this.avatar.position, 1);
+                this.move_camera(this.avatar.position);
 
                 var is_falling = true;
                 // calculate object position
-                var treshold = this.avatar.scaling[0] * 2;
+                var treshold = Math.abs(this.avatar.scaling[0]) * 10;
                 for (var i in this.objects) {
                     var rendered_model = this.objects[i];
                     var model_name = rendered_model.entry.name;
@@ -539,13 +1266,23 @@
                         continue;
 
                     var distance = vec3.distance(this.avatar.position, rendered_model.absolutePosition);
-                    if (distance < treshold && rendered_model.entry.is_file) {
+                    console.log(distance, treshold);
+                    if (Math.abs(distance) < treshold && rendered_model.entry.is_file) {
                         // var cb = this.onRelayoutNeeded;
                         // fsn.onRelayoutNeeded = null;
+                        var body = this.avatar.childNodes[0];
+                        //body.childNodes[2].setAxis(0, 0, 1);
+                        //body.childNodes[2].setAngle(3.14);
+                        body.childNodes[3].setAxis(0, 0, 1);
+                        body.childNodes[3].setAngle(3.14 * 5/4);
+                        body.childNodes[3].setPosition(-1.2,0.7,0);
+
                         rendered_model.is_exploding = true;
+
                         // this.explode_model(rendered_model.entry.path);
                     }
                     var is_above = (this.avatar.position[1] - rendered_model.absolutePosition[1]) > 0;
+
                     if (is_above) {
                         var is_inside = this.is_inside(this.avatar, rendered_model);
                         if (is_above && is_inside) {
@@ -555,19 +1292,16 @@
                     }
                 }
                 if (is_falling) {
-                    console.log("no base; maybe connectors")
                     for (var i in this.objects) {
                         var rendered_model = this.objects[i];
                         if (is_falling && rendered_model.connectorLine) {
                             var model_name = rendered_model.entry.name;
                             var cl = rendered_model.connectorLine;
-                            console.log("CL:", model_name);
-                            var is_inside0 = this.is_inside(this.avatar, cl.childNodes[0]);
-                            var is_inside1 = this.is_inside(this.avatar, cl.childNodes[1]);
-                            var is_inside2 = this.is_inside(this.avatar, cl.childNodes[2]);
-                            is_inside = is_inside0 || is_inside1 || is_inside2;
+                            var is_inside0 = this.is_inside_cl_tilted(this.avatar, cl.childNodes[0]);
+                            var is_inside1 = this.is_inside_cl(this.avatar, cl.childNodes[1]);
+                            var is_inside2 = false; /// this.is_inside_cl(this.avatar, cl.childNodes[2]);
+                            is_inside = (is_inside0 || is_inside1 || is_inside2) && this.avatar.position[1] == 0.5;
                             is_falling = !is_inside;
-                            console.log("", is_falling)
                         }
                     }
                 }
@@ -576,7 +1310,7 @@
                 var target_object = this.objects[this.currentObjectIndex];
                 if (!target_object) return;
                 var absolute_offset = this.getAbsoluteOffset(target_object);
-                this.move_camera(absolute_offset.offset, absolute_offset.scale);
+                this.move_camera_intro(absolute_offset.offset, absolute_offset.scale);
             }
         },
         is_inside: function (a, c) {
@@ -592,7 +1326,44 @@
                 return false; //is not within cube
             return true; //is within cube
         },
+        is_inside_cl_tilted: function (a, c) {
+            var c = c.childNodes[0];
+            var from_platform = vec3(c.parentNode.parentNode.parentNode.entry.parent.node.absolutePosition);
+            var to_platform = vec3(c.parentNode.parentNode.parentNode.absolutePosition);
+            if (!from_platform) return false;
+            from_platform[1] = from_platform[2];
+            from_platform[2] = 1;
+            to_platform[1] = to_platform[2] / 2;
+            to_platform[2] = 1;
+            var avatar_pos = vec3(this.avatar.position);
+            avatar_pos[1] = avatar_pos[2];
+            avatar_pos[2] = 1;
+
+            var line = vec3();
+            vec3.cross(from_platform, to_platform, line);
+            var distance = vec3.dot(avatar_pos, line);
+            if (to_platform[0] < 0) distance *= -1;
+            console.log("look at meee", (Math.abs(distance) ));
+            return (distance > -9000) && (distance < 5000);
+        },
+        is_inside_cl: function (a, c) {
+            var c = c.childNodes[0];
+            var from_platform = vec3(c.parentNode.parentNode.parentNode.entry.parent.node.absolutePosition);
+            var to_platform = vec3(c.parentNode.parentNode.parentNode.absolutePosition);
+            if (!from_platform) return false;
+
+            // var length = to_platform[2] - from_platform[1]
+            console.log(c.parentNode.parentNode.parentNode.entry.name, to_platform[0] - this.avatar.position[0]);
+            var distance = Math.abs(to_platform[0] - this.avatar.position[0]);
+            if (distance > 16) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+
     });
+
     var buildTree = function (e) {
         // Reset
         var pathList_ = [];
@@ -601,7 +1372,8 @@
         for (var i = 0, file; file = fileList[i]; ++i) {
             pathList_.push(file.webkitRelativePath);
         }
-        buildTreeFromPathList(pathList_, true);
+        start_game(pathList_);
+        // buildTreeFromPathList(pathList_, true);
     };
     var buildTreeFromPathList = function (pathList_, rebaseToTopDir) {
         var tree = FS_GRAPH.buildTreeFromPathList(pathList_);
@@ -633,7 +1405,11 @@
     };
 
     var dirsel = document.getElementById('path_selector');
-    dirsel.addEventListener('change', buildTree, false)
+    dirsel.addEventListener('change', function(e){
+        document.getElementById("playButton").onclick = function(){
+            buildTree(e);
+        }
+    }, false)
     window.addEventListener('message', function (e) {
         var message = e.data;
         switch (message.cmd) {
@@ -645,27 +1421,8 @@
                 break;
         }
     }, false);
-    buildTreeFromPathList([
-        // "robotics/Robotics1_15.09.11.pdf",
-        // "robotics/Robotics1_16.06.06.pdf",
-        // "robotics/Robotics1_15.02.06_long.pdf",
-        // "robotics/notes.lyx",
-        // "robotics/Robotics - Modelling, Planning and Control.pdf",
-        "robotics/07_PositionOrientation.pdf",
-        "robotics/09_DirectKinematics.pdf",
-        "robotics/printme.pdf",
-        "robotics/08_EulerRPYHomogeneous.pdf",
-        "robotics/notes.lyx~",
-        "robotics/general",
-        // "robotics/slides/16_DynamicControlSingleAxis.pdf",
-        // "robotics/slides/13_TrajectoryPlanningJoints.pdf",
-        // "robotics/slides/15_KinematicControl.pdf",
-        // "robotics/slides/10_InverseKinematics.pdf",
-        // "robotics/slides/14_TrajectoryPlanningCartesian.pdf",
-        // "robotics/slides/11_DifferentialKinematics.pdf",
-        // "robotics/slides/12_InverseDiffKinStatics.pdf",
-        "robotics/exams/Robotics1_16.01.11.pdf",
-    ], true)
 </script>
+
+<!-- iframe width="0" height="0" src="https://www.youtube.com/embed/XGSy3_Czz8k?autoplay=1&loop=1&playlist=GRonxog5mbw"></iframe -->
 </body>
 </html>
