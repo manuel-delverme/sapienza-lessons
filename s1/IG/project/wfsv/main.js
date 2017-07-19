@@ -1,3 +1,10 @@
+LEFT_LEG = 0;
+RIGHT_LEG = 1;
+LEFT_ARM = 2;
+RIGHT_ARM = 3;
+HEAD = 4;
+SUPER_RIGHT_ARM = 5;
+
 window.onresize = function () {
      if (this.fsnRender) {
          this.fsnRender.canvas.width = window.innerWidth;
@@ -274,7 +281,7 @@ FSNRender = Klass({
                 name = "*"
             }
 
-            if (window.config['textures'][name]['colors']) {
+            if (window.use_colors && window.config['textures'][name]['colors']) {
                 mesh = new Magi.ColorQuad(
                     window.config['textures'][name]['colors'][0],
                     window.config['textures'][name]['colors'][1],
@@ -483,41 +490,6 @@ FSNRender = Klass({
 
 
         this.display.changed = true;
-
-     /*
-      // calculate object position
-      var target_position = vec3();
-      var target_offset = this.lookOffset;
-      vec3.scale(target_offset, absolute_scale, target_position);
-      vec3.add(absolute_offset, target_position, target_position);
-
-
-      var new_look_at = vec3();
-      vec3.sub(target_position, this.camera.lookAt, new_look_at);
-      var d2len = vec3.lengthSquare(new_look_at);
-      vec3.scale(new_look_at, 0.1);
-      vec3.add(this.camera.lookAt, new_look_at, new_look_at);
-
-      var offset = vec3(this.offset);
-      vec3.scale(offset, absolute_scale, offset);
-      var new_camera_position = vec3();
-      vec3.add(target_position, offset, new_camera_position);
-      vec3.sub(new_camera_position, this.camera.position, new_camera_position);
-      var new_camera_position_norm = vec3.lengthSquare(new_camera_position);
-      vec3.scale(new_camera_position, 0.8);
-      vec3.add(this.camera.position, new_camera_position, new_camera_position);
-
-      vec3.set(new_camera_position, this.camera.position);
-      //vec3.set(new_look_at, this.camera.lookAt);
-      vec3.set(absolute_offset, this.camera.lookAt);
-
-      var distanceToTarget = vec3.distance(this.camera.position, this.camera.lookAt);
-      this.camera.zNear = distanceToTarget / 8;
-      this.camera.zFar = distanceToTarget * 50;
-
-      if (Math.sqrt(d2len) > distanceToTarget * 0.001 || Math.sqrt(new_camera_position_norm) > distanceToTarget * 0.001)
-      this.display.changed = true;
-      */
     },
     explode_model: function (path) {
         if (this.objects[path]) {
@@ -551,9 +523,18 @@ FSNRender = Klass({
     },
     do_the_hitler_thingy: function () {
         var body = this.avatar.childNodes[0];
-        body.childNodes[3].setAxis(0, 0, 1);
-        body.childNodes[3].setAngle(3.14 * 5 / 4);
-        body.childNodes[3].setPosition(-1.2, 0.7, 0);
+        body.childNodes[SUPER_RIGHT_ARM].setScale(0.6, 2, 1.0);
+        body.childNodes[RIGHT_ARM].setScale(0.1, 0.1, 0.1);
+
+        body.childNodes[SUPER_RIGHT_ARM].setAxis(0, 0, 1);
+        body.childNodes[SUPER_RIGHT_ARM].setAngle(3.14 * 5 / 4);
+        body.childNodes[SUPER_RIGHT_ARM].setPosition(-1.2, 0.7, 0);
+        self = this;
+
+        setTimeout(function(){
+            body.childNodes[RIGHT_ARM].setScale(0.3, 1, 0.5);
+            body.childNodes[SUPER_RIGHT_ARM].setScale(0.1, 0.1, 0.1);
+        }, 500);
     },
     sceneUpdate: function () {
         if (this.avatar_moved) {
@@ -567,11 +548,11 @@ FSNRender = Klass({
                 this.avatar.material.floats.LightDiffuse = vec4(0.7, 0.7, 0.7, 1);
                 this.avatar.material.floats.LightAmbient = vec4(0.2, 0.2, 0.2, 1);
                 // todo update transform
-                this.avatar.setY(0.5);
+                this.avatar.setY(5.0);
 
                 var body;
                 body = new Magi.Cube().setScale(2, 4, 2);
-                body.setPosition(0, 5.5, -1.5);
+                body.setPosition(0, 2, -1.5);
 
 
                 var legl;
@@ -590,14 +571,20 @@ FSNRender = Klass({
                 armr = new Magi.Cube().setScale(0.3, 1, 0.5);
                 armr.setPosition(+0.8, 0.0, 0);
                 armr.setAxis(0, 0, 1);
-                armr.setAngle(0.5);
+                armr.setAngle(-0.5);
                 body.appendChild(armr);
+
+                var super_armr;
+                super_armr = new Magi.Cube().setScale(0.6, 2, 1.0);
+                super_armr.setPosition(-0.8, 0.0, 0);
+                super_armr.setAxis(0, 0, 1);
+                super_armr.setAngle(-0.5);
 
                 var arml;
                 arml = new Magi.Cube().setScale(0.3, 1, 0.5);
                 arml.setPosition(-0.8, 0.0, 0);
                 arml.setAxis(0, 0, 1);
-                arml.setAngle(-0.5);
+                arml.setAngle(0.5);
                 body.appendChild(arml);
 
                 var head;
@@ -606,12 +593,11 @@ FSNRender = Klass({
 
                 Magi.Texture.load("head3.jpg", function (tex) {
                     head.material.textures.EmitTex = tex;
-
                 });
 
                 Magi.Texture.load("arm.jpg", function (tex) {
                     //body.material.textures.EmitTex = tex;
-                    arml.material.textures.EmitTex = tex;
+                    armr.material.textures.EmitTex = tex;
                 });
 
                 Magi.Texture.load("head1.jpg", function (tex) {
@@ -637,6 +623,7 @@ FSNRender = Klass({
                 legr.material.floats.LightSpecular = vec4(0.1, 0.1, 0.1, 1);
                 head.material.floats.LightSpecular = vec4(0.6, 0.6, 0.6, 1);
                 body.appendChild(head);
+                body.appendChild(super_armr);
 
                 // mesh = new Magi.Cube().setScale(1, 9, 1);
                 // mesh.setPosition(+1, 0.15, 1.2);
@@ -666,17 +653,6 @@ FSNRender = Klass({
                         body.setAngle(2.14 / 4);
                     }
 
-                 /*
-                  var left_leg = body.childNodes[0];
-                  left_leg.setAxis(0, 0, 1);
-                  // var new_angle = left_leg.rotation.angle + displacement * 0.01
-                  var new_angle = Math.sin(this.avatar.position[0] * 0.2)/2;
-                  left_leg.setAngle(new_angle);
-                  var following_leg = Math.sin(this.avatar.position[0] * 0.2)/5;
-                  body.childNodes[1].setAxis(0, 0, 1);
-                  body.childNodes[1].setAngle(-new_angle);
-                  */
-
                     var body = this.avatar.childNodes[0];
                     var left_leg = body.childNodes[0];
                     left_leg.setAxis(1, 0, 0);
@@ -691,11 +667,7 @@ FSNRender = Klass({
                     body.childNodes[2].setAngle(-new_angle);
                     body.childNodes[3].setAxis(1, 0, 0);
                     body.childNodes[3].setAngle(new_angle);
-
                 }
-
-
-
 
                 // this.avatar.position[1] += this.avatar.is_falling? -1:0;
                 var displacement = this.avatar_speed[2] + this.avatar_speed[3];
@@ -752,17 +724,19 @@ FSNRender = Klass({
                 var other_thing = this.objects[obj_index];
                 if (!this.avatar || this.avatar === other_thing)
                     continue;
-                var model_name = other_thing.childNodes[1].text;
                 var is_inside = this.is_inside(this.avatar, other_thing);
 
                 if (other_thing.entry.is_file) {
-                    if (is_inside) {
+                    var distance = vec3.distance(this.avatar.position, other_thing.absolutePosition);
+                    if(distance < Math.abs(this.avatar.scaling[0] * 20)){
                         this.do_the_hitler_thingy();
+                    }
+                    if (is_inside) {
                         other_thing.is_exploding = true;
                     }
                 } else if (is_falling) {
                     // it's a folder
-                    var is_above = (this.avatar.position[1] - other_thing.absolutePosition[1]) > 0;
+                    var is_above = (this.avatar.position[1] - other_thing.absolutePosition[1]) > -1.5;
                     if (is_above && is_inside) {
                         // console.log(model_name, "keeping him up")
                         is_falling = false;
