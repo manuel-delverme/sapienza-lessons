@@ -4,7 +4,7 @@ import time
 with open("/home/yitef/sapienza-lessons/s1/nlp/project/_PRIVATE_babelkey") as fin:
     _babelkey = fin.read()[:-1]
 
-_url = "http://151.100.179.26:8080/KnowledgeBaseServer/rest-api/{}"
+_url = "http://tuamadre.net:80/KnowledgeBaseServer/rest-api/{}"
 _header = "Content-Type: application/json"
 
 
@@ -78,6 +78,17 @@ def add_items(items, dry_run=False):
         # TODO: use add_items endpoint
         add_item(item, dry_run)
 
+def babelify(word):
+    response = requests.post(
+        "https://babelnet.io/v4/getSynsetIds".format(),
+        params={
+            'key': _babelkey,
+            'langs': "EN",
+            'word': word,
+        },
+    )
+        [resp["id"] for resp in response.json()]
+    return answer
 
 if __name__ == "__main__":
     print(items_number_from(0))

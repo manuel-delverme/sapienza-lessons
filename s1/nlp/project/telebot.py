@@ -1,4 +1,9 @@
 # -*- coding: UTF-8 -*-
+import answer_question
+import classify_pattern
+import math
+import nltk
+import pickle
 from collections import OrderedDict
 import numpy as np
 import pprint
@@ -17,8 +22,25 @@ import telepot
 import telepot.loop
 import random
 from util import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException
-
 from enum import Enum
+
+spacy_classifier = None
+
+
+def nlp(sent):
+    result = []
+    for word in sent.split(" "):
+        random.choice(["SUBJ", "VBZ", "NN"])
+        result.append(random.choice(word))
+        """
+        import spacy
+        global spacy_classifier
+        if not spacy_classifier:
+            # spacy_classifier = spacy.load("")
+            spacy_classifier = spacy.load("en_core_web_md")
+        return spacy_classifier(word)
+        """
+    return result
 
 
 class Modality(Enum):
@@ -32,16 +54,20 @@ CLIENT_ACCESS_TOKEN = 'bbb35a4d419f48ee84ae9800be4768f6'
 user_handler = {}
 
 domain_vectors = {}
-with open("BabelDomains_full/domain_vectors.txt") as fin:
-    for row in fin:
-        row = row[:-2].split("\t")
-        domain = row.pop(0)
-        domain_vectors[domain] = {}
-        for dim in row:
-            name, value = dim.split(" ")
-            domain_vectors[domain][name] = float(value)
-
-spacy_classifier = spacy.load("en_core_web_md")
+try:
+    with open("cache/domain_vectors.pkl", "rb") as fin:
+        domain_vectors = pickle.load(fin)
+except FileNotFoundError:
+    with open("BabelDomains_full/domain_vectors.txt") as fin:
+        for row in fin:
+            row = row[:-2].split("\t")
+            domain = row.pop(0)
+            domain_vectors[domain] = {}
+            for dim in row:
+                name, value = dim.split(" ")
+                domain_vectors[domain][name] = float(value)
+    with open("cache/domain_vectors.pkl", "wb") as fout:
+        pickle.dump(domain_vectors, fout)
 
 
 class MariaBot(telepot.helper.ChatHandler):
@@ -82,8 +108,12 @@ class MariaBot(telepot.helper.ChatHandler):
 
     def offer_user_options(self, original_msg, answer_type, options, query_msg):
         keyboard_layout = []
-        for option in options:
-            keyboard_layout.append(KeyboardButton(text=option))
+        for idx, option in enumerate(options):
+            if idx % 2 == 0:
+                keyboard_layout.append([KeyboardButton(text=option)])
+            else:
+                keyboard_layout[-1].append(KeyboardButton(text=option))
+
         keyboard = ReplyKeyboardMarkup(
             resize_keyboard=True,
             one_time_keyboard=True,
@@ -92,8 +122,12 @@ class MariaBot(telepot.helper.ChatHandler):
         def query_response_handler(msg):
             markup = ReplyKeyboardRemove()
             employee_id = msg['from']['id']
-            self.sendMessage(employee_id, "Ok, got it", reply_markup=markup)
             answer = msg['text']
+            if answer not in options:
+                self.sendMessage(employee_id, "option not valid, try again")
+                return
+            self.sendMessage(employee_id, "Ok, got it", reply_markup=markup)
+
             if answer_type == "domain":
                 print("[BOT] setting domain to: ", answer)
                 self.domain = answer
@@ -108,23 +142,35 @@ class MariaBot(telepot.helper.ChatHandler):
 
     @staticmethod
     def classify_domain(msg_txt):
+        print("[BOT] classifying domain for ", msg_txt)
         # raise DomainDetectionFail()
         with open("BabelDomains_full/domain_list.txt") as fin:
             possible_domains = fin.read()[:-1].split("\n")
 
         classified_domains = OrderedDict({d: 0 for d in possible_domains})
-        for word in msg_txt.split(" "):  # nltk tokenize
+        for word in nltk.tokenize.word_tokenize(msg_txt):
+            # print("[BOT] word:", word, "-" * 100)
+            total_weight = 0
+            weights = {}
+
             for d in possible_domains:
                 try:
-                    classified_domains[d] += domain_vectors[d][word]
+                    weight = domain_vectors[d][word]
                 except KeyError:
                     pass
                 else:
-                    print("adding weight domain:", d, "word:", word, "weight", domain_vectors[d][word])
+                    # total_weight += math.log(weight)
+                    weights[d] = weight
+            if weights:
+                for d in weights.keys():
+                    classified_domains[d] += weights[d] / (len(weights) ** 2)
+                    # print("[BOT] adding weight domain:", d, "word:", word, "weight", classified_domains[d], weights[d])
+
         result = sorted(classified_domains, key=lambda x: classified_domains[x], reverse=True)
         best_guess = result[0]
-        print("best guess", best_guess, classified_domains[best_guess])
-        if classified_domains[best_guess] < 10:  # HYPER PARAM
+        print("[BOT] best guess", best_guess, classified_domains[best_guess])
+        if classified_domains[best_guess] < 2:  # HYPER PARAM
+            print("[BOT] failed confidence < 2")
             raise DomainDetectionFail()
         return best_guess
 
@@ -134,31 +180,61 @@ class MariaBot(telepot.helper.ChatHandler):
             return "42"
         return False
 
-    @staticmethod
-    def answer_question(user_msg_txt, domain, relation):
-        # requests all the answer for domain
-        # offer a list of possible answers
-        raise FailToAnswerException()
+    def to_triple(self, user_msg_txt):
+        tree = nlp(user_msg_txt)
+        good_elements = []
+        for node in tree:
+            if "subj" in node.pos_tag:
+                good_elements.append(node)
+        if len(good_elements) == 1:
+            pass
+            # requires answer
+        # requires answer
+
+    # @staticmethod
+    def answer_question(self, user_msg_txt, domain, relation):
+        facts = self.db.find({
+            'domain': domain,
+            'relation': relation
+        })
+        if not facts:
+            answer = answer_question.answer_question(user_msg_txt, relation)
+        else:
+            words = user_msg_txt.split(" ")
+            possible_answers = [self.generate_answer(fact) for fact in facts if set(fact.split(" ")).intersection(words)]
+            answer = possible_answers[0]
+
+        if not answer:
+            raise FailToAnswerException()
+
+        return answer
+
+    def generate_answer(self, fact):
+        return "question"
 
     @staticmethod
     def infer_question_relation(question_txt, domain):
-        with open("chatbot_maps/domains_to_relations.tsv") as fin:
-            possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[domain]
-        # babelify text
-        guesses = []
-        # stem stuff
-        for possible_relation in possible_relations:
-            if possible_relation in question_txt:
-                guesses.append(possible_relation)
-        # TODO: offer a distribution of relations
-        if not guesses:
+        question = nltk.tokenize.word_tokenize(question_txt)
+        sno = nltk.stem.SnowballStemmer('english')
+        question = [sno.stem(word) for word in question]
+        relation = classify_pattern.find_relation(question)
+        if not relation:
             raise RelationDetectionFail()
         else:
-            best_guess = random.choice(guesses)
-        return best_guess
+            return relation
 
     def analyze_request(self, msg_txt):
-        pass
+        ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
+        request = ai.text_request()
+        request.query = msg_txt
+        response = request.getresponse()
+        reply = response.read()
+        reply = reply.decode("utf-8")
+        parsed_json = json.loads(reply)
+        action = parsed_json['result']['action'].lower()
+        parameters = parsed_json['result']['parameters']
+        response = parsed_json['result']['fulfillment']['speech']
+        return parameters, action, response
 
     @staticmethod
     def is_greeting(user_msg_txt):
@@ -219,6 +295,7 @@ class MariaBot(telepot.helper.ChatHandler):
             return
 
         if self.modality == Modality.enriching:
+            raise NotImplementedError()
             try:
                 relation, question = self.db.get_open_question(self.domain)
             except IndexError:
@@ -234,7 +311,9 @@ class MariaBot(telepot.helper.ChatHandler):
                 try:
                     self.relation = self.infer_question_relation(user_msg_txt, self.domain)
                 except RelationDetectionFail:
-                    self.offer_user_options(msg, "relation", ["relation1", "relation2"], "what's the relation here?")
+                    with open("chatbot_maps/domains_to_relations.tsv") as fin:
+                        possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[self.domain]
+                    self.offer_user_options(msg, "relation", possible_relations, "what's the relation here?")
                     return
             # mumble mumble
             # mumble mumble
@@ -257,7 +336,7 @@ class MariaBot(telepot.helper.ChatHandler):
                     timeleft -= 1
 
                 if timeleft == 0:
-                    answer = "i don't know"
+                    answer = "try; http://lmgtfy.com/?q='{}'".format(user_msg_txt)
 
             # apply emotive state
             self.sendMessage(self.user_tid, answer)
@@ -297,7 +376,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.sendMessage(message_user_tid, "Hello {}, may i address you as {}?".format(
             msg['from']['first_name'],
             msg['from']['first_name'])
-                         )
+        )
 
     def greet_user(self, user):
         GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
@@ -309,32 +388,35 @@ class MariaBot(telepot.helper.ChatHandler):
         return "input.unknown"
 
 
-def main():
+def main(test_run=False):
     with open("api_key") as fin:
         KEY = fin.read()[:-1]
     bot = telepot.DelegatorBot(KEY, [
         pave_event_space()(
             per_chat_id(), create_open, MariaBot, timeout=99999),
     ])
-    test_bot = MariaBot()
-    test_user_id = random.randint(0, 1000)
+    if test_run:
+        test_bot = MariaBot()
+        test_user_id = random.randint(0, 1000)
 
-    msg_flow = [
-        "sup n00b",
-        "how does your pussy tastes like?",
-        # "animals",
-        "relation1"
-    ]
-    for msg in msg_flow:
-        message_template = {'from': {'id': test_user_id, }, 'text': msg}
-        print("[USER WRITES]: <<<<< {}".format(message_template['text']))
-        test_bot.on_message(message_template)
-    for msg in msg_flow:
-        message_template = {'from': {'id': test_user_id, }, 'text': msg}
-        print("[USER WRITES]: <<<<< {}".format(message_template['text']))
-        test_bot.on_message(message_template)
-        # MessageLoop(bot).run_forever()
+        msg_flow = [
+            "sup n00b",
+            "how does your pussy tastes like?",
+            # "animals",
+            "is the colosseum in rome?",
+        ]
+        for msg in msg_flow:
+            message_template = {'from': {'id': test_user_id, }, 'text': msg}
+            print("[USER WRITES]: <<<<< {}".format(message_template['text']))
+            test_bot.on_message(message_template)
+        for msg in msg_flow:
+            message_template = {'from': {'id': test_user_id, }, 'text': msg}
+            print("[USER WRITES]: <<<<< {}".format(message_template['text']))
+            test_bot.on_message(message_template)
+    else:
+        print("spinning")
+        MessageLoop(bot).run_forever()
 
 
 if __name__ == "__main__":
-    main()
+    main(test_run=True)

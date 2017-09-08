@@ -81,7 +81,10 @@ class gaia_db:
             'answered': False,
             'domain': domain,
         })
-        return question['relation'], question['question']
+        if not question:
+            return "NO_RELATION", "NO_QUESTION"
+        else:
+            return question['relation'], question['question']
 
     def close_open_question(self, relation, question):
         question = self.db.open_questions.find_one({
@@ -106,13 +109,13 @@ class fake_db:
             self.insert_one(user)
 
     def insert_one(self, user):
-        pass
+        raise NotImplementedError()
 
     def update_one(self, user):
-        pass
+        raise NotImplementedError()
 
     def remove(self, value):
-        pass
+        raise NotImplementedError()
 
     def find_by_tid(self, value):
         return User({'tid': value})
@@ -121,10 +124,14 @@ class fake_db:
         return "relation", "question"
 
     def close_open_question(self, relation, question):
-        pass
+        raise NotImplementedError()
 
-    def add_open_question(self, question):
-        pass
+    def add_open_question(self, question, relation=None):
+        raise NotImplementedError()
+
+    def find(self, parameters):
+        print("DB NOT INMPLEMENTED!!!")
+        return []
 
 if __name__ == "__main__":
     pass
