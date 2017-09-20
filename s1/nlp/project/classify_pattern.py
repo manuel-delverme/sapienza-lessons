@@ -1,8 +1,11 @@
 import glob
+from keras.models import Sequential
+from keras.layers import GRU
 import difflib
 from sklearn.preprocessing import normalize
 import pickle
 import nltk
+import hw2
 import numpy as np
 
 with open("chatbot_maps/domains_to_relations.tsv") as fin:
@@ -12,6 +15,67 @@ with open("chatbot_maps/domains_to_relations.tsv") as fin:
         domain_list.extend(row.strip("\n").lower().split("\t")[1:])
     domain_list = set(domain_list)
     domain_list.remove("")
+
+
+def w2v(word):
+    return 0
+
+
+def train_lstm():
+    words = []
+    targets = []
+    for file_name in glob.glob("patterns/*"):
+        print("FILE:", file_name)
+        with open(file_name) as fin:
+            for row in fin:
+                try:
+                    question, target = parse_row(row)
+                except ValueError:
+                    continue
+                question = [w2v(word) for word in nltk.word_tokenize(question)]
+                words.extend(question)
+                targets.extend(target)
+    target_lookup = list(set(targets))
+    batch_size = 128
+    lstm_hidden_dims = 32
+    output_dim = len(target_lookup)
+
+    model = Sequential()
+    # model.add( Bidirectional(LSTM(lstm_hidden_dims, dropout=0.2, recurrent_dropout=0.2), input_shape=x_train.shape[1:], ))
+    # , return_sequences=True
+    # model.add(Dense(4, ))
+
+    model.add(GRU(lstm_hidden_dims, dropout=0.2, recurrent_dropout=0.2, input_shape=x_train.shape[1:], ))
+    # model.add(Bidirectional(GRU(lstm_hidden_dims, dropout=0.2, recurrent_dropout=0.2), input_shape=x_train.shape[1:]))
+    model.add(Dense(output_dim, activation='sigmoid'))  # try sigmoid
+
+    model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
+
+    print(model.summary())
+    plot_model(model, to_file='model.png')
+    print('Train...')
+    history = model.fit(x_train, y_train, validation_data=(x_val, y_val), batch_size=batch_size, shuffle=True,
+                        epochs=10)
+    model.save("classify_pattern.keras")
+
+    print(history.history.keys())
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('history_accuracy.jpg')
+    plt.clf()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('history_loss.jpg')
 
 
 def frequency_matrix():
@@ -88,6 +152,10 @@ def find_relation(question):
 
 
 def main():
+    print("training lstm")
+    train_lstm()
+    print("trained lstm")
+    """
     # WARNING: STEMMING REDUCES ACCURACY BY 5%
     good_guesses = 0
     total = 0
@@ -107,6 +175,7 @@ def main():
                         print("WRONG: was ", target_hat, "guessed: ", target)
                     total += 1
                     print(good_guesses / total, "-" * 500)
+    """
 
 
 def load_state():
