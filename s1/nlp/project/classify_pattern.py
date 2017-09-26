@@ -1,12 +1,35 @@
 import glob
+import string
+import gensim
+import os
 from keras.models import Sequential
 from keras.layers import GRU
 import difflib
 from sklearn.preprocessing import normalize
 import pickle
 import nltk
-import hw2
+# import hw2
 import numpy as np
+from utils import disk_cache
+
+
+class Borg:
+    _shared_state = {}
+
+    def __init__(self):
+        self.__dict__ = self._shared_state
+        if not hasattr(self, 'model'):
+            self.model = None
+
+    def load_resource(self):
+        if not self.model:
+            w2v_path = "/home/awok/Documents/sapienza/s1/nlp/project/../hw2/resources/model.w2v"
+            self.model = gensim.models.Word2Vec.load(w2v_path, mmap='r')
+
+    def __getitem__(self, item):
+        self.load_resource()
+        return self.model.__getitem__(item)
+
 
 with open("chatbot_maps/domains_to_relations.tsv") as fin:
     # Philosophy and psychology	activity	similarity	time	generalization	size	specialization	part
@@ -16,25 +39,33 @@ with open("chatbot_maps/domains_to_relations.tsv") as fin:
     domain_list = set(domain_list)
     domain_list.remove("")
 
+np.random.seed(42)
+UNKNOWN_SYMBOL = np.random.rand(300)
+PUNKT_SYMBOL = np.random.rand(300)
+SYMBOL_SYMBOL = np.random.rand(300)
 
-def w2v(word):
-    return 0
+UNKNOWN_SYMBOL -= UNKNOWN_SYMBOL.mean()
+PUNKT_SYMBOL -= PUNKT_SYMBOL.mean()
+SYMBOL_SYMBOL -= SYMBOL_SYMBOL.mean()
+
+
+@disk_cache
+def to_vector(word):
+    model = Borg()
+    word = word.lower()
+    try:
+        return model[word]
+    except KeyError:
+        if word in "\"\'(),.[]`:":
+            return PUNKT_SYMBOL
+        elif word in string.punctuation:
+            return SYMBOL_SYMBOL
+        return UNKNOWN_SYMBOL
 
 
 def train_lstm():
-    words = []
-    targets = []
-    for file_name in glob.glob("patterns/*"):
-        print("FILE:", file_name)
-        with open(file_name) as fin:
-            for row in fin:
-                try:
-                    question, target = parse_row(row)
-                except ValueError:
-                    continue
-                question = [w2v(word) for word in nltk.word_tokenize(question)]
-                words.extend(question)
-                targets.extend(target)
+    targets = load_data()
+
     target_lookup = list(set(targets))
     batch_size = 128
     lstm_hidden_dims = 32
@@ -76,6 +107,35 @@ def train_lstm():
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('history_loss.jpg')
+
+
+def load_data():
+    words = []
+    targets = []
+    for file_name in glob.glob("patterns/*"):
+        print("FILE:", file_name)
+        with open(file_name) as fin:
+            for row in fin:
+                try:
+                    question, target = parse_row(row)
+                except ValueError:
+                    continue
+                question = [to_vector(word) for word in question]
+                words.extend(question)
+                targets.extend(target)
+
+                # from keras.utils import to_categorical
+                # sentences = [[to_vector(model, word['form']) for word in sentence] for sentence in data]
+                # labels = [[to_label(word['upostag']) for word in sentence] for sentence in data]
+                # padding = to_vector(model, "padding")
+
+                # xs, ys = add_context(sentences, labels, padding)
+                # xs = np.array(xs)
+                # ys = to_categorical(np.array(ys), 17)
+                # with open(training_path + ".pkl", "wb") as f:
+                #     pickle.dump((xs, ys), f)
+                # return xs, ys
+    return targets
 
 
 def frequency_matrix():

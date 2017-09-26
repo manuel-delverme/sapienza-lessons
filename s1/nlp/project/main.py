@@ -72,16 +72,14 @@ except FileNotFoundError:
 
 class MariaBot(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
-        if args or kwargs:
-            super(MariaBot, self).__init__(*args, **kwargs)
-            self.db = mariaDB.gaia_db()
-        else:
-            self.db = mariaDB.fake_db()
-
+        if 'test_run' in kwargs and kwargs['test_run']:
+            self.db = mariaDB.Fake_db()
             def print_msg(user_tid, msg, reply_markup=None):
                 print("[BOT]:[SENDING MESSAGE] >>>>> {}".format(msg))
-
             self.sendMessage = print_msg
+        else:
+            super(MariaBot, self).__init__(*args, **kwargs)
+            self.db = mariaDB.Gaia_db()
 
         self.user_tid = None
         self.domain = None
@@ -193,10 +191,12 @@ class MariaBot(telepot.helper.ChatHandler):
 
     # @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
+        print("[BOT] answering question:", user_msg_txt, domain, relation)
         facts = self.db.find({
             'domain': domain,
             'relation': relation
         })
+        print("[BOT] facts:", facts)
         if not facts:
             answer = answer_question.answer_question(user_msg_txt, relation)
         else:
@@ -366,8 +366,9 @@ class MariaBot(telepot.helper.ChatHandler):
             if action == "negative":
                 user_handler[message_user_tid] = handle_user_rename
                 self.sendMessage(message_user_tid, "how should i call you then?")
-            elif action == "positive":
-                handle_user_rename({'text': msg['from']['first_name']})
+            elif action in ("positive", "affermative"):
+                msg['text'] = msg['from']['first_name']
+                handle_user_rename(msg)
             else:
                 self.sendMessage(message_user_tid, "wut?")
 
@@ -391,17 +392,14 @@ class MariaBot(telepot.helper.ChatHandler):
 def main(test_run=False):
     with open("api_key") as fin:
         KEY = fin.read()[:-1]
-    bot = telepot.DelegatorBot(KEY, [
-        pave_event_space()(
-            per_chat_id(), create_open, MariaBot, timeout=99999),
-    ])
     if test_run:
-        test_bot = MariaBot()
+        test_bot = MariaBot(test_run=test_run)
         test_user_id = random.randint(0, 1000)
 
         msg_flow = [
             "sup n00b",
-            "how does your pussy tastes like?",
+            # "how does your pussy tastes like?",
+            "how does cake tastes like?",
             # "animals",
             "is the colosseum in rome?",
         ]
@@ -414,6 +412,10 @@ def main(test_run=False):
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
             test_bot.on_message(message_template)
     else:
+        bot = telepot.DelegatorBot(KEY, [
+            pave_event_space()(
+                per_chat_id(), create_open, MariaBot, timeout=99999),
+        ])
         print("spinning")
         MessageLoop(bot).run_forever()
 

@@ -22,10 +22,10 @@ class User:
         return repr(self.user_dict)
 
 
-class gaia_db:
+class Gaia_db:
     def __init__(self):
         with open('DB_keys') as f:
-            DBKEY = f.read()[:-1]
+            DBKEY,  = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
 
         self.uri = DBKEY
         self.client = pymongo.MongoClient(self.uri)
@@ -69,6 +69,10 @@ class gaia_db:
         else:
             return None
 
+    def find(self, parameters):
+        response = self.db.users.find(parameters)
+        return list(response)
+
     def find_by_job(self, value):
         user_dict = self.db.users.find({'job': value.lower()})
         if user_dict:
@@ -100,8 +104,9 @@ class gaia_db:
             'answered': False
         })
 
-class fake_db:
+class Fake_db:
     def __init__(self):
+        print("USING FAKE DB!")
         pass
 
     def insert(self, users):
