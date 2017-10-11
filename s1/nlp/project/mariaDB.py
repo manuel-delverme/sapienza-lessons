@@ -23,13 +23,13 @@ class User:
 
 
 class Gaia_db:
-    def __init__(self):
+    def __init__(self, name="mariadb"):
         with open('DB_keys') as f:
             DBKEY,  = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
 
         self.uri = DBKEY
         self.client = pymongo.MongoClient(self.uri)
-        self.db = self.client['mariadb']
+        self.db = self.client[name]
         try:
             self.db.create_collection(name='users')
             print('\nCollection created\n')
@@ -70,7 +70,7 @@ class Gaia_db:
             return None
 
     def find(self, parameters):
-        response = self.db.users.find(parameters)
+        response = self.db.knowledge.find(parameters)
         return list(response)
 
     def find_by_job(self, value):

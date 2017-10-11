@@ -1,9 +1,9 @@
 import glob
 import string
-import gensim
+# import gensim
 import os
-from keras.models import Sequential
-from keras.layers import GRU
+# from keras.models import Sequential
+#from keras.layers import GRU
 import difflib
 from sklearn.preprocessing import normalize
 import pickle
@@ -23,6 +23,7 @@ class Borg:
 
     def load_resource(self):
         if not self.model:
+            import gensim
             w2v_path = "/home/awok/Documents/sapienza/s1/nlp/project/../hw2/resources/model.w2v"
             self.model = gensim.models.Word2Vec.load(w2v_path, mmap='r')
 
@@ -175,6 +176,10 @@ def parse_row(entry):
     question = question.strip("\"\'")
     if "?" in target:
         question, target = target, question
+    if "2" in target:
+        target = target.replace("2", "to")
+
+
     question = nltk.tokenize.word_tokenize(question)
     sno = nltk.stem.SnowballStemmer('english')
     question = [sno.stem(word) for word in question]
@@ -186,7 +191,7 @@ def parse_row(entry):
     return question, target
 
 
-def find_relation(question):
+def find_relation(question, explain_results=False):
     lookup, tags, matrix = load_state()
 
     question_vec = np.zeros(shape=matrix[0].shape)
@@ -197,28 +202,27 @@ def find_relation(question):
         except KeyError:
             pass
     # target = tags.index(target_hat)
-    # print(question)
+    if explain_results: print(question)
     target = None
     for score, tag in zip(question_vec, tags):
         cutoff = np.sort(question_vec)[-5]
         if score > cutoff:
             if score == question_vec.max():
-                # print(tag, "***" + str(score) + "**" )
+                if explain_results: print(tag, "***" + str(score) + "**" )
                 target = tag
             else:
-                pass
-                # print(tag, score)
+                if explain_results: print(tag, score)
     return target
 
 
 def main():
-    print("training lstm")
-    train_lstm()
-    print("trained lstm")
-    """
+    # print("training lstm")
+    # train_lstm()
+    # print("trained lstm")
     # WARNING: STEMMING REDUCES ACCURACY BY 5%
     good_guesses = 0
     total = 0
+    #import ipdb; ipdb.set_trace()
     for file_name in glob.glob("patterns/*"):
         print("FILE:", file_name)
         with open(file_name) as fin:
@@ -233,10 +237,9 @@ def main():
                         good_guesses += 1
                     else:
                         print("WRONG: was ", target_hat, "guessed: ", target)
+                        target = find_relation(question, explain_results=True)
                     total += 1
-                    print(good_guesses / total, "-" * 500)
-    """
-
+                    print(good_guesses / total) # , "-" * 500)
 
 def load_state():
     global lookup, tags, matrix
@@ -248,6 +251,7 @@ def load_state():
             with open(cache_file, "rb") as fout:
                 lookup, tags, matrix = pickle.load(fout)
         except IOError as e:
+            # import ipdb; ipdb.set_trace()
             lookup, tags, matrix = frequency_matrix()
             with open(cache_file, "wb") as fout:
                 pickle.dump((lookup, tags, matrix), fout)

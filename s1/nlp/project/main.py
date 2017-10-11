@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import subprocess
 import answer_question
 import classify_pattern
 import math
@@ -73,7 +74,8 @@ except FileNotFoundError:
 class MariaBot(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
         if 'test_run' in kwargs and kwargs['test_run']:
-            self.db = mariaDB.Fake_db()
+            self.db = mariaDB.Gaia_db()
+            # self.db = mariaDB.Fake_db()
             def print_msg(user_tid, msg, reply_markup=None):
                 print("[BOT]:[SENDING MESSAGE] >>>>> {}".format(msg))
             self.sendMessage = print_msg
@@ -192,17 +194,17 @@ class MariaBot(telepot.helper.ChatHandler):
     # @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
-        facts = self.db.find({
-            'domain': domain,
-            'relation': relation
-        })
-        print("[BOT] facts:", facts)
-        if not facts:
-            answer = answer_question.answer_question(user_msg_txt, relation)
-        else:
-            words = user_msg_txt.split(" ")
-            possible_answers = [self.generate_answer(fact) for fact in facts if set(fact.split(" ")).intersection(words)]
-            answer = possible_answers[0]
+        # facts = self.db.find({
+        #     'domain': domain,
+        #     'relation': relation
+        # })
+        # print("[BOT] facts:", facts)
+        # if not facts:
+        answer = answer_question.answer_question(self.db, user_msg_txt, relation)
+        # else:
+        #     words = user_msg_txt.split(" ")
+        #     possible_answers = [self.generate_answer(fact) for fact in facts if set(fact.split(" ")).intersection(words)]
+        #     answer = possible_answers[0]
 
         if not answer:
             raise FailToAnswerException()
@@ -319,6 +321,7 @@ class MariaBot(telepot.helper.ChatHandler):
             # mumble mumble
             # mumble mumble
             # mumble mumble
+            import ipdb; ipdb.set_trace()
             try:
                 answer = self.answer_question(user_msg_txt, self.domain, self.relation)
             except FailToAnswerException:
@@ -392,17 +395,16 @@ class MariaBot(telepot.helper.ChatHandler):
 def main(test_run=False):
     with open("api_key") as fin:
         KEY = fin.read()[:-1]
+    msg_flow = [
+        "sup n00b",
+        # "how does your pussy tastes like?",
+        "how does cake tastes like?",
+        # "animals",
+        "is the colosseum in rome?",
+    ]
     if test_run:
         test_bot = MariaBot(test_run=test_run)
         test_user_id = random.randint(0, 1000)
-
-        msg_flow = [
-            "sup n00b",
-            # "how does your pussy tastes like?",
-            "how does cake tastes like?",
-            # "animals",
-            "is the colosseum in rome?",
-        ]
         for msg in msg_flow:
             message_template = {'from': {'id': test_user_id, }, 'text': msg}
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
@@ -416,9 +418,13 @@ def main(test_run=False):
             pave_event_space()(
                 per_chat_id(), create_open, MariaBot, timeout=99999),
         ])
-        print("spinning")
+        for msg in msg_flow:
+            print("sending", msg)
+            subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
         MessageLoop(bot).run_forever()
 
 
 if __name__ == "__main__":
-    main(test_run=True)
+    import os
+    test_run = "--test" in os.sys.argv
+    main(test_run=test_run)

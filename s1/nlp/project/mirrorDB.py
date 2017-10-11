@@ -1,6 +1,7 @@
 import pymongo
 import knowledge
 import datetime
+
 with open("/tmp/last_db_sync", "a") as fout:
     fout.write(repr(datetime.datetime.now()) + "\n")
 
@@ -23,4 +24,4 @@ else:
     for users_batch in knowledge.batches_from(last_id):
         count += len(users_batch)
         db.knowledge_base.insert_many(users_batch)
-        print((count*100) / total_entries, "%")
+        print((count * 100) / total_entries, "%")
