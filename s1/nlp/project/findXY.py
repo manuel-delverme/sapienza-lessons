@@ -106,6 +106,7 @@ def bruteforce_findX(s, question):
 
 
 def bruteforce_findXY(question):
+    # import ipdb; ipdb.set_trace()
     s = load_pattern_dict()
     idxX = bruteforce_findX(s, question)
     # idxY = bruteforce_findY(s, question[idxX:])
@@ -186,8 +187,10 @@ def findXY(question):
 
 
 def test_findXY():
+    import ipdb; ipdb.set_trace()
     Xs, Ys, questions = load_data()
-    _, X_test, _, y_test = model_selection.train_test_split(Xs, Ys, test_size=0.3)
+    X_text
+    # _, X_test, _, y_test = model_selection.train_test_split(Xs, Ys, test_size=0.3)
     model = load_model()
     y_hat = model.predict(X_test)
     score = 0
@@ -199,8 +202,9 @@ def test_findXY():
     print("score", score / len(y_hat))
 
 
-@disk_cache
+# @disk_cache
 def load_model():
+    print("training model")
     Xs, Ys, _ = load_data()
     X_train, _, y_train, _ = model_selection.train_test_split(Xs, Ys, test_size=0.3)
     model = crf.CRF()
@@ -293,12 +297,12 @@ def question_to_seqx(question, c1=None, c2=None):
 
 
 if __name__ == "__main__":
-    # bruteforce_findXY([
-    #     "where",
-    #     "is",
-    #     "paris",
-    #     "located",
-    #     "?",
-    # ])
-    test_findXY()
+    bruteforce_findXY([
+        "where",
+        "is",
+        "paris",
+        "located",
+        "?",
+    ])
+    # test_findXY()
 
