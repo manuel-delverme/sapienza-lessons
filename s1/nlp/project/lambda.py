@@ -5,18 +5,17 @@ import difflib
 import glob
 from utils import disk_cache
 
-def post_sample(access_token, text, intent):
-    headers = { 'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + access_token,}
-
-    body = [{
-        "text": text,
-        "entities": [
-            { "entity": "intent", "value": intent }
-        ]
-    }]
-
-    output = requests.post('https://api.wit.ai/samples', data=json.dumps(body), headers=headers).json()
+def post_sample(access_token, texts, intents):
+    headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + access_token,}
+    body = []
+    idx = 0
+    for text, intent in zip(texts, intents):
+        body.append({"text": text, "entities": [{ "entity": "intent", "value": intent }]})
+        idx += 1
+        if len(body) > 50:
+            output = requests.post('https://api.wit.ai/samples', data=json.dumps(body), headers=headers).json()
+            print(len(texts), idx, output)
+            body = []
     return output
 
 @disk_cache
@@ -76,8 +75,8 @@ relations = load_domain_list()
 def main():
     access_token = "D5CBU67EQTN2RDNQC77V6SFBJ465UVCJ"
     data = load_pattern_list()
-    for text, intent in data:
-        output = post_sample(access_token, text, intent)
-        print(output)
+    texts, intents = zip(*data)
+    output = post_sample(access_token, texts, intents)
+    print(output)
 
 main()

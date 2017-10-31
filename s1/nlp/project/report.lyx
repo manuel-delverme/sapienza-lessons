@@ -1,0 +1,399 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\usepackage{listings}
+\lstloadlanguages{Python}
+\lstset{language=Python} 
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Project
+\end_layout
+
+\begin_layout Author
+Manuel Del Verme
+\begin_inset Newline newline
+\end_inset
+
+1769408
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Dialogue systems and conversational agents - including chatbots, personal
+ assistants and voicecontrol interfaces - are becoming ubiquitous in modern
+ society.
+\end_layout
+
+\begin_layout Standard
+Examples of these include personal assistants on mobile devices, technical
+ support help over telephone lines, as well as online bots selling anything
+ from fashion clothes and cosmetics to legal advice and self-help therapy.
+ However, building intelligent conversational agents remains a major unsolved
+ problem in artificial intelligence research.
+\end_layout
+
+\begin_layout Standard
+In this project we develop a socialbot: a spoken conversational agent capable
+ of conversing coherently and engagingly with humans on popular topics,
+ such as entertainment, fashion, politics, sports, and technology.
+\end_layout
+
+\begin_layout Standard
+The bot converses through natural language speech through the Telegram messaging
+ platform [LINK].
+\end_layout
+
+\begin_layout Standard
+This article describes the models, experiments and final system (MILABOT)
+ developed as requirement for the NLP_CLASS.
+\end_layout
+
+\begin_layout Standard
+This developing this project allowed us to freerly explore several NLP fields
+ such as A,B,C,D,sentiment analsysis, reinforcement learning etc.
+\end_layout
+
+\begin_layout Standard
+The assignment has provided a special opportunity for training and testing
+ state-of-the-art machine learning algorithms with real users and (potentially
+ also) commercial applications in a relatively unconstrained setting.
+ The ability to experiment with a crowdsourced database exposed us to unexpected
+ challenges such as data cleaning and fault tollerance and underlned the
+ resources required for running such a complex live system.
+\end_layout
+
+\begin_layout Subsection
+Design choices
+\end_layout
+
+\begin_layout Standard
+Early work on dialogue systems (Weizenbaum 1966, Colby 1981, Aust et al.
+ 1995, McGlashan et al.
+ 1992, Simpson & Eraser 1993) were based mainly on states and rules hand-crafted
+ by human experts.
+\end_layout
+
+\begin_layout Standard
+Modern dialogue systems typically follow a hybrid architecture, combining
+ hand-crafted states and rules with statistical machine learning algorithms
+ (Suendermann-Oeft et al.
+ 2015, Jurcíˇ cek et al.
+ ˇ 2014, Bohus et al.
+ 2007, Williams 2011).
+\end_layout
+
+\begin_layout Standard
+Due to the complexity of human language, however, it will probably never
+ be possible to enumerate states and rules required for building a socialbot
+ capable of conversing with humans on open-domain, popular topics.
+\end_layout
+
+\begin_layout Standard
+In contrast to such rule-based systems, Maria works on a reinforcement learning
+ system built on top of an ensemble of heterogenic sources raging from rule
+ based systems to deep learning archtectures and external services (Facebook's
+ Wit.ai).
+\end_layout
+
+\begin_layout Standard
+The system architecture aims to make as few assumptions as possible about
+ the language and usage, following an heirarchical approach thus generating
+ a great degree of adaptibility required in a domain as sparse the multilingual
+ natural human language.
+\end_layout
+
+\begin_layout Standard
+As such, the system utilizes only a small number of hand-crafted states
+ and rules.
+ However, many system components have been designed to be optimized (trained)
+ using machine learning algorithms.
+\end_layout
+
+\begin_layout Standard
+These system components will be trained first independently then jointly
+ on real-world user interactions.
+ This way, the system will learn all relevant states and rules for conducting
+ conversations implicitly.
+ Given an adequate amount of examples, such a system should outperform systems
+ based on hand-crafted states and rules.
+ Further, the system will continue to improve in perpetuity with additional
+ data.
+\end_layout
+
+\begin_layout Standard
+Our system architecture is inspired by the success of ensemble-based machine
+ learning systems.
+ These systems consist of many independent sub-models combined intelligently
+ together.
+ Examples of such ensemble systems include kaggle winners and MY OWN ALGORITTHM
+ FOR NEUROSCIENCE.
+\end_layout
+
+\begin_layout Standard
+More recently, Google observed substantial improvements building an ensemble-bas
+ed neural machine translation system (Wu et al.
+ 2016).
+ Our system consists of an ensemble of response models.
+ The response models take as input a dialogue and output a response in natural
+ language text.
+ In addition, the response models may also output one or several scalar
+ values, indicating their internal confidence.
+ As will be explained later, the response models have been engineered to
+ generate responses on a diverse set of topics using a variety of strategies.
+ As input, the overall system expects to be given a dialogue history (i.e.
+ all utterances recorded in the dialogue so far, including the current user
+ utterance) and confidence values of the automatic speech recognition system
+ (ASR confidences).
+\end_layout
+
+\begin_layout Subsection
+response
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename report/a.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Low level api2
+\end_layout
+
+\begin_layout Standard
+telegram
+\end_layout
+
+\begin_layout Subsubsection
+feature extraction
+\end_layout
+
+\begin_layout Itemize
+an relation is indentified via a besyan classifier trained on the corwdsourced
+ corpus and added to the state
+\end_layout
+
+\begin_layout Itemize
+bruteforce findXY
+\end_layout
+
+\begin_layout Itemize
+pos tagging -> classifiy
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+has a priority response?
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+wit.AI
+\end_layout
+
+\begin_layout Itemize
+deepQA
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+has a slow response?
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+open question to other user
+\end_layout
+
+\begin_layout Itemize
+ELISA
+\end_layout
+
+\begin_layout Itemize
+post open question
+\end_layout
+
+\begin_layout Itemize
+hacks
+\end_layout
+
+\begin_layout Standard
+To generate a response, the system follows a three-step procedure.
+\end_layout
+
+\begin_layout Standard
+First, it uses a subset of fast classifier to to generate a set of candidate
+ responses.
+\end_layout
+
+\begin_layout Standard
+Second, if there exists a priority response in the set of candidate responses
+ (i.e.
+ a response which takes precedence over other responses), this response
+ will be returned by the system.
+ For example, for the question "Where is our mediator?", the response "Wait
+ for him! He will surely come!" is a priority response.
+\end_layout
+
+\begin_layout Standard
+Third, if there are no priority responses, the response is selected by a
+ slower set of answers by the model selection policy.
+ For example, the model selection policy may select a response by scoring
+ all candidate responses and picking the highest-scored response.
+ The overall process is illustrated in Figure 1.
+\end_layout
+
+\begin_layout Standard
+When the confidences are below a certain threshold, the system requests
+ the user to rephrase the question.
+ Otherwise, the system does not utilize the confidences.
+\end_layout
+
+\begin_layout Section
+Example discussions
+\end_layout
+
+\begin_layout Description
+qweqoweio
+\end_layout
+
+\begin_layout Description
+:-) : who are you?
+\end_layout
+
+\begin_layout Description
+\begin_inset Graphics
+	filename report/robot-face.png
+	lyxscale 10
+	scale 10
+
+\end_inset
+
+: 
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+ELIZA: Please consider whether you can answer your own question.
+ [s:5]
+\end_layout
+
+\begin_layout Description
+Learned: I don't know [s:-1]
+\end_layout
+
+\begin_layout Description
+ALICE: I ask myself that question, "Who am I?" [s:5]
+\end_layout
+
+\begin_layout Description
+S
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+since [vapnik theorem] and since [learning curve] and since [notebook],
+ a simpler feature set was tested with good results
+\end_layout
+
+\begin_layout Section
+Results and Analysis
+\end_layout
+
+\begin_layout Standard
+Chatbots work very different way than traditional softwares.
+ The major problem for any chatbot to understand context of user’s conversation
+ and make thing easy for user.
+ Once chatbot is developed, it important to test some of the key metrics.
+ Those are:-
+\end_layout
+
+\begin_layout Standard
+Conversational Flow NLP Score Usability & User experience Bot Speed Bot
+ Accuracy Conversation Steps To speed up the bot testing process and to
+ get accurate result for these key metrics, one should use list of services
+ like Bot Testing , Dimon, Bot flair etc.
+ those perform various test cases on your chatbot and provides the reports
+ of complete result for your chatbots.
+ 
+\end_layout
+
+\end_body
+\end_document

@@ -24,7 +24,6 @@ def answer_question(db, question, question_relation):
     if not results:
         print("brutefocing X,Y")
         for X, Y in itertools.product(question, repeat=2):
-
             if X is None:
                 continue
             is_open_question = Y is None
