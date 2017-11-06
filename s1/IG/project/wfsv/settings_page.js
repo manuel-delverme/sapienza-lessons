@@ -118,7 +118,7 @@ function move_one_char(){
 
 }
 window.addEventListener('keydown', function(event){
-    if(event.keyCode == 27) {
+    if(event.keyCode === 27) {
         window.stop_animation = true;
     }
 }, false);

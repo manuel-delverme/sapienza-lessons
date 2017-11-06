@@ -1,4 +1,5 @@
 from utils import disk_cache
+import re
 import difflib
 import glob
 import pprint
@@ -11,17 +12,20 @@ from sklearn import model_selection
 
 
 @disk_cache
-def load_domain_list():
-    with open("BabelDomains_full/domain_list.txt") as fin:
-        domain_list = []
+def load_relation_list():
+    with open("chatbot_maps/domains_to_relations.tsv") as fin:
+        _relation_list = set()
         for row in fin:
-            domain_list.append(row.strip("\n").lower())
+            relations = row.strip("\n").lower().split("\t")[1:]
+            _relation_list.update(relations)
     print("loaded domain list")
-    pprint.pprint(domain_list)
-    return domain_list
+    if "" in _relation_list:
+        _relation_list.remove("")
+    pprint.pprint(_relation_list)
+    return list(_relation_list)
 
 
-domain_list = load_domain_list()
+relation_list = load_relation_list()
 
 _parser = None
 
@@ -81,7 +85,8 @@ def load_pattern_dict():
             for row in fin:
                 try:
                     question, target = parse_row(row)
-                except ValueError:
+                except ValueError as e:
+                    print("DROPPING", row, e)
                     continue
                 sub_dict = pattern_dict
                 for word in question:
@@ -92,24 +97,82 @@ def load_pattern_dict():
     return pattern_dict
 
 
-def bruteforce_findX(s, question):
+def bruteforce_findCHAR(tree, sentence, what, depth=0):
     idxs = []
-    depth = 0
-    while True:
-        keys = list(s.keys())
-        if "x" in keys:
-            idxs.append(depth)
-        if question[depth] not in keys:
-            break
-        depth += 1
+    leaves = list(tree.keys())
+    if what in leaves:
+        idxs = [depth]
+
+    if len(sentence) > 0:
+        word = sentence[0]
+        if word in leaves:
+            hits = bruteforce_findCHAR(tree[word], sentence[1:], what, depth + 1)
+            idxs.extend(hits)
     return idxs
 
 
+def bruteforce_findX(tree, sentence):
+    return bruteforce_findCHAR(tree, sentence, what="x")
+
+
+def bruteforce_findY(tree, sentence):
+    return bruteforce_findCHAR(tree, sentence, "y")
+
+
+def bruteforce_findEND(tree, sentence):
+    return bruteforce_findCHAR(tree, sentence, "$END$")
+
+
 def bruteforce_findXY(question):
-    # import ipdb; ipdb.set_trace()
-    s = load_pattern_dict()
-    idxX = bruteforce_findX(s, question)
-    # idxY = bruteforce_findY(s, question[idxX:])
+    pattern_tree = load_pattern_dict()
+    startXs = bruteforce_findX(pattern_tree, question)
+    Xs = []
+    Ys = []
+    for startX in startXs:
+        subtreeX = pattern_tree
+        for word in question[:startX]:
+            subtreeX = subtreeX[word]
+        subtreeX = subtreeX['x']
+        for endX in range(startX + 1, len(question)):
+            startYs = bruteforce_findY(subtreeX, question[endX:])
+            # look for an Y from X to
+            if len(startYs) > 0:
+                Xs.append(question[startX: endX])
+
+                for startY in startYs:
+                    startY += endX
+                    print("found Y!", startYs, "X=", question[startX: endX],
+                          "Y=>{}? who knows".format(question[startY:]))
+                    subtreeY = subtreeX
+
+                    for word in question[endX:startY]:
+                        subtreeY = subtreeY[word]
+                    subtreeY = subtreeY['y']
+
+                    for endY in range(startY + 1, len(question)):
+                        tentativeY = question[startY: endY]
+                        subquestion = question[endY:]
+                        if match_end_of_string(subquestion, subtreeY):
+                            Ys.append(tentativeY)
+                        subtreeY = subtreeY[question[endY]]
+            else:
+                print("not a valid X",
+                      "{}  [{}]  {}".format(" ".join(question[:startX]), " ".join(question[startX: endX]),
+                                            " ".join(question[endX:])))
+            # look for an $END$ from X on
+            if match_end_of_string(question[endX:], subtreeX):
+                print("FOUND END! valid X",
+                      "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
+                Xs.append(question[startX: endX])
+            else:
+                print("not a valid X", "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
+    print("Xs", Xs)
+    print("Ys", Ys)
+    return Xs, Ys
+
+
+def match_end_of_string(subquestion, subtree):
+    return len(bruteforce_findEND(subtree, subquestion)) > 0
 
 
 def parse_row(entry, stem=False):
@@ -126,15 +189,24 @@ def parse_row(entry, stem=False):
         question, target = target, question
     if "2" in target:
         target = target.replace("2", "to")
+    if "is" in target and "a" in target:
+        target = "generalization"
 
     question = nltk.tokenize.word_tokenize(question)
     if stem:
         sno = nltk.stem.SnowballStemmer('english')
         question = [sno.stem(word) for word in question]
-    if target not in domain_list:
-        # raises ValueError if no close match
-        new_target, = difflib.get_close_matches(target, domain_list, n=1)
-        print(target, "not in domain list => ", new_target)
+    if target not in relation_list:
+        try:
+            new_target, = difflib.get_close_matches(target, relation_list, n=1)
+        except ValueError:
+            for relation in relation_list:
+                if target in relation:
+                    new_target = relation
+                    break
+            else:
+                print(target, "is not a relationship")
+                raise ValueError()
         target = new_target
     return question, target
 
@@ -162,13 +234,13 @@ def tag_question(question, use_spacy=True):
         print("SKPPING WORD MERGING")
         tagged_words = nltk.pos_tag(question)
         words, tags = zip(*tagged_words)
-
     return words, tags
 
 
 # @disk_cache
 def findXY(question):
-    words, tags = parse_question(question)
+    Xs = bruteforce_findXY(question)
+    words, tags = tag_question(question)
     seqx, _ = question_to_seqx(list(tags))
     # merge same consecutive tags
     model = load_model()
@@ -187,9 +259,7 @@ def findXY(question):
 
 
 def test_findXY():
-    import ipdb; ipdb.set_trace()
     Xs, Ys, questions = load_data()
-    X_text
     # _, X_test, _, y_test = model_selection.train_test_split(Xs, Ys, test_size=0.3)
     model = load_model()
     y_hat = model.predict(X_test)
@@ -212,7 +282,7 @@ def load_model():
     return model
 
 
-# @disk_cache
+@disk_cache
 def load_data():
     c1s = []
     c2s = []
@@ -224,8 +294,7 @@ def load_data():
     for row in database:
         num += 1
         print("progress", num / 4534082)
-        # if num / 4534082 > 0.05:
-        if num > 10:
+        if num / 4534082 > 0.05:
             break
 
         question = row['question']
@@ -298,11 +367,12 @@ def question_to_seqx(question, c1=None, c2=None):
 
 if __name__ == "__main__":
     bruteforce_findXY([
-        "where",
+        "what",
         "is",
-        "paris",
-        "located",
+        "the",
+        "form",
+        "of",
+        "love",
         "?",
     ])
     # test_findXY()
-
