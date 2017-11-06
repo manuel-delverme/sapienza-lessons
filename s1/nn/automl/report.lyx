@@ -99,6 +99,68 @@ Introduction
 \end_layout
 
 \begin_layout Subsection
+the problem
+\end_layout
+
+\begin_layout Standard
+In machine learning, the term “training” is used to describe the procedure
+ of fitting a model to data.
+ In many popular models, this fitting procedure is framed as an optimization
+ problem, in which a loss is minimized as a function of the parameters.
+ In all but the simplest machine learning models, this minimization must
+ be performed with an iterative algorithm such as stochastic gradient descent
+ or the nonlinear conjugate gradient method.
+ Another aspect of training involves fitting model “hyperparameters.” These
+ are parameters that in some way govern the model space or fitting procedure;
+ in both cases they are typically difficult to minimize directly in terms
+ of the training loss and are usually evaluated in terms of generalization
+ performance via held-out data.
+ Hyperparameters are often regularization penalties such as `p norms on
+ model parameters, but can also capture model capacity as in the number
+ of hidden units in a neural network.
+ These hyperparameters help determine the appropriate bias-variance tradeoff
+ for a given model family and data set.
+ On the other hand, hyperparameters of the fitting procedure govern algorithmic
+ aspects of training, such as the learning rate schedule of stochastic gradient
+ descent, or the width of a Monte Carlo proposal distribution.
+ The goal of fitting both kinds of hyperparameters is to identify a model
+ and an optimization procedure in which successful minimization of training
+ loss is likely to result in good generalization performance.
+ When a heldout validation set is used to evaluate the quality of hyperparameter
+s, the overall optimization proceeds as a double loop, where the outer loop
+ sets the hyperparameters and the inner loop applies an iterative training
+ procedure to fit the model to data.
+ Often this outer hyperparameter optimization is performed by hand, which—even
+ if rigorously systematized— can be a difficult and laborious process.
+ Simple alternatives include the application of heuristics and intuition,
+ grid search, which scales poorly with dimension, or random search [1],
+ which is computationally expensive due to the need to train many models.
+ In light of this, Bayesian optimization [2] has recently been proposed
+ as an effective method for systematically and intelligently setting the
+ hyperparameters of machine learning models [3, 4].
+ Using a principled characterization of model uncertainty, Bayesian optimization
+ attempts to find the best hyperparameter settings with as few model evaluations
+ as possible.
+ One issue with previously proposed approaches to Bayesian optimization
+ for machine learning is that a model must be fully trained before the quality
+ of its hyperparameters can be assessed.
+ Human experts, however, appear to be able to rapidly assess whether or
+ not a model is likely to eventually be useful, even when the inner-loop
+ training is only partially completed.
+ When such an assessment can be made accurately, it is possible to explore
+ the hyperparameter space more effectively by aborting model fits that are
+ likely to be low quality.
+ The goal of this paper is to take advantage of the partial information
+ provided by iterative training procedures, within the Bayesian optimization
+ framework for hyperparameter search.
+ We propose a new technique that makes it possible to estimate when to pause
+ the training of one model in favor of starting a new one with different
+ hyperparameters, or resuming a partially-completed training procedure from
+ an old model.
+ 
+\end_layout
+
+\begin_layout Subsection
 what is this work inspired by
 \end_layout
 
@@ -252,74 +314,20 @@ The project is based on the Freeze-Thaw Bayesian Optimization approach.
 \end_layout
 
 \begin_layout Section
-Freeze-thaw Bayesian optimisation (FTBO)
+Freeze-thaw Bayesian optimisation (FTBO) [https://arxiv.org/abs/1406.3896]
 \end_layout
 
 \begin_layout Standard
-In machine learning, the term “training” is used to describe the procedure
- of fitting a model to data.
- In many popular models, this fitting procedure is framed as an optimization
- problem, in which a loss is minimized as a function of the parameters.
- In all but the simplest machine learning models, this minimization must
- be performed with an iterative algorithm such as stochastic gradient descent
- or the nonlinear conjugate gradient method.
- Another aspect of training involves fitting model “hyperparameters.” These
- are parameters that in some way govern the model space or fitting procedure;
- in both cases they are typically difficult to minimize directly in terms
- of the training loss and are usually evaluated in terms of generalization
- performance via held-out data.
- Hyperparameters are often regularization penalties such as `p norms on
- model parameters, but can also capture model capacity as in the number
- of hidden units in a neural network.
- These hyperparameters help determine the appropriate bias-variance tradeoff
- for a given model family and data set.
- On the other hand, hyperparameters of the fitting procedure govern algorithmic
- aspects of training, such as the learning rate schedule of stochastic gradient
- descent, or the width of a Monte Carlo proposal distribution.
- The goal of fitting both kinds of hyperparameters is to identify a model
- and an optimization procedure in which successful minimization of training
- loss is likely to result in good generalization performance.
- When a heldout validation set is used to evaluate the quality of hyperparameter
-s, the overall optimization proceeds as a double loop, where the outer loop
- sets the hyperparameters and the inner loop applies an iterative training
- procedure to fit the model to data.
- Often this outer hyperparameter optimization is performed by hand, which—even
- if rigorously systematized— can be a difficult and laborious process.
- Simple alternatives include the application of heuristics and intuition,
- grid search, which scales poorly with dimension, or random search [1],
- which is computationally expensive due to the need to train many models.
- In light of this, Bayesian optimization [2] has recently been proposed
- as an effective method for systematically and intelligently setting the
- hyperparameters of machine learning models [3, 4].
- Using a principled characterization of model uncertainty, Bayesian optimization
- attempts to find the best hyperparameter settings with as few model evaluations
- as possible.
- One issue with previously proposed approaches to Bayesian optimization
- for machine learning is that a model must be fully trained before the quality
- of its hyperparameters can be assessed.
- Human experts, however, appear to be able to rapidly assess whether or
- not a model is likely to eventually be useful, even when the inner-loop
- training is only partially completed.
- When such an assessment can be made accurately, it is possible to explore
- the hyperparameter space more effectively by aborting model fits that are
- likely to be low quality.
- The goal of this paper is to take advantage of the partial information
- provided by iterative training procedures, within the Bayesian optimization
- framework for hyperparameter search.
- We propose a new technique that makes it possible to estimate when to pause
- the training of one model in favor of starting a new one with different
- hyperparameters, or resuming a partially-completed training procedure from
- an old model.
- We refer to our approach as freeze-thaw Bayesian optimization, as the algorithm
- maintains a set of “frozen” (partially completed but not being actively
- trained) models and uses an information-theoretic criterion to determine
- which ones to “thaw” and continue training.
+Freeze-thaw Bayesian optimization, as the algorithm maintains a set of “frozen”
+ (partially completed but not being actively trained) models and uses an
+ information-theoretic criterion to determine which ones to “thaw” and continue
+ training.
 \end_layout
 
 \begin_layout Standard
-Our approach hinges on the assumption that, for many models, the training
- loss during the fitting procedure roughly follows an exponential decay
- towards an unknown final value.
+This hinges on the assumption that, for many models, the training loss during
+ the fitting procedure roughly follows an exponential decay towards an unknown
+ final value.
  We build a Bayesian nonparametric prior around this assumption by developing
  a new kernel that is an infinite mixture of exponentiallydecaying basis
  functions, with the goal of characterizing these training curves.
@@ -412,23 +420,11 @@ A model (or learning algorithm) mapping individual algorithm performance
 \end_layout
 
 \begin_layout Section
-Overfitting problem
-\end_layout
-
-\begin_layout Standard
-use xval
-\end_layout
-
-\begin_layout Section
 RL for sequential decision making
 \end_layout
 
 \begin_layout Section
 correlation between algorithms
-\end_layout
-
-\begin_layout Section
-..
 \end_layout
 
 \begin_layout Section
