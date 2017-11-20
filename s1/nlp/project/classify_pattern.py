@@ -3,7 +3,7 @@ import string
 # import gensim
 import os
 # from keras.models import Sequential
-#from keras.layers import GRU
+# from keras.layers import GRU
 import difflib
 from sklearn.preprocessing import normalize
 import pickle
@@ -139,6 +139,7 @@ def load_data():
     return targets
 
 
+@disk_cache
 def frequency_matrix():
     words = []
     targets = []
@@ -179,7 +180,6 @@ def parse_row(entry):
     if "2" in target:
         target = target.replace("2", "to")
 
-
     question = nltk.tokenize.word_tokenize(question)
     sno = nltk.stem.SnowballStemmer('english')
     question = [sno.stem(word) for word in question]
@@ -190,7 +190,7 @@ def parse_row(entry):
         target = new_target
     return question, target
 
-
+@disk_cache
 def find_relation(question, explain_results=False):
     lookup, tags, matrix = load_state()
 
@@ -208,7 +208,7 @@ def find_relation(question, explain_results=False):
         cutoff = np.sort(question_vec)[-5]
         if score > cutoff:
             if score == question_vec.max():
-                if explain_results: print(tag, "***" + str(score) + "**" )
+                if explain_results: print(tag, "***" + str(score) + "**")
                 target = tag
             else:
                 if explain_results: print(tag, score)
@@ -222,7 +222,7 @@ def main():
     # WARNING: STEMMING REDUCES ACCURACY BY 5%
     good_guesses = 0
     total = 0
-    #import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     for file_name in glob.glob("patterns/*"):
         print("FILE:", file_name)
         with open(file_name) as fin:
@@ -239,22 +239,15 @@ def main():
                         print("WRONG: was ", target_hat, "guessed: ", target)
                         target = find_relation(question, explain_results=True)
                     total += 1
-                    print(good_guesses / total) # , "-" * 500)
+                    print(good_guesses / total)  # , "-" * 500)
+
 
 def load_state():
     global lookup, tags, matrix
     try:
         return lookup, tags, matrix
     except NameError as e:
-        cache_file = "cache/classify_pattern.pkl"
-        try:
-            with open(cache_file, "rb") as fout:
-                lookup, tags, matrix = pickle.load(fout)
-        except IOError as e:
-            # import ipdb; ipdb.set_trace()
-            lookup, tags, matrix = frequency_matrix()
-            with open(cache_file, "wb") as fout:
-                pickle.dump((lookup, tags, matrix), fout)
+        lookup, tags, matrix = frequency_matrix()
         return lookup, tags, matrix
 
 

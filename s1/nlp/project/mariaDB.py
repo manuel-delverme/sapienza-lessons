@@ -1,4 +1,5 @@
 import pymongo
+import os
 import json
 
 
@@ -24,11 +25,21 @@ class User:
 
 class Gaia_db:
     def __init__(self, name="mariadb"):
+        from sshtunnel import SSHTunnelForwarder
+        self.SSHTunnel = SSHTunnelForwarder(
+            host=os.environ['sshHost'],
+            ssh_username=os.environ['sshUser'],
+            ssh_pkey="~/.ssh/id_rsa",
+            remote_bind_address=('127.0.0.1', 27017),
+        )
+
+        self.SSHTunnel.start()
+
         with open('DB_keys') as f:
             DBKEY,  = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
 
         self.uri = DBKEY
-        self.client = pymongo.MongoClient(self.uri)
+        self.client = pymongo.MongoClient('127.0.0.1', self.SSHTunnel.local_bind_port)
         self.db = self.client[name]
         try:
             self.db.create_collection(name='users')
