@@ -10,7 +10,7 @@ import pickle
 import nltk
 # import hw2
 import numpy as np
-from utils import disk_cache
+from disk_utils import disk_cache
 
 
 class Borg:

@@ -22,7 +22,7 @@ import mariaDB
 import telepot
 import telepot.loop
 import random
-from util import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException
+from utils import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException
 from enum import Enum
 
 spacy_classifier = None
@@ -377,7 +377,7 @@ class MariaBot(telepot.helper.ChatHandler):
 
 
 def main(test_run=False):
-    with open("api_key") as fin:
+    with open("sekrets/api_key") as fin:
         KEY = fin.read()[:-1]
     msg_flow = [
         "sup n00b",

@@ -1,5 +1,5 @@
 from findXY import findXY
-from utils import disk_cache
+from disk_utils import disk_cache
 import re
 import nltk
 import itertools

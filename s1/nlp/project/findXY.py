@@ -1,41 +1,9 @@
-from utils import disk_cache
-import re
-import difflib
+from disk_utils import disk_cache
+import commons
 import glob
-import pprint
-from collections import defaultdict
-import mariaDB
-import numpy as np
 import nltk
 import sklearn_crfsuite as crf
 from sklearn import model_selection
-
-
-@disk_cache
-def load_relation_list():
-    with open("chatbot_maps/domains_to_relations.tsv") as fin:
-        _relation_list = set()
-        for row in fin:
-            relations = row.strip("\n").lower().split("\t")[1:]
-            _relation_list.update(relations)
-    print("loaded domain list")
-    if "" in _relation_list:
-        _relation_list.remove("")
-    pprint.pprint(_relation_list)
-    return list(_relation_list)
-
-
-relation_list = load_relation_list()
-
-_parser = None
-
-
-def parser(text):
-    global _parser
-    if _parser is None:
-        import spacy
-        _parser = spacy.load('en_core_web_sm')
-    return _parser(text)
 
 
 def findX(tree):
@@ -84,7 +52,7 @@ def load_pattern_dict():
         with open(file_name) as fin:
             for row in fin:
                 try:
-                    question, target = parse_row(row)
+                    question, target = commons.parse_row(row)
                 except ValueError as e:
                     print("DROPPING", row, e)
                     continue
@@ -141,8 +109,8 @@ def bruteforce_findXY(question):
 
                 for startY in startYs:
                     startY += endX
-                    print("found Y!", startYs, "X=", question[startX: endX],
-                          "Y=>{}? who knows".format(question[startY:]))
+                    # print("found Y!", startYs, "X=", question[startX: endX],
+                    #      "Y=>{}? who knows".format(question[startY:]))
                     subtreeY = subtreeX
 
                     for word in question[endX:startY]:
@@ -156,16 +124,19 @@ def bruteforce_findXY(question):
                             Ys.append(tentativeY)
                         subtreeY = subtreeY[question[endY]]
             else:
-                print("not a valid X",
-                      "{}  [{}]  {}".format(" ".join(question[:startX]), " ".join(question[startX: endX]),
-                                            " ".join(question[endX:])))
+                pass
+                # print("not a valid X",
+                #      "{}  [{}]  {}".format(" ".join(question[:startX]), " ".join(question[startX: endX]),
+                #                            " ".join(question[endX:])))
             # look for an $END$ from X on
             if match_end_of_string(question[endX:], subtreeX):
-                print("FOUND END! valid X",
-                      "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
+                # print("FOUND END! valid X",
+                #       "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
                 Xs.append(question[startX: endX])
             else:
-                print("not a valid X", "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
+                # print("not a valid X", "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[
+                # startX:])))
+                pass
     print("Xs", Xs)
     print("Ys", Ys)
     return Xs, Ys
@@ -175,45 +146,10 @@ def match_end_of_string(subquestion, subtree):
     return len(bruteforce_findEND(subtree, subquestion)) > 0
 
 
-def parse_row(entry, stem=False):
-    entry = entry.strip("\n").lower()
-    if "\t" not in entry:
-        print("SKIPPING", entry)
-        raise ValueError()
-    question, target = entry.split("\t")
-    target = target.strip()
-    target = target.strip("\"\'")
-    question = question.strip()
-    question = question.strip("\"\'")
-    if "?" in target:
-        question, target = target, question
-    if "2" in target:
-        target = target.replace("2", "to")
-    if "is" in target and "a" in target:
-        target = "generalization"
-
-    question = nltk.tokenize.word_tokenize(question)
-    if stem:
-        sno = nltk.stem.SnowballStemmer('english')
-        question = [sno.stem(word) for word in question]
-    if target not in relation_list:
-        try:
-            new_target, = difflib.get_close_matches(target, relation_list, n=1)
-        except ValueError:
-            for relation in relation_list:
-                if target in relation:
-                    new_target = relation
-                    break
-            else:
-                print(target, "is not a relationship")
-                raise ValueError()
-        target = new_target
-    return question, target
-
-
+@disk_cache
 def tag_question(question, use_spacy=True):
     if use_spacy:
-        parser(question)
+        commons.parser(question)
     else:
         question = nltk.word_tokenize(question)
         question_ = ['']
@@ -239,7 +175,8 @@ def tag_question(question, use_spacy=True):
 
 # @disk_cache
 def findXY(question):
-    Xs = bruteforce_findXY(question)
+    results = {}
+    results['bruteforce'] = bruteforce_findXY(question)
     words, tags = tag_question(question)
     seqx, _ = question_to_seqx(list(tags))
     # merge same consecutive tags
@@ -259,7 +196,7 @@ def findXY(question):
 
 
 def test_findXY():
-    Xs, Ys, questions = load_data()
+    Xs, Ys, questions = commons.load_data()
     # _, X_test, _, y_test = model_selection.train_test_split(Xs, Ys, test_size=0.3)
     model = load_model()
     y_hat = model.predict(X_test)
@@ -275,67 +212,11 @@ def test_findXY():
 # @disk_cache
 def load_model():
     print("training model")
-    Xs, Ys, _ = load_data()
+    Xs, Ys, _ = commons.load_data()
     X_train, _, y_train, _ = model_selection.train_test_split(Xs, Ys, test_size=0.3)
     model = crf.CRF()
     model.fit(X_train, y_train)
     return model
-
-
-@disk_cache
-def load_data():
-    c1s = []
-    c2s = []
-    db = mariaDB.Gaia_db('nlp_projectDB')
-    pos_tags = []
-    questions = []
-    database = db.db.knowledge_base.find({}, no_cursor_timeout=True)
-    num = 0
-    for row in database:
-        num += 1
-        print("progress", num / 4534082)
-        if num / 4534082 > 0.05:
-            break
-
-        question = row['question']
-        c1 = row['c1'].lower()
-        c2 = row['c2'].lower()
-        if "::" in c1:
-            c1 = c1.split("::")[0]
-        if "::" in c2:
-            c2 = c2.split("::")[0]
-
-        relation = row['relation'].lower()
-        answer = row['answer'].lower()
-        del row
-
-        doc = parser(question)
-        for noun in doc.noun_chunks:
-            noun.merge(noun.root.tag_, noun.text, noun.root.ent_type_)
-
-        idx1 = None
-        idx2 = None
-        tags = []
-        for idx, chunk in enumerate(doc):
-            tag = chunk.pos_
-            word = chunk.text
-            tags.append(tag)
-            if word.lower() == c1.lower():
-                idx1 = idx
-            if word.lower() == c2.lower():
-                idx2 = idx
-        if idx1 is not None and idx2 is not None:
-            c1s.append(idx1)
-            c2s.append(idx2)
-            pos_tags.append(tags)
-            questions.append(question)
-    Xs = []
-    Ys = []
-    for question, c1, c2 in zip(pos_tags, c1s, c2s):
-        seqx, seqy = question_to_seqx(question, c1, c2)
-        Xs.append(seqx)
-        Ys.append(seqy)
-    return Xs, Ys, questions
 
 
 def question_to_seqx(question, c1=None, c2=None):
@@ -366,7 +247,7 @@ def question_to_seqx(question, c1=None, c2=None):
 
 
 if __name__ == "__main__":
-    bruteforce_findXY([
+    X, Y = bruteforce_findXY([
         "what",
         "is",
         "the",
