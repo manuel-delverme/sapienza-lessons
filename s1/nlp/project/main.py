@@ -2,11 +2,9 @@
 import subprocess
 import answer_question
 import classify_pattern
-import math
 import nltk
 import pickle
 from collections import OrderedDict
-import numpy as np
 import pprint
 import time
 import apiai
@@ -22,35 +20,9 @@ import mariaDB
 import telepot
 import telepot.loop
 import random
-from utils import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException
 from enum import Enum
-
-spacy_classifier = None
-
-
-def nlp(sent):
-    result = []
-    for word in sent.split(" "):
-        random.choice(["SUBJ", "VBZ", "NN"])
-        result.append(random.choice(word))
-        """
-        import spacy
-        global spacy_classifier
-        if not spacy_classifier:
-            # spacy_classifier = spacy.load("")
-            spacy_classifier = spacy.load("en_core_web_md")
-        return spacy_classifier(word)
-        """
-    return result
-
-
-class Modality(Enum):
-    querying = 1
-    enriching = 2
-
-
-MANUEL_ID = 45571984
-CLIENT_ACCESS_TOKEN = 'bbb35a4d419f48ee84ae9800be4768f6'
+from commons import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException, Modality
+import config
 
 user_handler = {}
 
@@ -72,6 +44,7 @@ except FileNotFoundError:
 
 
 class MariaBot(telepot.helper.ChatHandler):
+    _GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
     def __init__(self, *args, **kwargs):
         if 'test_run' in kwargs and kwargs['test_run']:
             # self.db = mariaDB.Gaia_db()
@@ -89,7 +62,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.modality = None
 
     def log_message(self, msg):
-        self.sendMessage(MANUEL_ID, pprint.pformat(msg))
+        self.sendMessage(config.MANUEL_ID, pprint.pformat(msg))
 
     def sendMessage(self, user_id, msg, reply_markup=None):
         self.bot.sendMessage(user_id, msg, reply_markup=reply_markup)
@@ -144,7 +117,7 @@ class MariaBot(telepot.helper.ChatHandler):
     def classify_domain(msg_txt):
         print("[BOT] classifying domain for ", msg_txt)
         # raise DomainDetectionFail()
-        with open("BabelDomains_full/domain_list.txt") as fin:
+        with open("chatbot_maps/domain_list.txt") as fin:
             possible_domains = fin.read()[:-1].split("\n")
 
         classified_domains = OrderedDict({d: 0 for d in possible_domains})
@@ -180,17 +153,6 @@ class MariaBot(telepot.helper.ChatHandler):
             return "42"
         return False
 
-    def to_triple(self, user_msg_txt):
-        tree = nlp(user_msg_txt)
-        good_elements = []
-        for node in tree:
-            if "subj" in node.pos_tag:
-                good_elements.append(node)
-        if len(good_elements) == 1:
-            pass
-            # requires answer
-        # requires answer
-
     # @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
@@ -211,7 +173,7 @@ class MariaBot(telepot.helper.ChatHandler):
             return relation
 
     def analyze_request(self, msg_txt):
-        ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
+        ai = apiai.ApiAI(config.CLIENT_ACCESS_TOKEN)
         request = ai.text_request()
         request.query = msg_txt
         response = request.getresponse()
@@ -367,13 +329,13 @@ class MariaBot(telepot.helper.ChatHandler):
         )
 
     def greet_user(self, user):
-        GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
-        self.sendMessage(user.tid, random.choice(GREETING_RESPONSES))
+        self.sendMessage(user.tid, random.choice(self._GREETING_RESPONSES))
         self.sendMessage(user.tid, "ask away")
 
     def parse_user_msg(self, text):
         self.parse_pos(text)
         return "input.unknown"
+
 
 
 def main(test_run=False):

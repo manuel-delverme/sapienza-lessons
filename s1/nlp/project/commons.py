@@ -1,6 +1,11 @@
 from disk_utils import disk_cache
 import pprint
 
+
+class Modality(Enum):
+    querying = 1
+    enriching = 2
+
 _parser = None
 
 
@@ -125,5 +130,20 @@ def load_data():
         Xs.append(seqx)
         Ys.append(seqy)
     return Xs, Ys, questions
+
+class DomainDetectionFail(Exception):
+    pass
+
+
+class ModalityDetectionFail(Exception):
+    pass
+
+
+class FailToAnswerException(Exception):
+    pass
+
+
+class RelationDetectionFail(Exception):
+    pass
 
 

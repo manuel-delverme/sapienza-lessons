@@ -143,7 +143,7 @@ def load_data():
 def frequency_matrix():
     words = []
     targets = []
-    for file_name in glob.glob("patterns/*"):
+    for file_name in glob.glob("chatbot_maps/patterns/*"):
         print("FILE:", file_name)
         with open(file_name) as fin:
             for row in fin:
