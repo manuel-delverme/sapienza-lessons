@@ -7,6 +7,7 @@ class Modality(Enum):
     querying = 1
     enriching = 2
 
+
 _parser = None
 
 
@@ -76,6 +77,7 @@ def parse_row(entry, stem=False):
         target = new_target
     return question, target
 
+
 @disk_cache
 def load_data():
     import mariaDB
@@ -132,6 +134,7 @@ def load_data():
         Ys.append(seqy)
     return Xs, Ys, questions
 
+
 class DomainDetectionFail(Exception):
     pass
 
@@ -146,5 +149,3 @@ class FailToAnswerException(Exception):
 
 class RelationDetectionFail(Exception):
     pass
-
-

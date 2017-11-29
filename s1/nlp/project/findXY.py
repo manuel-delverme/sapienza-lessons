@@ -148,11 +148,14 @@ def match_end_of_string(subquestion, subtree):
 
 @disk_cache
 def tag_question(question, use_spacy=True):
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
+    words = []
+    tags = []
     if use_spacy:
         doc = commons.parser(question)
         for token in doc:
-            print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop)
+            words.append(token.text)
+            tags.append(token.pos_)
     else:
         question = nltk.word_tokenize(question)
         question_ = ['']
@@ -178,8 +181,9 @@ def tag_question(question, use_spacy=True):
 
 # @disk_cache
 def findXY(question):
-    results = {}
-    results['bruteforce'] = bruteforce_findXY(question)
+    results = {
+        'bruteforce': bruteforce_findXY(question)
+    }
     words, tags = tag_question(question)
     seqx, _ = question_to_seqx(list(tags))
     # merge same consecutive tags
@@ -222,13 +226,13 @@ def load_model():
     return model
 
 
-def question_to_seqx(question, c1=None, c2=None):
+def question_to_seqx(question):
     seqx = []
     seqy = []
 
     question = ["^"] + question + ["$"]
-    c1 += 1
-    c2 += 1
+    c1 = 1
+    c2 = 1
 
     for idx in range(1, len(question) - 1):
         x = {
