@@ -22,7 +22,9 @@ def ask_google(query):
     # if answer and "parigi" in answer.text.lower():
     #    break
     # else:
-    y += 10
-    return answer.text
+    if len(answer.text) < 100:
+        return answer.text
+    else:
+        return None
 
 print("answer:\n", ask_google(sys.argv[1]))

@@ -26,10 +26,12 @@ class User:
 class Gaia_db:
     def __init__(self, name="mariadb"):
         from sshtunnel import SSHTunnelForwarder
+        host = os.popen("grep -A15 blobchuck ~/.ssh/config | grep HostName | awk '{print $2}'").read()
+        user = os.popen("grep -A15 blobchuck ~/.ssh/config | grep User | awk '{print $2} | head -n 1'").read()
         self.SSHTunnel = SSHTunnelForwarder(
-            host=os.environ['sshHost'],
-            ssh_username=os.environ['sshUser'],
-            ssh_pkey="~/.ssh/id_rsa",
+            ssh_address_or_host=host,
+            ssh_username=user,
+            ssh_private_key_or_password="~/.ssh/id_rsa",
             remote_bind_address=('127.0.0.1', 27017),
         )
 

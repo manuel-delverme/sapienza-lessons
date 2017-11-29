@@ -148,8 +148,11 @@ def match_end_of_string(subquestion, subtree):
 
 @disk_cache
 def tag_question(question, use_spacy=True):
+    import ipdb; ipdb.set_trace()
     if use_spacy:
-        commons.parser(question)
+        doc = commons.parser(question)
+        for token in doc:
+            print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_, token.shape_, token.is_alpha, token.is_stop)
     else:
         question = nltk.word_tokenize(question)
         question_ = ['']

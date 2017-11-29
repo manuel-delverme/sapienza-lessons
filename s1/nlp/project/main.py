@@ -20,7 +20,6 @@ import mariaDB
 import telepot
 import telepot.loop
 import random
-from enum import Enum
 from commons import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException, Modality
 import config
 

@@ -1,4 +1,5 @@
 from findXY import findXY
+from askgoogle import ask_google
 from disk_utils import disk_cache
 import re
 import nltk
@@ -21,7 +22,7 @@ def lookup_knowledge_base(question):
     })
     return results
 
-def bruteforce_xy(question):
+def bruteforce_kb(question):
     question = nltk.word_tokenize(question)
     for X, Y in itertools.product(question, repeat=2):
         if X is None:

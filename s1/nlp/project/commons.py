@@ -1,4 +1,5 @@
 from disk_utils import disk_cache
+from enum import Enum
 import pprint
 
 
