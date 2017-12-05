@@ -155,10 +155,14 @@ class MariaBot(telepot.helper.ChatHandler):
     # @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
-        answer = answer_question.answer_question(self.db, user_msg_txt, relation)
-        if not answer:
+        answers = answer_question.answer_question(self.db, user_msg_txt, relation)
+        if len(answers) == 0:
             raise FailToAnswerException()
-        return answer
+        for candidate_answer in answers:
+            if candidate_answer:
+                return candidate_answer
+        else:
+            raise FailToAnswerException()
 
     @staticmethod
     def infer_question_relation(question_txt, domain):
