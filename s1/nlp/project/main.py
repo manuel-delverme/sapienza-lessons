@@ -44,12 +44,15 @@ except FileNotFoundError:
 
 class MariaBot(telepot.helper.ChatHandler):
     _GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
+
     def __init__(self, *args, **kwargs):
         if 'test_run' in kwargs and kwargs['test_run']:
             # self.db = mariaDB.Gaia_db()
             self.db = mariaDB.Fake_db()
+
             def print_msg(user_tid, msg, reply_markup=None):
                 print("[BOT]:[SENDING MESSAGE] >>>>> {}".format(msg))
+
             self.sendMessage = print_msg
         else:
             super(MariaBot, self).__init__(*args, **kwargs)
@@ -260,7 +263,8 @@ class MariaBot(telepot.helper.ChatHandler):
                     self.relation = self.infer_question_relation(user_msg_txt, self.domain)
                 except RelationDetectionFail:
                     with open("chatbot_maps/domains_to_relations.tsv") as fin:
-                        possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[self.domain]
+                        possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[
+                            self.domain]
                     self.offer_user_options(msg, "relation", possible_relations, "what's the relation here?")
                     return
             # mumble mumble
@@ -325,7 +329,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.sendMessage(message_user_tid, "Hello {}, may i address you as {}?".format(
             msg['from']['first_name'],
             msg['from']['first_name'])
-        )
+                         )
 
     def greet_user(self, user):
         self.sendMessage(user.tid, random.choice(self._GREETING_RESPONSES))
@@ -336,7 +340,6 @@ class MariaBot(telepot.helper.ChatHandler):
         return "input.unknown"
 
 
-
 def main(test_run=False):
     with open("sekrets/api_key") as fin:
         KEY = fin.read()[:-1]
@@ -344,14 +347,14 @@ def main(test_run=False):
         "sup n00b",
         # "how does your pussy tastes like?",
         # "how does cake tastes like?",
-        "hard cake is the type of truck?",
+        # "hard cake is the type of truck?",
         # "what is the material of hard cake?",
         # "animals",
-        "is the colosseum in rome?",
+        "is colosseum located in rome?",
     ]
     if test_run:
         test_bot = MariaBot(test_run=test_run)
-        test_user_id = random.randint(0, 1000)
+        test_user_id = 45571984
         for msg in msg_flow:
             message_template = {'from': {'id': test_user_id, }, 'text': msg}
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
@@ -373,5 +376,6 @@ def main(test_run=False):
 
 if __name__ == "__main__":
     import os
+
     test_run = "--test" in os.sys.argv
     main(test_run=test_run)

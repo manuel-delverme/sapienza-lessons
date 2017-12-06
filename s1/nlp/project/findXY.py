@@ -1,4 +1,5 @@
 from disk_utils import disk_cache
+import itertools
 import commons
 import glob
 import nltk
@@ -185,21 +186,18 @@ def findXY(question):
         'bruteforce': bruteforce_findXY(question)
     }
     words, tags = tag_question(question)
-    seqx, _ = question_to_seqx(list(tags))
+    seqx = commons.question_to_seqx(list(tags))
     # merge same consecutive tags
     model = load_model()
     y_hat, = model.predict([seqx])
     X, Y = None, None
+    candidates = set()
     for idx, y_i in enumerate(y_hat):
-        if y_i == "c1":
-            X = idx
-            break
+        if y_i[0] == "c":
+            candidates.add(words[idx])
 
-    for idx, y_i in enumerate(reversed(y_hat)):
-        if y_i == "c2":
-            Y = idx
-            break
-    return X, Y
+    results['crf'] = list(itertools.permutations(candidates, r=2))
+    return results
 
 
 def test_findXY():
@@ -216,41 +214,23 @@ def test_findXY():
     print("score", score / len(y_hat))
 
 
-# @disk_cache
+@disk_cache
 def load_model():
     print("training model")
     Xs, Ys, _ = commons.load_data()
+    assert len(Xs) > 0
+    for idx, y in enumerate(Ys):
+        lala = "c1"
+        for idxi, yi in enumerate(y):
+            if yi[0] == "c":
+                Ys[idx][idxi] = lala
+                lala = "c2"
     X_train, _, y_train, _ = model_selection.train_test_split(Xs, Ys, test_size=0.3)
-    model = crf.CRF()
+    model = crf.CRF(
+        algorithm='ap',
+    )
     model.fit(X_train, y_train)
     return model
-
-
-def question_to_seqx(question):
-    seqx = []
-    seqy = []
-
-    question = ["^"] + question + ["$"]
-    c1 = 1
-    c2 = 1
-
-    for idx in range(1, len(question) - 1):
-        x = {
-            '0': question[idx],
-            '-1': question[idx - 1],
-            '+1': question[idx + 1],
-            # 'idx': idx
-        }
-        seqx.append(x)
-        if c1 and c2:
-            if idx == c1:
-                tag = "c1"
-            elif idx == c2:
-                tag = "c2"
-            else:
-                tag = "other"
-            seqy.append(tag)
-    return seqx, seqy
 
 
 if __name__ == "__main__":

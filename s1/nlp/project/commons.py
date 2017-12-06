@@ -1,4 +1,5 @@
 from disk_utils import disk_cache
+import tqdm
 from enum import Enum
 import pprint
 
@@ -83,16 +84,18 @@ def load_data():
     import mariaDB
     c1s = []
     c2s = []
-    db = mariaDB.Gaia_db('nlp_projectDB')
+    db = mariaDB.Gaia_db('nlp_projectDB', remote=False)
     pos_tags = []
     questions = []
     database = db.db.knowledge_base.find({}, no_cursor_timeout=True)
-    num = 0
-    for row in database:
-        num += 1
-        print("progress", num / 4534082)
-        if num / 4534082 > 0.05:
-            break
+    # num = 0
+    import warnings
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    for row in tqdm.tqdm(database, total=4534082):
+        # num += 1
+        # print("progress", num / 4534082)
+        # if num / 4534082 > 0.00005:
+        #     break
 
         question = row['question']
         c1 = row['c1'].lower()
@@ -102,13 +105,13 @@ def load_data():
         if "::" in c2:
             c2 = c2.split("::")[0]
 
-        relation = row['relation'].lower()
-        answer = row['answer'].lower()
+        # relation = row['relation'].lower()
+        # answer = row['answer'].lower()
         del row
 
         doc = parser(question)
-        for noun in doc.noun_chunks:
-            noun.merge(noun.root.tag_, noun.text, noun.root.ent_type_)
+        for np in doc.noun_chunks:
+            np.merge(tag=np.root.tag_, lemma=np.lemma_, ent_type=np.root.ent_type_)
 
         idx1 = None
         idx2 = None
@@ -126,13 +129,33 @@ def load_data():
             c2s.append(idx2)
             pos_tags.append(tags)
             questions.append(question)
+    warnings.resetwarnings()
     Xs = []
     Ys = []
     for question, c1, c2 in zip(pos_tags, c1s, c2s):
-        seqx, seqy = question_to_seqx(question, c1, c2)
+        seqx = question_to_seqx(question)
         Xs.append(seqx)
+        seqy = ["other"] * len(seqx)
+        seqy[c1] = "cX"
+        seqy[c2] = "cX"
         Ys.append(seqy)
     return Xs, Ys, questions
+
+
+def question_to_seqx(question):
+    seqx = []
+
+    question = ["^"] + question + ["$"]
+
+    for idx in range(1, len(question) - 1):
+        x = {
+            '0': question[idx],
+            '-1': question[idx - 1],
+            '+1': question[idx + 1],
+            # 'idx': idx
+        }
+        seqx.append(x)
+    return seqx
 
 
 class DomainDetectionFail(Exception):

@@ -8,7 +8,8 @@ chrome_options.add_argument("--window-size=1024x768")
 chrome_options.add_argument("--headless")
 driver = webdriver.Chrome("./chromedriver", chrome_options=chrome_options)
 
-def ask_google(query):
+
+def ask_google(_0, query, _1):
     # Search for query
     query = query.replace(' ', '+')
 
@@ -27,4 +28,4 @@ def ask_google(query):
     else:
         return None
 
-print("answer:\n", ask_google(sys.argv[1]))
+# print("answer:\n", ask_google(None, sys.argv[1]), None)

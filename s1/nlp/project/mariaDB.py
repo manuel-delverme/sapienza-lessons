@@ -22,21 +22,23 @@ class User:
 
 
 class Gaia_db:
-    def __init__(self, name="mariadb"):
-        from sshtunnel import SSHTunnelForwarder
-        self.SSHTunnel = SSHTunnelForwarder(
-            remote_bind_address=('127.0.0.1', 27017),
-            ssh_config_file="~/.ssh/config",
-            ssh_address_or_host="blobchuck",
-        )
-
-        self.SSHTunnel.start()
+    def __init__(self, name="mariadb", remote=True):
+        if remote:
+            from sshtunnel import SSHTunnelForwarder
+            self.SSHTunnel = SSHTunnelForwarder(
+                remote_bind_address=('127.0.0.1', 27017),
+                ssh_config_file="~/.ssh/config",
+                ssh_address_or_host="blobchuck",
+            )
+            self.SSHTunnel.start()
+            self.client = pymongo.MongoClient('127.0.0.1', self.SSHTunnel.local_bind_port)
+        else:
+            self.client = pymongo.MongoClient('localhost')
 
         with open('sekrets/DB_keys') as f:
-            DBKEY,  = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
+            DBKEY, = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
 
         self.uri = DBKEY
-        self.client = pymongo.MongoClient('127.0.0.1', self.SSHTunnel.local_bind_port)
         self.db = self.client[name]
         try:
             self.db.create_collection(name='users')
@@ -112,10 +114,19 @@ class Gaia_db:
             'answered': False
         })
 
+
 class Fake_db:
     def __init__(self):
         print("USING FAKE DB!")
-        pass
+
+        class FakeQueries(object):
+            def __init__(self):
+                class FakeCollections(object):
+                    def find(self, _):
+                        print("asking the right questions to the wrong class")
+                        return None
+                self.knowledge_base = FakeCollections()
+        self.db = FakeQueries()
 
     def insert(self, users):
         for user in users.values():
@@ -145,6 +156,7 @@ class Fake_db:
     def find(self, parameters):
         print("DB NOT INMPLEMENTED!!!")
         return []
+
 
 if __name__ == "__main__":
     pass

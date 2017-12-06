@@ -1,7 +1,7 @@
 import requests
 import time
 
-with open("_PRIVATE_babelkey") as fin:
+with open("sekrets/_PRIVATE_babelkey") as fin:
     _babelkey = fin.read()[:-1]
 
 # _url = "http://tuamadre.net:80/KnowledgeBaseServer/rest-api/{}"
