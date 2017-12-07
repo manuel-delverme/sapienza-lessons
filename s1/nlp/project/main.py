@@ -46,17 +46,15 @@ class MariaBot(telepot.helper.ChatHandler):
     _GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
 
     def __init__(self, *args, **kwargs):
+        self.db = mariaDB.Gaia_db()
         if 'test_run' in kwargs and kwargs['test_run']:
-            # self.db = mariaDB.Gaia_db()
-            self.db = mariaDB.Fake_db()
-
+            # self.db = mariaDB.Fake_db()
             def print_msg(user_tid, msg, reply_markup=None):
                 print("[BOT]:[SENDING MESSAGE] >>>>> {}".format(msg))
 
             self.sendMessage = print_msg
         else:
             super(MariaBot, self).__init__(*args, **kwargs)
-            self.db = mariaDB.Gaia_db()
 
         self.user_tid = None
         self.domain = None
@@ -354,7 +352,8 @@ def main(test_run=False):
         # "hard cake is the type of truck?",
         # "what is the material of hard cake?",
         # "animals",
-        "is colosseum located in rome?",
+        "Where is Flagstaff Lake located ?",
+        "is coliseum located in rome?",
     ]
     if test_run:
         test_bot = MariaBot(test_run=test_run)

@@ -7,38 +7,45 @@ import itertools
 
 
 def lookup_knowledge_base(db, question_relation, X, Y):
+    answers = []
     is_open_question = Y is None
 
-    X = re.compile("^{}.*".format(X), re.IGNORECASE)
-    if not is_open_question:
-        Y = re.compile("^{}.*".format(Y), re.IGNORECASE)
-
-    results = db.db.knowledge_base.find({
-        'c1': X,
-        'c2': Y,
+    re_c = re.compile(r"^{}.*".format(X), re.IGNORECASE)
+    query = {
+        'c1': re_c,
         'relation': question_relation.upper(),
-    })
-    if results is None or len(results) == 0:
-        results = db.db.knowledge_base.find({
-            'c1': X,
-            'c2': Y,
-        })
-    answers = []
-    if results is None:
-        return answers
+    }
+    if not is_open_question:
+        query['c2'] = re.compile("^{}.*".format(Y), re.IGNORECASE)
 
-    for row in results:
+    for row in db.find(query):
         question = row['question']
         c1 = row['c1']
         c2 = row['c2']
         relation = row['relation']
         answer = row['answer']
 
-        if c1 == X and is_open_question:
-            return c2
-
+        if is_open_question:
+            answer = c2
         if c1 == X and not is_open_question:
-            return "yes"
+            answer = "yes"
+        answers.append(answer)
+
+    if not answers:
+        del query['relation']
+        extra_answers = db.db.knowledge_base.find(query)
+
+        for row in extra_answers:
+            question = row['question']
+            c1 = row['c1']
+            c2 = row['c2']
+            relation = row['relation']
+            answer = row['answer']
+            if c1 == X and is_open_question:
+                answers.append(c2)
+
+            if c1 == X and not is_open_question:
+                answers.append("yes")
     return answers
 
 
@@ -76,6 +83,7 @@ def answer_question(db, question, question_relation):
     for strategy in strategies:
         print("[BOT] trying to answer using", strategy)
         answers.extend(strategy(db, question, question_relation))
-    else:
+
+    if not answers:
         answers = ["i don't know / no"]
     return answers

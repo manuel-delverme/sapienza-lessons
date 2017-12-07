@@ -22,7 +22,7 @@ class User:
 
 
 class Gaia_db:
-    def __init__(self, name="mariadb", remote=True):
+    def __init__(self, name="nlp_projectDB", remote=False):
         if remote:
             from sshtunnel import SSHTunnelForwarder
             self.SSHTunnel = SSHTunnelForwarder(
@@ -35,10 +35,10 @@ class Gaia_db:
         else:
             self.client = pymongo.MongoClient('localhost')
 
-        with open('sekrets/DB_keys') as f:
-            DBKEY, = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
+        # with open('sekrets/DB_keys') as f:
+        #     DBKEY, = [row for row in f.read()[:-1].split("\n") if row[0] != "#"]
 
-        self.uri = DBKEY
+        # self.uri = DBKEY
         self.db = self.client[name]
         try:
             self.db.create_collection(name='users')
@@ -80,7 +80,7 @@ class Gaia_db:
             return None
 
     def find(self, parameters):
-        response = self.db.knowledge.find(parameters)
+        response = self.db.knowledge_base.find(parameters)
         return list(response)
 
     def find_by_job(self, value):

@@ -154,6 +154,8 @@ def tag_question(question, use_spacy=True):
     tags = []
     if use_spacy:
         doc = commons.parser(question)
+        for np in doc.noun_chunks:
+            np.merge(tag=np.root.tag_, lemma=np.lemma_, ent_type=np.root.ent_type_)
         for token in doc:
             words.append(token.text)
             tags.append(token.pos_)
@@ -190,13 +192,12 @@ def findXY(question):
     # merge same consecutive tags
     model = load_model()
     y_hat, = model.predict([seqx])
-    X, Y = None, None
-    candidates = set()
+    candidates = set([None])
     for idx, y_i in enumerate(y_hat):
         if y_i[0] == "c":
             candidates.add(words[idx])
 
-    results['crf'] = list(itertools.permutations(candidates, r=2))
+    results['crf'] = [x for x in itertools.permutations(candidates, r=2) if x[0] is not None]
     return results
 
 
