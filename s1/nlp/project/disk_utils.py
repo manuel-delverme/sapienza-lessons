@@ -15,7 +15,6 @@ def disk_cache(f):
         else:
             fid = f.__name__
             cache_file = "cache/{}.pkl".format(fid)
-
         try:
             with open(cache_file, "rb") as fin:
                 retr = pickle.load(fin)

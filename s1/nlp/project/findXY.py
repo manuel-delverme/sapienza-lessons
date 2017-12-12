@@ -55,7 +55,7 @@ def load_pattern_dict():
                 try:
                     question, target = commons.parse_row(row)
                 except ValueError as e:
-                    print("DROPPING", row, e)
+                    print("[LOAD_PATTERN_DICT] DROPPING", row, e)
                     continue
                 sub_dict = pattern_dict
                 for word in question:
@@ -67,6 +67,7 @@ def load_pattern_dict():
 
 
 def bruteforce_findCHAR(tree, sentence, what, depth=0):
+    assert isinstance(sentence, list)
     idxs = []
     leaves = list(tree.keys())
     if what in leaves:
@@ -94,19 +95,28 @@ def bruteforce_findEND(tree, sentence):
 
 def bruteforce_findXY(question):
     pattern_tree = load_pattern_dict()
+    question = nltk.word_tokenize(question.lower())
     startXs = bruteforce_findX(pattern_tree, question)
     Xs = []
-    Ys = []
+    Ys = [None, ]
     for startX in startXs:
         subtreeX = pattern_tree
+        # walk the tree until the beginning of the potential X
         for word in question[:startX]:
             subtreeX = subtreeX[word]
         subtreeX = subtreeX['x']
+
+        # for each potential final X
         for endX in range(startX + 1, len(question)):
-            startYs = bruteforce_findY(subtreeX, question[endX:])
+            candidateX = question[startX: endX]
+            unmatched_question = question[endX:]
+
+            startYs = bruteforce_findY(subtreeX, unmatched_question)
             # look for an Y from X to
             if len(startYs) > 0:
-                Xs.append(question[startX: endX])
+                # if there will be a Y down the tree
+                # add the candidate and start matching the Y
+                Xs.append(candidateX)
 
                 for startY in startYs:
                     startY += endX
@@ -124,20 +134,16 @@ def bruteforce_findXY(question):
                         if match_end_of_string(subquestion, subtreeY):
                             Ys.append(tentativeY)
                         subtreeY = subtreeY[question[endY]]
-            else:
-                pass
-                # print("not a valid X",
-                #      "{}  [{}]  {}".format(" ".join(question[:startX]), " ".join(question[startX: endX]),
-                #                            " ".join(question[endX:])))
-            # look for an $END$ from X on
-            if match_end_of_string(question[endX:], subtreeX):
-                # print("FOUND END! valid X",
-                #       "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[startX:])))
-                Xs.append(question[startX: endX])
-            else:
-                # print("not a valid X", "{}  [{}] $$$".format(" ".join(question[:startX]), " ".join(question[
-                # startX:])))
-                pass
+            # else:
+            #     pass
+            #     # print("not a valid X",
+            #     #      "{}  [{}]  {}".format(" ".join(question[:startX]), " ".join(question[startX: endX]),
+            #     #                            " ".join(question[endX:])))
+
+            # is the unmatched part still in the tree? if not, then the pattern doesn't match
+            if match_end_of_string(unmatched_question, subtreeX):
+                Xs.append(" ".join(candidateX))
+
     print("Xs", Xs)
     print("Ys", Ys)
     return Xs, Ys
@@ -188,7 +194,7 @@ def findXY(question):
         'bruteforce': bruteforce_findXY(question)
     }
     words, tags = tag_question(question)
-    seqx = commons.question_to_seqx(list(tags))
+    seqx = commons.question_to_seqx(tags)
     # merge same consecutive tags
     model = load_model()
     y_hat, = model.predict([seqx])
