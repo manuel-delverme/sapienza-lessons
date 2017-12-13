@@ -116,7 +116,7 @@ def bruteforce_findXY(question):
             if len(startYs) > 0:
                 # if there will be a Y down the tree
                 # add the candidate and start matching the Y
-                Xs.append(candidateX)
+                Xs.append(" ".join(candidateX))
 
                 for startY in startYs:
                     startY += endX
@@ -132,8 +132,8 @@ def bruteforce_findXY(question):
                         tentativeY = question[startY: endY]
                         subquestion = question[endY:]
                         if match_end_of_string(subquestion, subtreeY):
-                            Ys.append(tentativeY)
-                        subtreeY = subtreeY[question[endY]]
+                            Ys.append(" ".join(tentativeY))
+                        # subtreeY = subtreeY[question[endY]]
             # else:
             #     pass
             #     # print("not a valid X",
@@ -146,7 +146,8 @@ def bruteforce_findXY(question):
 
     print("Xs", Xs)
     print("Ys", Ys)
-    return Xs, Ys
+    # Xs, Ys
+    return [x for x in itertools.product(Xs, Ys) if x[0] is not None]
 
 
 def match_end_of_string(subquestion, subtree):
@@ -241,7 +242,7 @@ def load_model():
 
 
 if __name__ == "__main__":
-    X, Y = bruteforce_findXY([
+    X, Y = bruteforce_findXY(" ".join([
         "what",
         "is",
         "the",
@@ -249,5 +250,5 @@ if __name__ == "__main__":
         "of",
         "love",
         "?",
-    ])
+    ]))
     # test_findXY()

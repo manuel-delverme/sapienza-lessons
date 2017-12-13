@@ -19,5 +19,17 @@ dataset/
 tags
 *.png
 *.jpeg
+*.bmp
 *.jpg
 *.lyx~
+*.lyx#
+*.pdf
+*.tsv
+*.conllu
+*.db
+*.kears
+*.pkl
+
+
+api_key
+DB_keys

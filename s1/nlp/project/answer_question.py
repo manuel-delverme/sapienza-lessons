@@ -6,6 +6,7 @@ import nltk
 import itertools
 
 
+@disk_cache
 def lookup_knowledge_base(db, question_relation, X, Y):
     answers = []
     is_open_question = Y is None
@@ -60,16 +61,15 @@ def bruteforce_kb(db, question, question_relation):
 
         X = re.compile("^{}.*".format(X), re.IGNORECASE)
         Y = re.compile("^{}.*".format(Y), re.IGNORECASE)
-        return lookup_knowledge_base(db, question_relation=question_relation, X=X, Y=Y)
+        yield lookup_knowledge_base(db, question_relation=question_relation, X=X, Y=Y)
 
 
 def classify_lookup_knowledge_base(db, question, question_relation):
     xy_tuples = findXY(question)
-    answers = []
-    for X, Y in xy_tuples['crf']:
-        answers.extend(lookup_knowledge_base(db, question_relation, X, Y))
-    print("what about", xy_tuples['bruteforce'], "????")
-    return answers
+    parsed = set()
+    for X, Y in itertools.chain(xy_tuples['crf'], xy_tuples['bruteforce']):
+        if (X, Y) not in parsed:
+            yield lookup_knowledge_base(db, question_relation, X, Y)
 
 
 # @disk_cache
@@ -82,8 +82,7 @@ def answer_question(db, question, question_relation):
     answers = []
     for strategy in strategies:
         print("[BOT] trying to answer using", strategy)
-        answers.extend(strategy(db, question, question_relation))
-
-    if not answers:
-        answers = ["i don't know / no"]
+        results_gen = strategy(db, question, question_relation)
+        answers = itertools.chain(answers, results_gen)
+    answers = itertools.chain(answers, ["i don't know / no"])
     return answers
