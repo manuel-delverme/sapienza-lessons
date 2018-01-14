@@ -1,4 +1,5 @@
 from disk_utils import disk_cache
+import nltk
 import tqdm
 from enum import Enum
 import pprint
@@ -36,8 +37,8 @@ def load_relation_list():
             print("loaded domain list")
             if "" in tmp_relation_list:
                 tmp_relation_list.remove("")
-            pprint.pprint(_relation_list)
-            return list(_relation_list)
+            pprint.pprint(tmp_relation_list)
+            return list(tmp_relation_list)
 
         _relation_list = _load_relation_list()
     return _relation_list
@@ -46,8 +47,11 @@ def load_relation_list():
 def parse_row(entry, stem=False):
     entry = entry.strip("\n").lower()
     if "\t" not in entry:
-        print("SKIPPING", entry)
-        raise ValueError()
+        if "?" in entry:
+            entry = entry.replace("?", "?\t")
+        else:
+            print("SKIPPING", entry)
+            raise ValueError()
     question, target = entry.split("\t")
     target = target.strip()
     target = target.strip("\"\'")
@@ -64,7 +68,9 @@ def parse_row(entry, stem=False):
     if stem:
         sno = nltk.stem.SnowballStemmer('english')
         question = [sno.stem(word) for word in question]
+    relation_list = load_relation_list()
     if target not in relation_list:
+        import difflib
         try:
             new_target, = difflib.get_close_matches(target, relation_list, n=1)
         except ValueError:

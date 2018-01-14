@@ -24,8 +24,6 @@ def ask_google(_0, query, _1):
     #    break
     # else:
     if len(answer.text) < 100:
-        return answer.text
-    else:
-        return None
+        yield answer.text
 
 # print("answer:\n", ask_google(None, sys.argv[1]), None)
