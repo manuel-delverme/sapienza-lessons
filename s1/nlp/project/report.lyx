@@ -61,8 +61,8 @@
 \end_index
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\paragraph_indentation default
+\paragraph_separation skip
+\defskip medskip
 \quotes_language english
 \papercolumns 1
 \papersides 1
@@ -114,24 +114,61 @@ In this project we develop are tasked with the development of a chatbot:
 
 \begin_layout Standard
 The bot converses through natural language speech through the Telegram messaging
- platform [https://telegram.org], using a python wrapper of it's apis [https://gi
-thub.com/nickoala/telepot].
+ platform 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://telegram.org
+\end_layout
+
+\end_inset
+
+, using a python wrapper for their web APIs 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://github.com/nickoala/telepot
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-This developing this project allowed us to freerly explore several NLP subfields
- such as pos tagging, stemming, segmentation, natural language generation,
- sentiment analsysis, question answering, sentiment analysis, and also reinforce
-ment learning.
+This project allowed us to freerly explore several NLP subfields such as
+ pos tagging, stemming, segmentation, natural language generation, question
+ answering, sentiment analysis and also reinforcement learning.
 \end_layout
 
 \begin_layout Standard
 The assignment has provided a special opportunity for training and testing
- state-of-the-art machine learning algorithms with real users and (potentially
- also) commercial applications in a relatively unconstrained setting.
- The ability to experiment with a crowdsourced database exposed us to unexpected
+ state-of-the-art machine learning algorithms with real users and commercial
+ applications
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Another student of the class and I are now part of the LUISS ENLABS AIWorklab
+ incubator working on a chatbot for team coordination.
+\end_layout
+
+\end_inset
+
+ in a relatively unconstrained setting.
+\end_layout
+
+\begin_layout Standard
+The ability to experiment with a crowdsourced database exposed us to unexpected
  challenges such as data cleaning and fault tollerance and underlned the
  resources required for running such a complex live system.
+\end_layout
+
+\begin_layout Standard
+\SpecialChar ligaturebreak
+
 \end_layout
 
 \begin_layout Subsection
@@ -139,47 +176,68 @@ Design choices
 \end_layout
 
 \begin_layout Standard
-The first dialogue systems (Weizenbaum 1966, Colby 1981, Aust et al.
+The first dialogue systems 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Weizenbaum 1966, Colby 1981, Aust et al.
  1995, McGlashan et al.
- 1992, Simpson & Eraser 1993) were state machines with explicitly-crafted
- rules, modern dialogue systems follow a hybrid approach, combining states
- and behavioural rules and with statistical machine learning algorithms
- (Suendermann-Oeft et al.
+ 1992, Simpson & Eraser 1993
+\end_layout
+
+\end_inset
+
+ were state machines with explicitly-crafted rules, modern dialogue systems
+ follow a hybrid approach, combining states and behavioural rules and with
+ statistical machine learning algorithms 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Suendermann-Oeft et al.
  2015, Jurcíˇ cek et al.
  ˇ 2014, Bohus et al.
- 2007, Williams 2011).
+ 2007, Williams 2011
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
 In contrast to such rule-based systems, Maria uses a simple supervised learner
  system built on top of a configuration of several algorithms raging from
  rule based systems to deep learning archtectures and external services
- (Facebook's Wit.ai).
+ such as Facebook's Wit.ai (unresponsive at the time of writing).
 \end_layout
 
 \begin_layout Standard
 This allows the bot to smoothly handle cases where the user doesn't follow
- the protocol.
- [???], this can be seen as an heirarchical approach thus generating a great
- degree of adaptibility required in a domain as sparse the natural human
- language.
+ the underlying assumption of any one of the individual systems.
+ Heirarchical approeaches such as this generate a great degree of adaptibility
+ as it is required in a domain like the human language.
 \end_layout
 
 \begin_layout Standard
 As such, the system uses a small number of hand-crafted rules which should
  be applied in the majority of cases, however, many components have been
- designed to be optimized (trained) using machine learning algorithms, and
- can autonomously adapt online to the changing nature of the world.
+ designed to be trained and optimized using machine learning algorithms
+ and are able to autonomously adapt to the dyamic nature of the world without,
+ furthermore this adaptation can be achieved online or real-time in contrast
+ to having to train the whole system from scratch.
 \end_layout
 
 \begin_layout Standard
-These system components were trained first independently and each piece
- provides a confidence score, this way, the coordinator knows when to apply
- hand crafted rules and when to generate answers by statistical models.
+Each component was trained first independently to generate an answer but
+ also to provide a confidence score of his own answer.
+ This way a coordinator knows when to apply hand crafted rules and when
+ to generate answers by statistical models.
  Given an adequate amount of examples, such a system should outperform systems
  based on hand-crafted states and rules.
- Further, the system will continue to improve in perpetuity with additional
- data.
+ Further, there is no clear upper bound to the improvement achievable by
+ this kind of system.
 \end_layout
 
 \begin_layout Standard
@@ -202,7 +260,7 @@ System overview
 \end_layout
 
 \begin_layout Standard
-when a message is received the following applies
+When a message is received the following applies
 \end_layout
 
 \begin_layout Enumerate
@@ -270,22 +328,27 @@ a k-nn classifier
 \end_layout
 
 \begin_layout Enumerate
-a subprocess directly asking the user information
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-the question modality is inferred by:
+if the above methods fail to achieve the required confidence
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-first applying a top-secret and cutting edge algorithm for question vs all
- discrimination.
+a subprocess directly asking the user information
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+the question modality (query vs enrichment) is inferred by:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+top-secret and cutting edge algorithm for question vs all discrimination.
 \end_layout
 
 \begin_layout Enumerate
-and in case of failure: asking the user.
+In case of failure (provably impossible): asking the user.
 \end_layout
 
 \end_deeper
@@ -296,6 +359,18 @@ if the modality is enriching:
 \begin_deeper
 \begin_layout Enumerate
 the user is asked the question with the highest score (*).
+ 
+\begin_inset Marginal
+status open
+
+\begin_layout Plain Layout
+*: the question score is used to give priority to recently asked questions
+ (see 7.d and 7.e)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Enumerate
@@ -309,36 +384,64 @@ if the modailty is querying
 
 \begin_deeper
 \begin_layout Enumerate
-a relation is inferred by a LSTM classifier and random forests classifier
+a relation is inferred by a LSTM classifier and a nayve bayes classifier.
 \end_layout
 
 \begin_layout Enumerate
-X, Y are identified by:
+which part of the question is to be considered as X and as Y are identified
+ by:
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-from the pos tagged letters (the words themselves are not considered)
+A classifier using the pos tagged questions (e.g.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Where is the coliseum?
+\begin_inset Quotes erd
+\end_inset
+
+ would first be tokenized and turned into features as 
+\begin_inset Quotes eld
+\end_inset
+
+ADV VERB NOUN
+\begin_inset Quotes erd
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
-A tree search using known question patterns
+A tree search using known question patterns.
 \end_layout
 
 \begin_layout Enumerate
-A lstm classifier
+A simple LSTM classifier.
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-once X,Y is known an answer is generated by queying the knowledge base for
- the proper answer
+once X,Y is known an answer is generated by querying the knowledge base
+ for the proper answer
 \end_layout
 
 \begin_layout Enumerate
 if the answer is not found, the user question is posted as an open question
- with the highest score and the user is kept busy with chit-chat while for
- a few messages.
+ with the highest score and the user is kept busy with chit-chat based on
+ Deep Q&A 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A Neural Conversational Model Oriol Vinyals, Quoc Le
+\end_layout
+
+\end_inset
+
+ for a few messages.
 \end_layout
 
 \begin_layout Enumerate
@@ -348,54 +451,37 @@ when this period is over the bot checks if another user provided an answer
 
 \begin_deeper
 \begin_layout Enumerate
-if positive, the answer answer is noted and assigned the highest confidence
+if positive, the answer answer is noted and relied to the querier.
 \end_layout
 
 \begin_layout Enumerate
-if negative, an answer where the bot admits defeat and ignorance is noted
- with a low confidence.
+if negative the bots admits defeat and googles the question.
+\end_layout
+
+\begin_layout Enumerate
+if not even google knows the bot admits ignorance and lets google do the
+ job.
 \end_layout
 
 \end_deeper
-\begin_layout Enumerate
-an LSTM based system (encoder/decoder with two LSTM layers (hidden size
- of 256) and an embedding size for the vocabulary of 32) generates an answer
-\end_layout
-
-\begin_layout Enumerate
-an answer is generated by artificial intelligence markup language (AIML)
-\end_layout
-
-\begin_layout Enumerate
-an answer is generated by an the famous ELIZA chatbot
-\end_layout
-
-\begin_layout Enumerate
-the onlie service wit.ai is queried for an answer
-\end_layout
-
-\begin_layout Enumerate
-answers from e, f, g, h and their relative confidence score are used to
- determine which answer return to the user
-\end_layout
-
 \end_deeper
 \begin_layout Enumerate
 the user's state is reset and the process terminates.
 \end_layout
 
-\begin_layout Standard
-*: the question score is used to give priority to recently asked questions
- (see 7.d and 7.e)
-\end_layout
+\begin_layout Subsubsection
+Bot 
+\begin_inset Formula $\leftrightarrow$
+\end_inset
 
-\begin_layout Subsection
-response
+ Telegram interaction
 \end_layout
 
 \begin_layout Standard
 \begin_inset Graphics
-	filename report/a.png
+	filename report/images/image4.png
+	lyxscale 80
+	width 80text%
 
 \end_inset
 
@@ -403,42 +489,105 @@ response
 \end_layout
 
 \begin_layout Subsubsection
-Low level api2
+registration flow
 \end_layout
 
 \begin_layout Standard
-telegram
+\begin_inset Graphics
+	filename report/images/registration.png
+	width 80text%
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
-feature extraction
+Special flows
 \end_layout
 
-\begin_layout Itemize
-an relation is indentified via a besyan classifier trained on the corwdsourced
- corpus and added to the state
+\begin_layout Standard
+Sometimes the bot has to wait the user's response to some query (e.g.
+ when failing to identify relations), this looks like a simple problem but
+ since the system has to be able to handle many users concurrently waiting
+ for an answer cannot be a process-blocking action.
+ To address this issue each user has an individual finite state machine
+ defining her own state, if this state is different from the null state
+ a special flow resuming the machine from the user's state handles the user-bot
+ interaction.
 \end_layout
 
-\begin_layout Itemize
-bruteforce findXY
+\begin_layout Subsubsection
+Greetings messages
 \end_layout
 
-\begin_layout Itemize
-pos tagging -> classifiy
+\begin_layout Standard
+Humans appear to require complex communication initialization protocols
+ and it's proven that failure to handle a simple greeting makes for an awful
+ user experience for this reason an handcrafted handling of the greeting
+ procedure was implemented.
 \end_layout
 
-\begin_deeper
-\begin_layout Itemize
-has a priority response?
+\begin_layout Subsubsection
+Domain detection
 \end_layout
 
-\end_deeper
-\begin_layout Itemize
-post open question
+\begin_layout Standard
+In order to detect the question domain the question is first tokenized using
+ the Treebank word tokenizer approach, the word is then classified by a
+ pretrained bayes classifer.
 \end_layout
 
-\begin_layout Itemize
-hacks
+\begin_layout Subsubsection
+query vs enrichment discrimination:
+\end_layout
+
+\begin_layout Standard
+The presence of a question mark is a strong indicator of a query, the assence
+ of one is likewise a predictor of an enrichment request, this approach
+ fails to detect requests such as 
+\begin_inset Quotes eld
+\end_inset
+
+Please tell me where is the pen
+\begin_inset Quotes erd
+\end_inset
+
+ but it's an acceptable limitation.
+\end_layout
+
+\begin_layout Subsubsection
+Enriching modality
+\end_layout
+
+\begin_layout Standard
+The highest ranked question is asked to the user and the user's answer is
+ recorded.
+\end_layout
+
+\begin_layout Subsubsection
+Querying modality
+\end_layout
+
+\begin_layout Standard
+Every question has to be mapped to a tuple (Relation, Domain, X, Y), this
+ is done by first turning the sentence into features and then applying the
+ suitable classifier for every element of the tuple.
+\end_layout
+
+\begin_layout Subsubsection
+Knowledgebase lookup
+\end_layout
+
+\begin_layout Standard
+the knowledge base is indixed by the X and Y columns to allow log(n) lookup
+ times, this technical speedup is crucial to the algorithm since it allows
+ bruteforcing all the possible (X,Y) tuple of a word using machine learning
+ algorithms only as an heuristic.
+\end_layout
+
+\begin_layout Subsubsection
+Generate response
 \end_layout
 
 \begin_layout Standard
@@ -473,82 +622,63 @@ When the confidences are below a certain threshold, the system requests
  Otherwise, the system does not utilize the confidences.
 \end_layout
 
+\begin_layout Standard
+since [vapnik theorem] and since [learning curve] and since [notebook],
+ a simpler feature set was tested with good results
+\end_layout
+
 \begin_layout Section
-Example discussions
+Example interactions
 \end_layout
 
 \begin_layout Description
-qweqoweio
-\end_layout
+\begin_inset Graphics
+	filename report/images/pp.jpeg
+	lyxscale 10
+	width 5text%
 
-\begin_layout Description
-:-) : Who are you?
+\end_inset
+
+: Hello?
 \end_layout
 
 \begin_layout Description
 \begin_inset Graphics
 	filename report/robot-face.png
 	lyxscale 10
-	scale 10
+	width 5text%
 
 \end_inset
 
-: 
+: Sup?
+\end_layout
+
+\begin_layout Description
+\begin_inset Graphics
+	filename report/images/pp.jpeg
+	lyxscale 10
+	width 5text%
+
+\end_inset
+
+: Where is Mars?
 \end_layout
 
 \begin_deeper
 \begin_layout Description
 ELIZA: Please consider whether you can answer your own question.
- [s:5]
-\end_layout
+ [s:4] 
+\begin_inset Marginal
+status open
 
-\begin_layout Description
-Learned: I don't know [s:-1]
+\begin_layout Plain Layout
+Since an answer was not found the conversational models suggest possible
+ responses.
 \end_layout
-
-\begin_layout Description
-ALICE: I ask myself that question, "Who am I?" [s:5]
-\end_layout
-
-\begin_layout Description
-deepQA: Laura [s:7]
-\end_layout
-
-\end_deeper
-\begin_layout Description
-\begin_inset Graphics
-	filename report/robot-face.png
-	lyxscale 10
-	scale 10
 
 \end_inset
 
-: Laura
-\end_layout
 
-\begin_layout Description
-:-) : Wheren't you Maria?
-\end_layout
-
-\begin_layout Description
-\begin_inset Graphics
-	filename report/robot-face.png
-	lyxscale 10
-	scale 10
-
-\end_inset
-
-: 
-\end_layout
-
-\begin_deeper
-\begin_layout Description
-ELIZA: Please consider whether you can answer your own question.
- [s:3]
-\end_layout
-
-\begin_layout Description
-Learned: I don't know [s:-1]
 \end_layout
 
 \begin_layout Description
@@ -561,9 +691,19 @@ deepQA: A: Impeachment impeachment painter painter painter painter painter
 \end_layout
 
 \end_deeper
-\begin_layout Standard
-since [vapnik theorem] and since [learning curve] and since [notebook],
- a simpler feature set was tested with good results
+\begin_layout Description
+in-background: a question is posted in the DB.
+\end_layout
+
+\begin_layout Description
+\begin_inset Graphics
+	filename report/robot-face.png
+	lyxscale 10
+	scale 10
+
+\end_inset
+
+: Please consider whether you can answer your own question.
 \end_layout
 
 \begin_layout Section
@@ -575,30 +715,53 @@ Chatbots work very different way than traditional softwares.
  The major problem for any chatbot to understand context of user’s conversation
  and make thing easy for user.
  Once chatbot is developed, it important to test some of the key metrics.
- Those are:-
+ Those are:
 \end_layout
 
-\begin_layout Standard
-Conversational Flow NLP Score Usability & User experience Bot Speed Bot
- Accuracy Conversation Steps To speed up the bot testing process and to
- get accurate result for these key metrics, one should use list of services
- like Bot Testing , Dimon, Bot flair etc.
+\begin_layout Itemize
+Conversational Flow
+\end_layout
+
+\begin_layout Itemize
+NLP Score
+\end_layout
+
+\begin_layout Itemize
+Usability & User experience
+\end_layout
+
+\begin_layout Itemize
+Bot Speed
+\end_layout
+
+\begin_layout Itemize
+Bot Accuracy
+\end_layout
+
+\begin_layout Itemize
+Conversation Steps
+\end_layout
+
+\begin_layout Itemize
+To speed up the bot testing process and to get accurate result for these
+ key metrics, one should use list of services like Bot Testing , Dimon,
+ Bot flair etc.
  those perform various test cases on your chatbot and provides the reports
  of complete result for your chatbots.
  
 \end_layout
 
 \begin_layout Section
-Future works
+Notes
 \end_layout
 
 \begin_layout Standard
-In the next few month a commercial spinoff of this project will be developed
- along within the LUISS ENLABS accelerator.
+Facebook's service Wit.ai is still trainign after 3 moths, so it might or
+ might not be available at the moment.
 \end_layout
 
-\begin_layout Section
-Telegram api
+\begin_layout Standard
+"Move fast and break things." - Mark Zuckerberg 
 \end_layout
 
 \end_body

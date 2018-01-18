@@ -64,6 +64,7 @@ def to_vector(word):
         return UNKNOWN_SYMBOL
 
 
+@disk_cache
 def train_lstm():
     targets = load_data()
 
@@ -108,6 +109,7 @@ def train_lstm():
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.savefig('history_loss.jpg')
+    return model
 
 
 def load_data():
@@ -212,6 +214,9 @@ def find_relation(question, explain_results=False):
                 target = tag
             else:
                 if explain_results: print(tag, score)
+        else:
+            model = train_lstm()
+            target = model.predict(question)
     return target
 
 
