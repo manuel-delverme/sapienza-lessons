@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import subprocess
+import logging
 import answer_question
 import classify_pattern
 import nltk
@@ -46,7 +47,9 @@ class MariaBot(telepot.helper.ChatHandler):
     _GREETING_RESPONSES = ["hello", "hi", "greetings", "sup", "what's up", ]
 
     def __init__(self, *args, **kwargs):
+        logging.debug('MariaBot init')
         self.db = mariaDB.Gaia_db()
+        logging.debug('DB up ' + repr(self.db))
         if 'test_run' in kwargs and kwargs['test_run']:
             # self.db = mariaDB.Fake_db()
             def print_msg(user_tid, msg, reply_markup=None):
@@ -153,7 +156,7 @@ class MariaBot(telepot.helper.ChatHandler):
             return "42"
         return False
 
-    # @staticmethod
+    @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
         answers = answer_question.answer_question(self.db, user_msg_txt, relation)
@@ -195,36 +198,44 @@ class MariaBot(telepot.helper.ChatHandler):
 
     def on_message(self, msg):
         global user_handler
+        logging.debug("on_message {}".format(msg))
 
         message_user_tid = msg['from']['id']
         if not self.user_tid:
             self.user_tid = message_user_tid
         else:
             assert message_user_tid == self.user_tid
+        logging.debug("user_tid {}".format(self.user_tid))
 
         user = self.db.find_by_tid(message_user_tid)
+        logging.debug("user_obj {}".format(user))
 
         if user is None:  # if user is a new user
+            logging.debug("user is new")
             self.register_user(message_user_tid, msg)
             return
 
         elif user.tid in user_handler:
-            print(user.tid, "was redirected by handler")
+            logging.debug("{} was redirected by handler".format(user.tid))
+            # print(user.tid, "was redirected by handler")
             return user_handler[user.tid](msg)
 
         try:
             user_msg_txt = msg['text']
         except KeyError:
+            logging.warning("failed to parse the message: {}".format(msg))
             self.log_message("failed to parse the message")
             self.log_message(msg)
             self.sendMessage(user.tid, "i failed to understand that; admin noticed")
             return
 
         if self.is_greeting(user_msg_txt):
+            logging.debug("is_greeting".format(user_msg_txt))
             self.greet_user(user)
             return
 
         if not self.domain:
+            logging.debug("classify_domain".format(user_msg_txt))
             try:
                 self.domain = self.classify_domain(user_msg_txt)
             except DomainDetectionFail:
@@ -232,49 +243,61 @@ class MariaBot(telepot.helper.ChatHandler):
                     possible_domains = fin.read()[:-1].split("\n")
                 self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
             else:
+                logging.debug("classify_domain rets:".format(self.domain))
                 self.on_message(msg)
             return
 
         if not self.modality:
+            logging.debug("classify_modality:".format(user_msg_txt))
             try:
                 self.modality = self.classify_modality(user_msg_txt)
             except ModalityDetectionFail:
+                logging.warning("classify_modality failed")
                 self.offer_user_options(msg, "modality", ["ask questions", "answer stuff"], "what do you want to do?")
             else:
-                print("[BOT] setting modality to: ", self.modality)
+                logging.debug("[BOT] setting modality to: ".format(self.modality))
+                # print("[BOT] setting modality to: ", self.modality)
                 self.on_message(msg)
             return
 
         if self.modality == Modality.enriching:
+            logging.debug("modality is : enriching")
             raise NotImplementedError()
+            logging.debug("looking for open question")
             try:
                 relation, question = self.db.get_open_question(self.domain)
             except IndexError:
-                relation, question = "place", "where is the lalalala"
-            # pick a random question
-            # ask question to user
-            # update KB
-            self.db.close_open_question(relation, question)
+                logging.warning("ran out of questions, looking for Neverland")
+                relation, question = "place", "where is Neverland?"
+            else:
+                logging.debug("got R:{} Q:{} as question".format(relation, question))
+                # pick a random question
+                # ask question to user
+                # update KB
+                self.db.close_open_question(relation, question)
 
         elif self.modality == Modality.querying:
+            logging.debug("modality is: querying")
             if not self.relation:
+                logging.debug("infer_relation {} {}".format(user_msg_txt, self.domain))
                 # babelify question
                 try:
                     self.relation = self.infer_question_relation(user_msg_txt, self.domain)
                 except RelationDetectionFail:
+                    logging.warning("infer_relation failed")
                     with open("chatbot_maps/domains_to_relations.tsv") as fin:
                         possible_relations = {r.split("\t")[0]: r.split("\t")[1:] for r in fin.read().split("\n")}[
                             self.domain]
                     self.offer_user_options(msg, "relation", possible_relations, "what's the relation here?")
                     return
-            # mumble mumble
-            # mumble mumble
-            # mumble mumble
-            # mumble mumble
+
+            logging.debug("answering user question Q:{} D:{} R:{}".format(user_msg_txt, self.domain, self.relation))
             try:
                 answer = self.answer_question(user_msg_txt, self.domain, self.relation)
             except FailToAnswerException:
+                logging.warning("could not answer!")
                 # ask another user
+                logging.info("opening question {}".format(user_msg_txt))
                 self.db.add_open_question(user_msg_txt)
                 timeleft = 15
                 answer = "something broke; call Manuel"
@@ -283,12 +306,18 @@ class MariaBot(telepot.helper.ChatHandler):
                     if user_answer:
                         answer = user_answer
                         break
+                    useless_answer = self.chit_chat(question)
                     self.sendMessage(self.user_tid, "mumble {}".format(timeleft))
+                    logging.info("distracting user with {}".format(useless_answer))
+                    self.sendMessage(self.user_tid, useless_answer)
+
                     time.sleep(1)
                     timeleft -= 1
 
                 if timeleft == 0:
                     answer = "try; http://lmgtfy.com/?q='{}'".format(user_msg_txt)
+
+            logging.info("opening question".format(user_msg_txt))
 
             # apply emotive state
             self.sendMessage(self.user_tid, answer)
@@ -297,6 +326,8 @@ class MariaBot(telepot.helper.ChatHandler):
             self.relation = None
         else:
             print("skipping", user_msg_txt)
+            logging.error("modality unset", user_msg_txt)
+            raise Exception("")
 
     def register_user(self, message_user_tid, msg):
         global user_handler
@@ -343,6 +374,8 @@ class MariaBot(telepot.helper.ChatHandler):
 def main(test_run=False):
     with open("sekrets/api_key") as fin:
         KEY = fin.read()[:-1]
+    logging.debug('loaded api_key')
+
     msg_flow = [
         "sup n00b",
         # "how does your pussy tastes like?",
@@ -353,6 +386,7 @@ def main(test_run=False):
         "Where is Flagstaff Lake located ?",
         "is coliseum located in rome?",
     ]
+    logging.debug('bot is in test mode:' + str(test_run))
     if test_run:
         test_bot = MariaBot(test_run=test_run)
         test_user_id = 45571984
@@ -365,18 +399,21 @@ def main(test_run=False):
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
             test_bot.on_message(message_template)
     else:
+        logging.debug("running DelegatorBot")
         bot = telepot.DelegatorBot(KEY, [
             pave_event_space()(
                 per_chat_id(), create_open, MariaBot, timeout=99999),
         ])
-        for msg in msg_flow:
-            print("sending", msg)
-            subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
+        # for msg in msg_flow:
+        #     print("sending", msg)
+        #     subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
         MessageLoop(bot).run_forever()
 
 
 if __name__ == "__main__":
     import os
 
+    logging.basicConfig(filename='mariabot.log', level=logging.DEBUG)
+    # print("hi")
     test_run = "--test" in os.sys.argv
     main(test_run=test_run)
