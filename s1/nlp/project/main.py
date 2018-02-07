@@ -160,7 +160,7 @@ class MariaBot(telepot.helper.ChatHandler):
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
         answers = answer_question.answer_question(self.db, user_msg_txt, relation)
-        print("[BOT] answers", answers)
+        print("[BOT] answering with", answers)
         for candidate_answer in answers:
             if candidate_answer:
                 return candidate_answer
@@ -239,7 +239,7 @@ class MariaBot(telepot.helper.ChatHandler):
             try:
                 self.domain = self.classify_domain(user_msg_txt)
             except DomainDetectionFail:
-                with open("BabelDomains_full/domain_list.txt") as fin:
+                with open("chatbot_maps/domain_list.txt") as fin:
                     possible_domains = fin.read()[:-1].split("\n")
                 self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
             else:
@@ -261,20 +261,25 @@ class MariaBot(telepot.helper.ChatHandler):
             return
 
         if self.modality == Modality.enriching:
-            logging.debug("modality is : enriching")
-            raise NotImplementedError()
-            logging.debug("looking for open question")
+            logging.debug("modality is : enriching; looking for open question")
             try:
                 relation, question = self.db.get_open_question(self.domain)
             except IndexError:
                 logging.warning("ran out of questions, looking for Neverland")
                 relation, question = "place", "where is Neverland?"
+                self.sendMessage(message_user_tid, "i already know everything, ask a question")
+                self.modality = None
             else:
+                # ask question
                 logging.debug("got R:{} Q:{} as question".format(relation, question))
-                # pick a random question
-                # ask question to user
-                # update KB
-                self.db.close_open_question(relation, question)
+
+                def handle_enriching(msg):
+                    self.db.close_open_question(relation, question)
+                    del user_handler[message_user_tid]
+                    self.sendMessage(message_user_tid, "thakns for the info!".format(user.name))
+                user_handler[message_user_tid] = handle_enriching
+
+                self.sendMessage(message_user_tid, "question: {} ({}). what would you answer to that?".format(question, relation))
 
         elif self.modality == Modality.querying:
             logging.debug("modality is: querying")
@@ -415,5 +420,6 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename='mariabot.log', level=logging.DEBUG)
     # print("hi")
-    test_run = "--test" in os.sys.argv
+    # test_run = "--test" in os.sys.argv
+    test_run = True
     main(test_run=test_run)

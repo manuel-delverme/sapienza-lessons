@@ -114,17 +114,33 @@ In this project we develop a socialbot: a spoken conversational agent capable
 
 \begin_layout Standard
 The bot converses through natural language speech through the Telegram messaging
- platform [LINK].
+ platform
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+ (https://telegram.org/)
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-This article describes the models, experiments and final system (MILABOT)
- developed as requirement for the NLP_CLASS.
+This document describes the models, experiments and final system MariaBot
+ developed as requirement for the nlp class.
 \end_layout
 
 \begin_layout Standard
-This developing this project allowed us to freerly explore several NLP fields
- such as A,B,C,D,sentiment analsysis, reinforcement learning etc.
+Developing this project allowed us to freerly explore several NLP fields
+ such as 
+\end_layout
+
+\begin_layout Standard
+part-of-speech tagging, syntactic parsing, computational lexicons, semantic
+ networks, word sense disambiguation, word embeddings,sentiment analsysis,
+ reinforcement learning etc.
 \end_layout
 
 \begin_layout Standard
@@ -226,7 +242,7 @@ response
 
 \begin_layout Standard
 \begin_inset Graphics
-	filename report/a.png
+	filename /home/awok/Documents/sapienza/s1/nlp/project/report/a.gif
 
 \end_inset
 
@@ -340,7 +356,7 @@ qweqoweio
 
 \begin_layout Description
 \begin_inset Graphics
-	filename report/robot-face.png
+	filename /home/awok/Documents/sapienza/s1/nlp/project/report/robot-face_1f916.png
 	lyxscale 10
 	scale 10
 
