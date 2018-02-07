@@ -1,4 +1,5 @@
 import pymongo
+import tqdm
 
 
 class User:
@@ -50,6 +51,7 @@ class Gaia_db:
             print('\nCollection created\n')
         except pymongo.errors.CollectionInvalid:
             print('\nCollection exists\n')
+        self.find({})
 
     def insert(self, users):
         for user in users.values():
@@ -80,8 +82,23 @@ class Gaia_db:
             return None
 
     def find(self, parameters):
-        response = self.db.knowledge_base.find(parameters)
-        return list(response)
+        # queue = []
+        # for row in tqdm.tqdm(self.db.knowledge_base.find({}), total=self.db.knowledge_base.count()):
+        #     el = ({
+        #         '_id': row['_id']
+        #     }, {
+        #         '$set': {
+        #             'c1_lower': row['c1'].lower(),
+        #             'c2_lower': row['c2'].lower()
+        #         }
+        #     })
+        #     queue.append(el)
+        #     if len(queue) > 100:
+        #         self.db.knowledge_base.update(queue, upsert=False)
+        #         queue = []
+        # assert False
+
+        return self.db.knowledge_base.find(parameters)
 
     def find_by_job(self, value):
         user_dict = self.db.users.find({'job': value.lower()})
@@ -101,7 +118,7 @@ class Gaia_db:
             return question['relation'], question['question']
 
     def close_open_question(self, relation, question):
-        question = self.db.open_questions.find_one({
+        question = self.db.open_questions.update({
             'answered': False,
             'relation': relation,
             'question': question,

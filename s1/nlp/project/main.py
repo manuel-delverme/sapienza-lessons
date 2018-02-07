@@ -49,7 +49,7 @@ class MariaBot(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
         logging.debug('MariaBot init')
         self.db = mariaDB.Gaia_db()
-        logging.debug('DB up ' + repr(self.db))
+        logging.debug('DB up {}:{}'.format(self.db.client.HOST, self.db.client.PORT))
         if 'test_run' in kwargs and kwargs['test_run']:
             # self.db = mariaDB.Fake_db()
             def print_msg(user_tid, msg, reply_markup=None):
@@ -156,7 +156,6 @@ class MariaBot(telepot.helper.ChatHandler):
             return "42"
         return False
 
-    @staticmethod
     def answer_question(self, user_msg_txt, domain, relation):
         print("[BOT] answering question:", user_msg_txt, domain, relation)
         answers = answer_question.answer_question(self.db, user_msg_txt, relation)
@@ -235,7 +234,7 @@ class MariaBot(telepot.helper.ChatHandler):
             return
 
         if not self.domain:
-            logging.debug("classify_domain".format(user_msg_txt))
+            logging.debug("classify_domain {}".format(user_msg_txt))
             try:
                 self.domain = self.classify_domain(user_msg_txt)
             except DomainDetectionFail:
@@ -243,19 +242,19 @@ class MariaBot(telepot.helper.ChatHandler):
                     possible_domains = fin.read()[:-1].split("\n")
                 self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
             else:
-                logging.debug("classify_domain rets:".format(self.domain))
+                logging.debug("classify_domain rets {}:".format(self.domain))
                 self.on_message(msg)
             return
 
         if not self.modality:
-            logging.debug("classify_modality:".format(user_msg_txt))
+            logging.debug("classify_modality for: {}".format(user_msg_txt))
             try:
                 self.modality = self.classify_modality(user_msg_txt)
             except ModalityDetectionFail:
                 logging.warning("classify_modality failed")
                 self.offer_user_options(msg, "modality", ["ask questions", "answer stuff"], "what do you want to do?")
             else:
-                logging.debug("[BOT] setting modality to: ".format(self.modality))
+                logging.debug("[BOT] setting modality to: {}".format(self.modality))
                 # print("[BOT] setting modality to: ", self.modality)
                 self.on_message(msg)
             return
@@ -382,14 +381,18 @@ def main(test_run=False):
     logging.debug('loaded api_key')
 
     msg_flow = [
-        "sup n00b",
+        # "sup n00b",
         # "how does your pussy tastes like?",
         # "how does cake tastes like?",
         # "hard cake is the type of truck?",
         # "what is the material of hard cake?",
         # "animals",
         "Where is Flagstaff Lake located ?",
-        "is coliseum located in rome?",
+        "ok thanks",
+        "Is coliseum located in Rome?",
+        "What is the capital of France?",
+        "How do cakes smell lke?",
+        "what is the material of hard cake?",
     ]
     logging.debug('bot is in test mode:' + str(test_run))
     if test_run:
@@ -409,10 +412,12 @@ def main(test_run=False):
             pave_event_space()(
                 per_chat_id(), create_open, MariaBot, timeout=99999),
         ])
-        # for msg in msg_flow:
-        #     print("sending", msg)
-        #     subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
+        for msg in msg_flow:
+            print("sending", msg)
+            subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
+        logging.debug("looping forever")
         MessageLoop(bot).run_forever()
+        logging.debug("forever has passed?")
 
 
 if __name__ == "__main__":

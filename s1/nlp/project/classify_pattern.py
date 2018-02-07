@@ -200,12 +200,13 @@ def find_relation(question, explain_results=False):
     for word in question:
         try:
             word = lookup[word]
-            question_vec += matrix[word] / matrix[word].sum()
+            question_vec += matrix[word] # / matrix[word].sum()
         except KeyError:
             pass
     # target = tags.index(target_hat)
     if explain_results: print(question)
     target = None
+
     for score, tag in zip(question_vec, tags):
         cutoff = np.sort(question_vec)[-5]
         if score > cutoff:
@@ -214,9 +215,10 @@ def find_relation(question, explain_results=False):
                 target = tag
             else:
                 if explain_results: print(tag, score)
-        else:
-            model = train_lstm()
-            target = model.predict(question)
+
+    if not target:
+        model = train_lstm()
+        target = model.predict(question)
     return target
 
 
