@@ -77,7 +77,7 @@
 \begin_body
 
 \begin_layout Title
-Project
+NLP Project
 \end_layout
 
 \begin_layout Author
@@ -93,9 +93,9 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-Dialogue systems and conversational agents like chatbots, personal assitants
- and voicecontrol interfaces, allow for a more natural user experience which
- is becoming ubiquitous in modern society.
+Dialogue systems and conversational agents like chatbots, personal assistants
+ and voice-control interfaces, allow for a more natural user experience
+ which is becoming ubiquitous in modern society.
 \end_layout
 
 \begin_layout Standard
@@ -103,18 +103,19 @@ Some widespread examples of the above are personal assistants on mobile
  devices (e.g.
  Siri, Cortana, Alexa and Google's assistant), in customer support services,
  and customer reps bots selling anything from technology to legal assistance.
- However, fluent and purposeful conversation is still a major field of research.
+ However, achieving a fluent and purposeful conversation is still a major
+ field of research.
 \end_layout
 
 \begin_layout Standard
-In this project we develop are tasked with the development of a chatbot:
+In this project we develop are tasked with the development of a chat-bot:
  an agent able to answer to human queries relying on an automatically built
  knowledge based.
 \end_layout
 
 \begin_layout Standard
 The bot converses through natural language speech through the Telegram messaging
- platform 
+ platform
 \begin_inset Foot
 status open
 
@@ -124,7 +125,7 @@ https://telegram.org
 
 \end_inset
 
-, using a python wrapper for their web APIs 
+, using a python wrapper for their web APIs
 \begin_inset Foot
 status open
 
@@ -138,21 +139,21 @@ https://github.com/nickoala/telepot
 \end_layout
 
 \begin_layout Standard
-This project allowed us to freerly explore several NLP subfields such as
- pos tagging, stemming, segmentation, natural language generation, question
+This project allowed us to freely explore several NLP sub-fields such as
+ POS tagging, stemming, segmentation, natural language generation, question
  answering, sentiment analysis and also reinforcement learning.
 \end_layout
 
 \begin_layout Standard
 The assignment has provided a special opportunity for training and testing
  state-of-the-art machine learning algorithms with real users and commercial
- applications
+ application
 \begin_inset Foot
 status open
 
 \begin_layout Plain Layout
 Another student of the class and I are now part of the LUISS ENLABS AIWorklab
- incubator working on a chatbot for team coordination.
+ incubator working on a chat-bot for team coordination.
 \end_layout
 
 \end_inset
@@ -161,14 +162,9 @@ Another student of the class and I are now part of the LUISS ENLABS AIWorklab
 \end_layout
 
 \begin_layout Standard
-The ability to experiment with a crowdsourced database exposed us to unexpected
- challenges such as data cleaning and fault tollerance and underlned the
- resources required for running such a complex live system.
-\end_layout
-
-\begin_layout Standard
-\SpecialChar ligaturebreak
-
+The ability to experiment with a crowd-sourced database exposed us to unexpected
+ challenges such as data cleaning and fault tolerance and understanding
+ the resources required for running such a complex live system.
 \end_layout
 
 \begin_layout Subsection
@@ -176,7 +172,7 @@ Design choices
 \end_layout
 
 \begin_layout Standard
-The first dialogue systems 
+The first dialogue systems
 \begin_inset Foot
 status open
 
@@ -189,8 +185,8 @@ Weizenbaum 1966, Colby 1981, Aust et al.
 \end_inset
 
  were state machines with explicitly-crafted rules, modern dialogue systems
- follow a hybrid approach, combining states and behavioural rules and with
- statistical machine learning algorithms 
+ follow a hybrid approach, combining states and behavioral rules and with
+ statistical machine learning algorithms
 \begin_inset Foot
 status open
 
@@ -209,14 +205,14 @@ Suendermann-Oeft et al.
 \begin_layout Standard
 In contrast to such rule-based systems, Maria uses a simple supervised learner
  system built on top of a configuration of several algorithms raging from
- rule based systems to deep learning archtectures and external services
+ rule-based systems to deep learning architectures and external services
  such as Facebook's Wit.ai (unresponsive at the time of writing).
 \end_layout
 
 \begin_layout Standard
 This allows the bot to smoothly handle cases where the user doesn't follow
  the underlying assumption of any one of the individual systems.
- Heirarchical approeaches such as this generate a great degree of adaptibility
+ Hierarchical approaches such as this generate a great degree of adaptability
  as it is required in a domain like the human language.
 \end_layout
 
@@ -224,7 +220,7 @@ This allows the bot to smoothly handle cases where the user doesn't follow
 As such, the system uses a small number of hand-crafted rules which should
  be applied in the majority of cases, however, many components have been
  designed to be trained and optimized using machine learning algorithms
- and are able to autonomously adapt to the dyamic nature of the world without,
+ and are able to autonomously adapt to the dynamic nature of the world without,
  furthermore this adaptation can be achieved online or real-time in contrast
  to having to train the whole system from scratch.
 \end_layout
@@ -232,7 +228,7 @@ As such, the system uses a small number of hand-crafted rules which should
 \begin_layout Standard
 Each component was trained first independently to generate an answer but
  also to provide a confidence score of his own answer.
- This way a coordinator knows when to apply hand crafted rules and when
+ This way a coordinator knows when to apply hand-crafted rules and when
  to generate answers by statistical models.
  Given an adequate amount of examples, such a system should outperform systems
  based on hand-crafted states and rules.
@@ -253,6 +249,19 @@ This approach aims to draw from the success of ensemble-based machine learning
 More recently, Google observed substantial improvements building an ensemble-bas
 ed neural machine translation system (Wu et al.
  2016).
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pagebreak
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -269,7 +278,7 @@ if the user is not present in the database
 
 \begin_deeper
 \begin_layout Enumerate
-a registration flow starts where the users offers personal information such
+a registration flow starts where the users offer personal information such
  the preferred name.
 \end_layout
 
@@ -311,29 +320,17 @@ the process terminates.
 
 \end_deeper
 \begin_layout Enumerate
-a domain is inferred from the user's message by an ensemble of:
+a domain is inferred from the user's message by a naive Bayes classifier
 \end_layout
 
 \begin_deeper
-\begin_layout Enumerate
-a word level svm classifier
-\end_layout
-
-\begin_layout Enumerate
-a naive bayes classifier
-\end_layout
-
-\begin_layout Enumerate
-a k-nn classifier
-\end_layout
-
 \begin_layout Enumerate
 if the above methods fail to achieve the required confidence
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-a subprocess directly asking the user information
+a sub-process directly asking the user information
 \end_layout
 
 \end_deeper
@@ -353,17 +350,23 @@ In case of failure (provably impossible): asking the user.
 
 \end_deeper
 \begin_layout Enumerate
+
+\color brown
 if the modality is enriching:
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
+
+\color brown
 the user is asked the question with the highest score (*).
  
 \begin_inset Marginal
 status open
 
 \begin_layout Plain Layout
+
+\color brown
 *: the question score is used to give priority to recently asked questions
  (see 7.d and 7.e)
 \end_layout
@@ -374,6 +377,8 @@ status open
 \end_layout
 
 \begin_layout Enumerate
+
+\color brown
 the user's answer is recorded and added to the knowledge base.
 \end_layout
 
@@ -384,7 +389,7 @@ if the modailty is querying
 
 \begin_deeper
 \begin_layout Enumerate
-a relation is inferred by a LSTM classifier and a nayve bayes classifier.
+a relation is inferred by a LSTM classifier and a frequency based classifier.
 \end_layout
 
 \begin_layout Enumerate
@@ -394,12 +399,12 @@ which part of the question is to be considered as X and as Y are identified
 
 \begin_deeper
 \begin_layout Enumerate
-A classifier using the pos tagged questions (e.g.
+A classifier using the POS tagged questions (e.g.
  
 \begin_inset Quotes eld
 \end_inset
 
-Where is the coliseum?
+Where is the Coliseum?
 \begin_inset Quotes erd
 \end_inset
 
@@ -431,7 +436,7 @@ once X,Y is known an answer is generated by querying the knowledge base
 \begin_layout Enumerate
 if the answer is not found, the user question is posted as an open question
  with the highest score and the user is kept busy with chit-chat based on
- Deep Q&A 
+ Deep Q&A
 \begin_inset Foot
 status open
 
@@ -451,16 +456,16 @@ when this period is over the bot checks if another user provided an answer
 
 \begin_deeper
 \begin_layout Enumerate
-if positive, the answer answer is noted and relied to the querier.
+if positive, the answer is noted and relied to the querier.
 \end_layout
 
 \begin_layout Enumerate
-if negative the bots admits defeat and googles the question.
+if negative the bot admits defeat and googles the question.
 \end_layout
 
 \begin_layout Enumerate
-if not even google knows the bot admits ignorance and lets google do the
- job.
+if it is not able to get an answer from the Google results, the bot admits
+ ignorance and sends the user a Google search link.
 \end_layout
 
 \end_deeper
@@ -507,14 +512,14 @@ Special flows
 \end_layout
 
 \begin_layout Standard
-Sometimes the bot has to wait the user's response to some query (e.g.
+Sometimes the bot has to wait for the user's response to some query (e.g.
  when failing to identify relations), this looks like a simple problem but
  since the system has to be able to handle many users concurrently waiting
  for an answer cannot be a process-blocking action.
  To address this issue each user has an individual finite state machine
- defining her own state, if this state is different from the null state
- a special flow resuming the machine from the user's state handles the user-bot
- interaction.
+ defining her own state.
+ If this state is different from the null state a special flow resuming
+ the machine from the user's state handles the user-bot interaction.
 \end_layout
 
 \begin_layout Subsubsection
@@ -535,7 +540,7 @@ Domain detection
 \begin_layout Standard
 In order to detect the question domain the question is first tokenized using
  the Treebank word tokenizer approach, the word is then classified by a
- pretrained bayes classifer.
+ pre-trained Bayes classifier.
 \end_layout
 
 \begin_layout Subsubsection
@@ -543,7 +548,7 @@ query vs enrichment discrimination:
 \end_layout
 
 \begin_layout Standard
-The presence of a question mark is a strong indicator of a query, the assence
+The presence of a question mark is a strong indicator of a query, the absence
  of one is likewise a predictor of an enrichment request, this approach
  fails to detect requests such as 
 \begin_inset Quotes eld
@@ -576,13 +581,13 @@ Every question has to be mapped to a tuple (Relation, Domain, X, Y), this
 \end_layout
 
 \begin_layout Subsubsection
-Knowledgebase lookup
+Knowledge base look up
 \end_layout
 
 \begin_layout Standard
-the knowledge base is indixed by the X and Y columns to allow log(n) lookup
- times, this technical speedup is crucial to the algorithm since it allows
- bruteforcing all the possible (X,Y) tuple of a word using machine learning
+the knowledge base is indexed by the X and Y columns to allow log(n) look
+ up times, this technical speedup is crucial to the algorithm since it allows
+ brute-forcing all the possible (X,Y) tuple of a word using machine learning
  algorithms only as an heuristic.
 \end_layout
 
@@ -623,7 +628,7 @@ When the confidences are below a certain threshold, the system requests
 \end_layout
 
 \begin_layout Standard
-since [vapnik theorem] and since [learning curve] and since [notebook],
+since [Vapnik theorem] and since [learning curve] and since [notebook],
  a simpler feature set was tested with good results
 \end_layout
 
@@ -711,10 +716,10 @@ Results and Analysis
 \end_layout
 
 \begin_layout Standard
-Chatbots work very different way than traditional softwares.
- The major problem for any chatbot to understand context of user’s conversation
+Chat-bots work very different way than traditional software.
+ The major problem for any chat-bot to understand context of user’s conversation
  and make thing easy for user.
- Once chatbot is developed, it important to test some of the key metrics.
+ Once chat bot is developed, it important to test some of the key metrics.
  Those are:
 \end_layout
 
@@ -743,11 +748,11 @@ Conversation Steps
 \end_layout
 
 \begin_layout Itemize
-To speed up the bot testing process and to get accurate result for these
+To speed up the bot te3sting process and to get accurate result for these
  key metrics, one should use list of services like Bot Testing , Dimon,
  Bot flair etc.
- those perform various test cases on your chatbot and provides the reports
- of complete result for your chatbots.
+ those perform various test cases on your chat-bot and provides the reports
+ of complete result for your chat-bots.
  
 \end_layout
 
@@ -756,12 +761,16 @@ Notes
 \end_layout
 
 \begin_layout Standard
-Facebook's service Wit.ai is still trainign after 3 moths, so it might or
- might not be available at the moment.
+4 months later, Facebook's service Wit.ai is still training, so it might
+ or might not be available at the moment.
 \end_layout
 
 \begin_layout Standard
 "Move fast and break things." - Mark Zuckerberg 
+\end_layout
+
+\begin_layout Standard
+https://www.tensorflow.org/versions/r0.12/tutorials/syntaxnet/
 \end_layout
 
 \end_body

@@ -11,13 +11,13 @@ def lookup_knowledge_base(db, question_relation, X, Y):
     answers = []
     is_open_question = Y is None
 
-    re_c = re.compile(r"^{}.*".format(X), re.IGNORECASE)
+    re_c = re.compile(r"^{}.*".format(X))
     query = {
         'c1': re_c,
         'relation': question_relation.upper(),
     }
     if not is_open_question:
-        query['c2'] = re.compile("^{}.*".format(Y), re.IGNORECASE)
+        query['c2'] = re.compile("^{}.*".format(Y))
 
     for row in db.find(query):
         question = row['question']
@@ -55,12 +55,14 @@ def bruteforce_kb(db, question, question_relation):
     question.append(None)
 
     for X, Y in itertools.product(question, repeat=2):
+        if X is Y:
+            continue
         if X is None:
             continue
         is_open_question = Y is None
 
-        X = re.compile("^{}.*".format(X), re.IGNORECASE)
-        Y = re.compile("^{}.*".format(Y), re.IGNORECASE)
+        # X = re.compile("^{}.*".format(X), re.IGNORECASE)
+        # Y = re.compile("^{}.*".format(Y), re.IGNORECASE)
         yield lookup_knowledge_base(db, question_relation=question_relation, X=X, Y=Y)
 
 
@@ -74,8 +76,9 @@ def classify_lookup_knowledge_base(db, question, question_relation):
 
 # @disk_cache
 def answer_question(db, question, question_relation):
+    print("ACTIVATE CLASSIFY LOOPUP" * 100)
     strategies = [
-        classify_lookup_knowledge_base,
+        # classify_lookup_knowledge_base,
         bruteforce_kb,
         ask_google,
     ]
