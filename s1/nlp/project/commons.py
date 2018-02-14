@@ -17,7 +17,8 @@ def parser(text):
     global _parser
     if _parser is None:
         import spacy
-        _parser = spacy.load('en_core_web_lg')
+        # _parser = spacy.load('en_core_web_lg', disable=['parser', 'ner', 'vectors'])
+        _parser = spacy.load('en_core_web_sm', disable = ['vectors', ])
     return _parser(text)
 
 

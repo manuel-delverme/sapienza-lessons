@@ -144,8 +144,8 @@ def bruteforce_findXY(question):
             if match_end_of_string(unmatched_question, subtreeX):
                 Xs.append(" ".join(candidateX))
 
-    print("Xs", Xs)
-    print("Ys", Ys)
+    # print("Xs", Xs)
+    # print("Ys", Ys)
     # Xs, Ys
     return [x for x in itertools.product(Xs, Ys) if x[0] is not None]
 
@@ -154,38 +154,37 @@ def match_end_of_string(subquestion, subtree):
     return len(bruteforce_findEND(subtree, subquestion)) > 0
 
 
-@disk_cache
+# @disk_cache
 def tag_question(question, use_spacy=True):
-    # import ipdb; ipdb.set_trace()
     words = []
     tags = []
-    if use_spacy:
-        doc = commons.parser(question)
-        for np in doc.noun_chunks:
-            np.merge(tag=np.root.tag_, lemma=np.lemma_, ent_type=np.root.ent_type_)
-        for token in doc:
-            words.append(token.text)
-            tags.append(token.pos_)
-    else:
-        question = nltk.word_tokenize(question)
-        question_ = ['']
-        for word in question:
-            if (word in c1 or word in c2) and (question_[-1] in c1 or question_[-1] in c2):
-                question_[-1] += " " + word
-            else:
-                question_.append(word)
+    # if use_spacy:
+    doc = commons.parser(question)
+    for np in doc.noun_chunks:
+        np.merge(tag=np.root.tag_, lemma=np.lemma_, ent_type=np.root.ent_type_)
+    for token in doc:
+        words.append(token.text)
+        tags.append(token.pos_)
+    # else:
+    #     question = nltk.word_tokenize(question)
+    #     question_ = ['']
+    #     for word in question:
+    #         if (word in c1 or word in c2) and (question_[-1] in c1 or question_[-1] in c2):
+    #             question_[-1] += " " + word
+    #         else:
+    #             question_.append(word)
 
-        if question_[0] == '':
-            del question_[0]
-        question = question_
-        tagged_words = nltk.pos_tag(question)
+    #     if question_[0] == '':
+    #         del question_[0]
+    #     question = question_
+    #     tagged_words = nltk.pos_tag(question)
 
-        from nltk.tag import StanfordPOSTagger
-        spos = StanfordPOSTagger("spos/models/english-bidirectional-distsim.tagger",
-                                 path_to_jar="spos/stanford-postagger.jar")
-        print("SKPPING WORD MERGING")
-        tagged_words = nltk.pos_tag(question)
-        words, tags = zip(*tagged_words)
+    #     from nltk.tag import StanfordPOSTagger
+    #     spos = StanfordPOSTagger("spos/models/english-bidirectional-distsim.tagger",
+    #                              path_to_jar="spos/stanford-postagger.jar")
+    #     print("SKPPING WORD MERGING")
+    #    tagged_words = nltk.pos_tag(question)
+    #    words, tags = zip(*tagged_words)
     return words, tags
 
 
@@ -204,7 +203,7 @@ def findXY(question):
         if y_i[0] == "c":
             candidates.add(words[idx])
 
-    results['crf'] = [x for x in itertools.permutations(candidates, r=2) if x[0] is not None]
+    results['crf'] = sorted([x for x in itertools.permutations(candidates, r=2) if x[0] is not None], key=lambda x: 1 if None in x else 0)
     return results
 
 

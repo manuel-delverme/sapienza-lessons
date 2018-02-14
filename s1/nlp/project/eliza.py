@@ -117,7 +117,24 @@ class Eliza(object):
                             "What is your favorite childhood memory?",
                             "Do you remember any dreams or nightmares from childhood?",
                             "Did the other children sometimes tease you?",
-                            "How do you think your childhood experiences relate to your feelings today?"]
+                            "How do you think your childhood experiences relate to your feelings today?"],
+        r'(.*)\?': ["Why do you ask that?",
+                    "Please consider whether you can answer your own question.",
+                    "Perhaps the answer lies within yourself?",
+                    "Why don't you tell me?"],
+        r'quit': ["Thank you for talking with me.",
+                  "Good-bye.",
+                  "Thank you, that will be $150.  Have a good day!"],
+        r'(.*)': ["Please tell me more.",
+                  "Let's change focus a bit... Tell me about your family.",
+                  "Can you elaborate on that?",
+                  "Why do you say that {0}?",
+                  "I see.",
+                  "Very interesting.",
+                  "{0}.",
+                  "I see.  And what does that tell you?",
+                  "How does that make you feel?",
+                  "How do you feel when you say that?"]
     }
     _gReflections = {
         "am": "are",
@@ -161,7 +178,6 @@ class Eliza(object):
                 if resp[-2:] == '?.': resp = resp[:-2] + '.'
                 if resp[-2:] == '??': resp = resp[:-2] + '?'
                 return resp
-        raise FailToAnswerException()
 
 
 if __name__ == "__main__":

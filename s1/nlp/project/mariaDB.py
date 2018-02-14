@@ -24,6 +24,7 @@ class User:
 
 class Gaia_db:
     def __init__(self, name="nlp_projectDB", remote=False):
+        self.closed_questions = set()
         if remote:
             from sshtunnel import SSHTunnelForwarder
             self.SSHTunnel = SSHTunnelForwarder(
@@ -113,24 +114,36 @@ class Gaia_db:
             'domain': domain,
         })
         if not question:
-            return "NO_RELATION", "NO_QUESTION"
+            raise IndexError()
         else:
             return question['relation'], question['question']
 
     def close_open_question(self, relation, question):
-        question = self.db.open_questions.update({
-            'answered': False,
-            'relation': relation,
+        # question = self.db.open_questions.update({
+        #     'answered': False,
+        #     'relation': relation,
+        #     'question': question,
+        # })
+        # question['answered'] = True
+        # self.db.open_question.update(question)
+        # self.closed_questions.add(question)
+        self.db.open_questions.insert({
             'question': question,
+            'answered': True
         })
-        question['answered'] = True
-        self.db.open_question.update(question)
 
     def add_open_question(self, question):
         self.db.open_questions.insert({
             'question': question,
             'answered': False
         })
+
+    def __repr__(self):
+        return "mariaDB"
+
+    def __str__(self):
+        return "mariaDB"
+
 
 
 class Fake_db:

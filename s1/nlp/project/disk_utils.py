@@ -36,4 +36,5 @@ def disk_cache(f):
                 cache_file = "cache/{}.pkl".format(fid)
             with open(cache_file, "wb") as fout:
                 pickle.dump(retr, fout)
+            return retr
     return wrapper
