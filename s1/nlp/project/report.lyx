@@ -350,23 +350,17 @@ In case of failure (provably impossible): asking the user.
 
 \end_deeper
 \begin_layout Enumerate
-
-\color brown
 if the modality is enriching:
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-
-\color brown
 the user is asked the question with the highest score (*).
  
 \begin_inset Marginal
 status open
 
 \begin_layout Plain Layout
-
-\color brown
 *: the question score is used to give priority to recently asked questions
  (see 7.d and 7.e)
 \end_layout
@@ -377,8 +371,6 @@ status open
 \end_layout
 
 \begin_layout Enumerate
-
-\color brown
 the user's answer is recorded and added to the knowledge base.
 \end_layout
 
@@ -753,7 +745,6 @@ To speed up the bot te3sting process and to get accurate result for these
  Bot flair etc.
  those perform various test cases on your chat-bot and provides the reports
  of complete result for your chat-bots.
- 
 \end_layout
 
 \begin_layout Section
@@ -761,7 +752,7 @@ Notes
 \end_layout
 
 \begin_layout Standard
-4 months later, Facebook's service Wit.ai is still training, so it might
+5 months later, Facebook's service Wit.ai is still training, so it might
  or might not be available at the moment.
 \end_layout
 
@@ -769,8 +760,58 @@ Notes
 "Move fast and break things." - Mark Zuckerberg 
 \end_layout
 
+\begin_layout Section
+Conclusion, Limitations & Future Work
+\end_layout
+
+\begin_layout Subsection
+Conclusions
+\end_layout
+
 \begin_layout Standard
-https://www.tensorflow.org/versions/r0.12/tutorials/syntaxnet/
+Developing this chatbot required a lot of experimentations 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+For every line of code in the final version, more than five lines were written
+ over the course of the development.
+\end_layout
+
+\end_inset
+
+, evaluations and testing, In the end a machine learning based system with
+ heuristics as fallback managed to the dynamicity of inference with the
+ security and interpretability and coherence of heuristics, while this might
+ not be very exciting as a research result, the synergy between the systems
+ allows for a smoother user experience.
+\end_layout
+
+\begin_layout Subsection
+Limitations
+\end_layout
+
+\begin_layout Standard
+LSTM-based methods were the most suprising letdown, using LSTM or their
+ leaner equivalent GRUs marginally increased accuracy but decreased the
+ bot response time by seconds.
+\end_layout
+
+\begin_layout Subsection
+Future works
+\end_layout
+
+\begin_layout Standard
+More POS tagging networks such as SyntaxNet could be tested to improve the
+ performance.
+\end_layout
+
+\begin_layout Standard
+Additionally, a reinforcement learning  system could be used to decide when
+ to follow hard-patterns and when to rely on machine learning based systems,
+ another approach could be to estimate confidence intervals to evaluate
+ alternative possible answers, this can be implemented with guassian processes
+ or uncertainty prediction methods.
 \end_layout
 
 \end_body
