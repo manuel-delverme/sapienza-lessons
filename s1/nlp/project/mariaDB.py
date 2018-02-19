@@ -123,7 +123,8 @@ class Gaia_db:
             'relation': relation,
             'question': question,
         })
-        return question['relation'], question['question']
+        question['answered'] = True
+        self.db.open_question.update(question)
 
     def add_open_question(self, question):
         self.db.open_questions.insert({
