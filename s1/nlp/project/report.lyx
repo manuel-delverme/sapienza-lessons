@@ -218,22 +218,6 @@ This allows the bot to smoothly handle cases where the user doesn't follow
 \end_layout
 
 \begin_layout Standard
-[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
-\end_layout
-
-\begin_layout Standard
-[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
-\end_layout
-
-\begin_layout Standard
-[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
-\end_layout
-
-\begin_layout Standard
-[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
-\end_layout
-
-\begin_layout Standard
 As such, the system uses a small number of hand-crafted rules which should
  be applied in the majority of cases, however, many components have been
  designed to be trained and optimized using machine learning algorithms
@@ -542,16 +526,6 @@ Humans appear to require complex communication initialization protocols
 \end_layout
 
 \begin_layout Subsubsection
-Domain detection
-\end_layout
-
-\begin_layout Standard
-In order to detect the question domain the question is first tokenized using
- the Treebank word tokenizer approach, the word is then classified by a
- pre-trained Bayes classifier.
-\end_layout
-
-\begin_layout Subsubsection
 Question vs statement discrimination:
 \end_layout
 
@@ -577,7 +551,7 @@ Enriching modality
 \begin_layout Standard
 The bot stores a list of unanswered questions in it's database, questions
  are asked based on their score (i.e.
- prioritizing questiosn that have an user waiting for an answer which the
+ prioritizing questions that have an user waiting for an answer which the
  bot is not able to answer).
 \end_layout
 
@@ -586,9 +560,45 @@ Querying modality
 \end_layout
 
 \begin_layout Standard
-Every question has to be mapped to a tuple (Relation, Domain, X, Y), this
- is done by first turning the sentence into features and then applying the
- suitable classifier for every element of the tuple.
+Since the point of this project was to rely in an external data source (i.e.
+ the knowledge base), every question the user asks has to be mapped to a
+ tuple (Relation, Domain, X, Y), this is done by first turning the sentence
+ into features (word vectors for domain and relation and POS-tags for X,Y)
+ and then classified in the respective classes by the classifier which achieved
+ the highest score
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+the classifiers were scored on F1 and inference (not training) time.
+\end_layout
+
+\end_inset
+
+ in the tests.
+\end_layout
+
+\begin_layout Subsubsection
+Domain detection
+\end_layout
+
+\begin_layout Standard
+In order to detect the question domain the question is first tokenized using
+ the Treebank word tokenizer approach, the words are then classified by
+ a word level pre-trained Bayes classifier, this classifier was trained
+ on the additional data that was provided to us.
+\end_layout
+
+\begin_layout Subsubsection
+Relation detection
+\end_layout
+
+\begin_layout Standard
+In order to detect the question relation the question is first tokenized
+ using the Treebank word tokenizer approach and consequently stemmed to
+ improve generalization, the question is then classified by a word level
+ pre-trained Bayes classifier, this classifier was trained on the patterns
+ generated during the last homework.
 \end_layout
 
 \begin_layout Subsubsection
@@ -603,16 +613,13 @@ the knowledge base is indexed by the X and Y columns to allow log(n) look
 \end_layout
 
 \begin_layout Subsubsection
-Failure.
+Failure
 \end_layout
 
 \begin_layout Standard
-
-\uwave on
-When the confidences are below a certain threshold, the system requests
- the user to rephrase the question
-\uwave default
-.
+When the confidences are below a certain threshold, the system offers to
+ the user to either try again rephrasing the question or use an external
+ service.
 \end_layout
 
 \begin_layout Subsection
@@ -620,10 +627,11 @@ Keeping the knowledge base syncronized
 \end_layout
 
 \begin_layout Standard
-The bot's database should be kept updated with the master database where
- everybody contributes knowledge, this is done by a periodic script running
- in backgoeund which connects nightly to the provided DB at 151.100.179.26:8080
- and checks for new data..
+The bot's database should be kept updated with the master database to increase
+ the probability of a corrent answer.
+ since other bots constantly improve the knowledge base by enritchment,
+ this is done by a periodic script running in background which connects
+ nightly to the provided DB at 151.100.179.26:8080 and checks for new data.
 \end_layout
 
 \begin_layout Subsection
@@ -632,7 +640,7 @@ Local proxy
 
 \begin_layout Standard
 Another challenge was to make the bot work within the univeristy network,
- since the telegram APIs are not using HTTP/HTTPS an HTTP proxy
+ since the Telegram APIs are not using HTTP/HTTPS an HTTP proxy
 \begin_inset Foot
 status open
 
@@ -823,43 +831,61 @@ Results and Analysis
 \end_layout
 
 \begin_layout Standard
-Chat-bots work very different way than traditional software.
- The major problem for any chat-bot to understand context of user’s conversation
- and make thing easy for user.
- Once chat bot is developed, it important to test some of the key metrics.
- Those are:
+The distingusihing feature of chat-bots is a more natural machine-human
+ interaction, the bot should understand context of user messages and make
+ the process as fricitonless as possible for user.
+ This translates to some of the key metrics:
+\end_layout
+
+\begin_layout Itemize
+Query-to-responce latency
+\end_layout
+
+\begin_layout Itemize
+Response accuracy
 \end_layout
 
 \begin_layout Itemize
 Conversational Flow
 \end_layout
 
-\begin_layout Itemize
-NLP Score
+\begin_layout Standard
+Alas, none of the above metrics are easily measurable and I could not think
+ about a measurement which would be descriptive of the bot's performance,
+ ideally one should define a questionnaire and have a statistically significant
+ number of people rate the bot and answer based on the above scores and
+ approach could be using serices such as amazon's mechanical turk or an
+ army of undergraduate students.
 \end_layout
 
-\begin_layout Itemize
-Usability & User experience
-\end_layout
+\begin_layout Standard
+An alternatve would be using services such as 
+\begin_inset Quotes eld
+\end_inset
 
-\begin_layout Itemize
-Bot Speed
-\end_layout
+Bot Testing
+\begin_inset Quotes erd
+\end_inset
 
-\begin_layout Itemize
-Bot Accuracy
-\end_layout
+, 
+\begin_inset Quotes eld
+\end_inset
 
-\begin_layout Itemize
-Conversation Steps
-\end_layout
+Dimon
+\begin_inset Quotes erd
+\end_inset
 
-\begin_layout Itemize
-To speed up the bot testing process and to get accurate result for these
- key metrics, one should use list of services like Bot Testing , Dimon,
- Bot flair etc.
- those perform various test cases on your chat-bot and provides the reports
- of complete result for your chat-bots.
+, 
+\begin_inset Quotes eld
+\end_inset
+
+Bot flair
+\begin_inset Quotes erd
+\end_inset
+
+ etc.
+ which perform various test on your chat-bot and provides the reports of
+ complete result for your chat-bots.
 \end_layout
 
 \begin_layout Section
@@ -895,8 +921,11 @@ Limitations
 
 \begin_layout Standard
 LSTM-based methods were the most suprising letdown, using LSTM or their
- leaner equivalent GRUs marginally increased accuracy but decreased the
- bot response time by seconds.
+ leaner equivalent GRUs would surely increase genralization but the empirical
+ results were: marginally increased accuracy and decreased the bot response
+ time by several seconds, this might have been because not enoguh data was
+ available for training and testing (many DB entries didn't follow the database
+ definition and ignored).
 \end_layout
 
 \begin_layout Subsection
@@ -904,18 +933,15 @@ Future works
 \end_layout
 
 \begin_layout Standard
-More POS tagging networks such as SyntaxNet could be tested to improve the
- performance.
+POS tagging is a crucial element of the algorithm and novel networks such
+ as SyntaxNet could be tested to improve the overall performance.
 \end_layout
 
 \begin_layout Standard
-Additionally, a reinforcement learning  system could be used to decide when
- to follow hard-patterns and when to rely on machine learning based systems,
- another approach could be to estimate confidence intervals to 
-\strikeout on
-evaluate
-\strikeout default
- alternative possible answers, this can be implemented with guassian processes
+Additionally, a Reinforcement Learning  system could be used to decide when
+ to follow hard-patterns and when to rely on machine learning based systems.
+ Another approach could be to estimate confidence intervals to choose between
+ many possible answers, this can be implemented with guassian processes
  or uncertainty prediction methods.
 \end_layout
 
