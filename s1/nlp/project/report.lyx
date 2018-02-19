@@ -108,9 +108,9 @@ Some widespread examples of the above are personal assistants on mobile
 \end_layout
 
 \begin_layout Standard
-In this project we develop are tasked with the development of a chat-bot:
- an agent able to answer to human queries relying on an automatically built
- knowledge based.
+In this project we develop are tasked with the development of a chat-bot
+ also known as a social-bot: an agent able to answer to human queries relying
+ on an automatically built knowledge based.
 \end_layout
 
 \begin_layout Standard
@@ -206,7 +206,7 @@ Suendermann-Oeft et al.
 In contrast to such rule-based systems, Maria uses a simple supervised learner
  system built on top of a configuration of several algorithms raging from
  rule-based systems to deep learning architectures and external services
- such as Facebook's Wit.ai (unresponsive at the time of writing).
+ such as Facebook's Wit.ai.
 \end_layout
 
 \begin_layout Standard
@@ -214,6 +214,23 @@ This allows the bot to smoothly handle cases where the user doesn't follow
  the underlying assumption of any one of the individual systems.
  Hierarchical approaches such as this generate a great degree of adaptability
  as it is required in a domain like the human language.
+ 
+\end_layout
+
+\begin_layout Standard
+[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
+\end_layout
+
+\begin_layout Standard
+[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
+\end_layout
+
+\begin_layout Standard
+[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
+\end_layout
+
+\begin_layout Standard
+[+--+--+--+--+--+--PROOFREAD-UP-TO-HERE+--+--+--+--+--+--]
 \end_layout
 
 \begin_layout Standard
@@ -221,14 +238,13 @@ As such, the system uses a small number of hand-crafted rules which should
  be applied in the majority of cases, however, many components have been
  designed to be trained and optimized using machine learning algorithms
  and are able to autonomously adapt to the dynamic nature of the world without,
- furthermore this adaptation can be achieved online or real-time in contrast
- to having to train the whole system from scratch.
+ furthermore this adaptation could also be achieved online or real-time
+ in contrast to having to train the whole system from scratch.
 \end_layout
 
 \begin_layout Standard
-Each component was trained first independently to generate an answer but
- also to provide a confidence score of his own answer.
- This way a coordinator knows when to apply hand-crafted rules and when
+Each component also to provides a confidence score of his own answer.
+ This way the main process knows when to apply hand-crafted rules and when
  to generate answers by statistical models.
  Given an adequate amount of examples, such a system should outperform systems
  based on hand-crafted states and rules.
@@ -520,9 +536,9 @@ Greetings messages
 
 \begin_layout Standard
 Humans appear to require complex communication initialization protocols
- and it's proven that failure to handle a simple greeting makes for an awful
- user experience for this reason an handcrafted handling of the greeting
- procedure was implemented.
+ and has been proven that failure to handle a simple greeting makes for
+ an awful user experience for this reason an handcrafted handling of the
+ greeting procedure was implemented.
 \end_layout
 
 \begin_layout Subsubsection
@@ -536,7 +552,7 @@ In order to detect the question domain the question is first tokenized using
 \end_layout
 
 \begin_layout Subsubsection
-query vs enrichment discrimination:
+Question vs statement discrimination:
 \end_layout
 
 \begin_layout Standard
@@ -550,7 +566,8 @@ Please tell me where is the pen
 \begin_inset Quotes erd
 \end_inset
 
- but it's an acceptable limitation.
+ but it's an acceptable limitation considering this bot should only handle
+ questions or enrichment procedures.
 \end_layout
 
 \begin_layout Subsubsection
@@ -558,8 +575,10 @@ Enriching modality
 \end_layout
 
 \begin_layout Standard
-The highest ranked question is asked to the user and the user's answer is
- recorded.
+The bot stores a list of unanswered questions in it's database, questions
+ are asked based on their score (i.e.
+ prioritizing questiosn that have an user waiting for an answer which the
+ bot is not able to answer).
 \end_layout
 
 \begin_layout Subsubsection
@@ -580,55 +599,135 @@ Knowledge base look up
 the knowledge base is indexed by the X and Y columns to allow log(n) look
  up times, this technical speedup is crucial to the algorithm since it allows
  brute-forcing all the possible (X,Y) tuple of a word using machine learning
- algorithms only as an heuristic.
+ algorithms only as an heuristic to prioritize the (X, Y) tuples.
 \end_layout
 
 \begin_layout Subsubsection
-Generate response
+Failure.
 \end_layout
 
 \begin_layout Standard
-To generate a response, the system follows a three-step procedure.
-\end_layout
 
-\begin_layout Standard
-First, it uses a subset of fast classifier to to generate a set of candidate
- responses.
-\end_layout
-
-\begin_layout Standard
-Second, if there exists a priority response in the set of candidate responses
- (i.e.
- a response which takes precedence over other responses), this response
- will be returned by the system.
- For example, for the question "Where is our mediator?", the response "Wait
- for him! He will surely come!" is a priority response.
-\end_layout
-
-\begin_layout Standard
-Third, if there are no priority responses, the response is selected by a
- slower set of answers by the model selection policy.
- For example, the model selection policy may select a response by scoring
- all candidate responses and picking the highest-scored response.
- The overall process is illustrated in Figure 1.
-\end_layout
-
-\begin_layout Standard
+\uwave on
 When the confidences are below a certain threshold, the system requests
- the user to rephrase the question.
- Otherwise, the system does not utilize the confidences.
+ the user to rephrase the question
+\uwave default
+.
+\end_layout
+
+\begin_layout Subsection
+Keeping the knowledge base syncronized
 \end_layout
 
 \begin_layout Standard
-since [Vapnik theorem] and since [learning curve] and since [notebook],
- a simpler feature set was tested with good results
+The bot's database should be kept updated with the master database where
+ everybody contributes knowledge, this is done by a periodic script running
+ in backgoeund which connects nightly to the provided DB at 151.100.179.26:8080
+ and checks for new data..
+\end_layout
+
+\begin_layout Subsection
+Local proxy
+\end_layout
+
+\begin_layout Standard
+Another challenge was to make the bot work within the univeristy network,
+ since the telegram APIs are not using HTTP/HTTPS an HTTP proxy
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://tinyproxy.github.io/
+\end_layout
+
+\end_inset
+
+ and a SSH thunnel
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://www.ssh.com
+\end_layout
+
+\end_inset
+
+ were needded to bypass the port restrictions.
 \end_layout
 
 \begin_layout Section
+
+\uwave on
 Example interactions
 \end_layout
 
+\begin_layout Subsection
+
+\uwave on
+An answer is present in the DB
+\end_layout
+
 \begin_layout Description
+
+\uwave on
+\begin_inset Graphics
+	filename report/images/pp.jpeg
+	lyxscale 10
+	width 5text%
+
+\end_inset
+
+: Yo!
+\end_layout
+
+\begin_layout Description
+
+\uwave on
+\begin_inset Graphics
+	filename report/robot-face.png
+	lyxscale 10
+	width 5text%
+
+\end_inset
+
+: Greetings
+\end_layout
+
+\begin_layout Description
+
+\uwave on
+\begin_inset Graphics
+	filename report/images/pp.jpeg
+	lyxscale 10
+	width 5text%
+
+\end_inset
+
+: Where is Flagstaff Lake located?
+\end_layout
+
+\begin_layout Description
+
+\uwave on
+\begin_inset Graphics
+	filename report/robot-face.png
+	lyxscale 10
+	width 5text%
+
+\end_inset
+
+: Maine
+\end_layout
+
+\begin_layout Subsection
+
+\uwave on
+An answer is not known
+\end_layout
+
+\begin_layout Description
+
+\uwave on
 \begin_inset Graphics
 	filename report/images/pp.jpeg
 	lyxscale 10
@@ -640,6 +739,8 @@ Example interactions
 \end_layout
 
 \begin_layout Description
+
+\uwave on
 \begin_inset Graphics
 	filename report/robot-face.png
 	lyxscale 10
@@ -651,6 +752,8 @@ Example interactions
 \end_layout
 
 \begin_layout Description
+
+\uwave on
 \begin_inset Graphics
 	filename report/images/pp.jpeg
 	lyxscale 10
@@ -663,12 +766,16 @@ Example interactions
 
 \begin_deeper
 \begin_layout Description
+
+\uwave on
 ELIZA: Please consider whether you can answer your own question.
  [s:4] 
 \begin_inset Marginal
 status open
 
 \begin_layout Plain Layout
+
+\uwave on
 Since an answer was not found the conversational models suggest possible
  responses.
 \end_layout
@@ -679,20 +786,28 @@ Since an answer was not found the conversational models suggest possible
 \end_layout
 
 \begin_layout Description
+
+\uwave on
 ALICE: I ask myself that question, "Who am I?" [s:5]
 \end_layout
 
 \begin_layout Description
+
+\uwave on
 deepQA: A: Impeachment impeachment painter painter painter painter painter
  painter welder welder welder nitro [s:1]
 \end_layout
 
 \end_deeper
 \begin_layout Description
+
+\uwave on
 in-background: a question is posted in the DB.
 \end_layout
 
 \begin_layout Description
+
+\uwave on
 \begin_inset Graphics
 	filename report/robot-face.png
 	lyxscale 10
@@ -740,24 +855,11 @@ Conversation Steps
 \end_layout
 
 \begin_layout Itemize
-To speed up the bot te3sting process and to get accurate result for these
+To speed up the bot testing process and to get accurate result for these
  key metrics, one should use list of services like Bot Testing , Dimon,
  Bot flair etc.
  those perform various test cases on your chat-bot and provides the reports
  of complete result for your chat-bots.
-\end_layout
-
-\begin_layout Section
-Notes
-\end_layout
-
-\begin_layout Standard
-5 months later, Facebook's service Wit.ai is still training, so it might
- or might not be available at the moment.
-\end_layout
-
-\begin_layout Standard
-"Move fast and break things." - Mark Zuckerberg 
 \end_layout
 
 \begin_layout Section
@@ -809,9 +911,32 @@ More POS tagging networks such as SyntaxNet could be tested to improve the
 \begin_layout Standard
 Additionally, a reinforcement learning  system could be used to decide when
  to follow hard-patterns and when to rely on machine learning based systems,
- another approach could be to estimate confidence intervals to evaluate
+ another approach could be to estimate confidence intervals to 
+\strikeout on
+evaluate
+\strikeout default
  alternative possible answers, this can be implemented with guassian processes
  or uncertainty prediction methods.
+\end_layout
+
+\begin_layout Section
+Notes
+\end_layout
+
+\begin_layout Standard
+The bot was meant to use an online service as fallback in case he coudln't
+ answer to a query, but the original service got acquired and was close,
+ the subsitute (Facebook's service Wit.ai) is still training after 5 months,
+ is still training at the time of writing, so it might or might not be available
+ at the moment of testing.
+\end_layout
+
+\begin_layout Standard
+"
+\strikeout on
+Move fast and
+\strikeout default
+ break things." - Mark Zuckerberg 
 \end_layout
 
 \end_body

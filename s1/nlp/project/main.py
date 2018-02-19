@@ -65,7 +65,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.modality = None
 
     def log_message(self, msg):
-        self.sendMessage(config.MANUEL_ID, pprint.pformat(msg))
+        self.sendMessage(config.MANUEL_ID, "[LOG] " + pprint.pformat(msg))
 
     def sendMessage(self, user_id, msg, reply_markup=None):
         self.bot.sendMessage(user_id, msg, reply_markup=reply_markup)
@@ -197,17 +197,17 @@ class MariaBot(telepot.helper.ChatHandler):
 
     def on_message(self, msg):
         global user_handler
-        logging.debug("on_message {}".format(msg))
+        # logging.debug("on_message {}".format(msg))
 
         message_user_tid = msg['from']['id']
         if not self.user_tid:
             self.user_tid = message_user_tid
         else:
             assert message_user_tid == self.user_tid
-        logging.debug("user_tid {}".format(self.user_tid))
+        # logging.debug("user_tid := {}".format(self.user_tid))
 
         user = self.db.find_by_tid(message_user_tid)
-        logging.debug("user_obj {}".format(user))
+        logging.debug("user_obj := {}".format(user))
 
         if user is None:  # if user is a new user
             logging.debug("user is new")
@@ -228,13 +228,18 @@ class MariaBot(telepot.helper.ChatHandler):
             self.sendMessage(user.tid, "i failed to understand that; admin noticed")
             return
 
+        if "DEBUG" == user_msg_txt:
+            logging.debug = self.log_message
+            logging.debug("DEBUG:ON")
+            return
+
         if self.is_greeting(user_msg_txt):
             logging.debug("is_greeting".format(user_msg_txt))
             self.greet_user(user)
             return
 
         if not self.domain:
-            logging.debug("classify_domain {}".format(user_msg_txt))
+            # logging.debug("classify_domain {}".format(user_msg_txt))
             try:
                 self.domain = self.classify_domain(user_msg_txt)
             except DomainDetectionFail:
@@ -242,8 +247,8 @@ class MariaBot(telepot.helper.ChatHandler):
                     possible_domains = fin.read()[:-1].split("\n")
                 self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
             else:
-                logging.debug("classify_domain rets {}:".format(self.domain))
-                self.on_message(msg)
+                logging.debug("domain classified as {}:".format(self.domain))
+                # self.on_message(msg)
             return
 
         if not self.modality:
@@ -319,7 +324,8 @@ class MariaBot(telepot.helper.ChatHandler):
                     timeleft -= 1
 
                 if timeleft == 0:
-                    answer = "try; http://lmgtfy.com/?q='{}'".format(user_msg_txt)
+                    answer = "either try to rephrase your question or try this link; http://lmgtfy.com/?q='{}'".format(
+                        user_msg_txt.replace(" ", "+"))
 
             logging.info("opening question".format(user_msg_txt))
 
@@ -387,14 +393,22 @@ def main(test_run=False):
         # "hard cake is the type of truck?",
         # "what is the material of hard cake?",
         # "animals",
+        "DEBUG",
         "Where is Flagstaff Lake located ?",
         "ok thanks",
         "Is coliseum located in Rome?",
         "What is the capital of France?",
         "How do cakes smell lke?",
         "what is the material of hard cake?",
+
+        # TODO:
+        # debug over telegram
+        # screenshot conv for report
+        # improve report by looking at old ones
+        # "What is an example of a symbol?",
     ]
     logging.debug('bot is in test mode:' + str(test_run))
+
     if test_run:
         test_bot = MariaBot(test_run=test_run)
         test_user_id = 45571984
@@ -407,14 +421,26 @@ def main(test_run=False):
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
             test_bot.on_message(message_template)
     else:
+
+        import urllib3
+        import telepot.api
+
+        proxy_url = 'http://localhost:1234/'
+        telepot.api._pools = {
+            'default': urllib3.ProxyManager(proxy_url=proxy_url, num_pools=3, maxsize=10, retries=False, timeout=30),
+        }
+        telepot.api._onetime_pool_spec = (
+        urllib3.ProxyManager, dict(proxy_url=proxy_url, num_pools=1, maxsize=1, retries=False, timeout=30))
+
         logging.debug("running DelegatorBot")
         bot = telepot.DelegatorBot(KEY, [
             pave_event_space()(
                 per_chat_id(), create_open, MariaBot, timeout=99999),
         ])
-        for msg in msg_flow:
-            print("sending", msg)
-            subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
+        print(bot.getMe())
+        # for msg in msg_flow:
+        #    print("sending", msg)
+        #    subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
         logging.debug("looping forever")
         MessageLoop(bot).run_forever()
         logging.debug("forever has passed?")
@@ -422,9 +448,8 @@ def main(test_run=False):
 
 if __name__ == "__main__":
     import os
-
     logging.basicConfig(filename='mariabot.log', level=logging.DEBUG)
     # print("hi")
     # test_run = "--test" in os.sys.argv
-    test_run = True
+    test_run = False
     main(test_run=test_run)
