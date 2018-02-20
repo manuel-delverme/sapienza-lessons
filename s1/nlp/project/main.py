@@ -1,36 +1,24 @@
 # -*- coding: UTF-8 -*-
 import json
 import logging
-import answer_question
-import classify_pattern
-import nltk
 import pickle
-from collections import OrderedDict
 import pprint
 import random
-import subprocess
-import time
-from collections import OrderedDict
-
+import collections
 import apiai
 import nltk
 import telepot
 import telepot.loop
+import telepot.loop
 from telepot.delegate import per_chat_id, create_open, pave_event_space
 from telepot.loop import MessageLoop
 from telepot.namedtuple import ReplyKeyboardRemove, KeyboardButton, ReplyKeyboardMarkup
-from collections import defaultdict
 
 import answer_question
 import classify_pattern
 import config
 import mariaDB
-
-import telepot
-import telepot.loop
-import random
-from commons import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException, Modality
-import config
+import commons
 
 user_handler = {}
 
@@ -86,11 +74,11 @@ class MariaBot(telepot.helper.ChatHandler):
     @staticmethod
     def classify_modality(msg_txt):
         if "?" == msg_txt[-1]:
-            return Modality.querying
+            return commons.Modality.querying
         if "?" in msg_txt:
-            raise ModalityDetectionFail()
+            raise commons.ModalityDetectionFail()
         else:
-            return Modality.enriching
+            return commons.Modality.enriching
 
     def offer_user_options(self, original_msg, answer_type, options, query_msg):
         keyboard_layout = []
@@ -132,7 +120,7 @@ class MariaBot(telepot.helper.ChatHandler):
         with open("chatbot_maps/domain_list.txt") as fin:
             possible_domains = fin.read()[:-1].split("\n")
 
-        classified_domains = OrderedDict({d: 0 for d in possible_domains})
+        classified_domains = collections.OrderedDict({d: 0 for d in possible_domains})
         for word in nltk.tokenize.word_tokenize(msg_txt):
             # print("[BOT] word:", word, "-" * 100)
             total_weight = 0
@@ -155,7 +143,7 @@ class MariaBot(telepot.helper.ChatHandler):
         if classified_domains[best_guess] < 1.5:  # HYPER PARAM
             print("[BOT] domain for question: ", best_guess, classified_domains[best_guess])
             print("[BOT] failed confidence < 1.5")
-            raise DomainDetectionFail()
+            raise commons.DomainDetectionFail()
         return best_guess
 
     @staticmethod
@@ -169,7 +157,7 @@ class MariaBot(telepot.helper.ChatHandler):
         answer = answer_question.answer_question(self.db, user_msg_txt, relation)
         if answer:
             return answer
-        raise FailToAnswerException()
+        raise commons.FailToAnswerException()
 
     @staticmethod
     def infer_question_relation(question_txt, domain):
@@ -178,7 +166,7 @@ class MariaBot(telepot.helper.ChatHandler):
         question = [sno.stem(word) for word in question]
         relation = classify_pattern.find_relation(question)
         if not relation:
-            raise RelationDetectionFail()
+            raise commons.RelationDetectionFail()
         else:
             return relation
 
@@ -210,11 +198,10 @@ class MariaBot(telepot.helper.ChatHandler):
         if user is None:  # if user is a new user
             logging.debug("user is new")
             self.register_user(message_user_tid, msg)
-
-        # elif user.tid in user_handler:
-        #    logging.debug("{} was redirected by handler".format(user.tid))
-        #    # print(user.tid, "was redirected by handler")
-        #    return user_handler[user.tid](msg)
+        elif user.tid in user_handler:
+           logging.debug("{} was redirected by handler".format(user.tid))
+           # print(user.tid, "was redirected by handler")
+           return user_handler[user.tid](msg)
 
         try:
             user_msg_txt = msg['text']
@@ -259,21 +246,24 @@ class MariaBot(telepot.helper.ChatHandler):
             return
 
         logging.debug("classify_domain {}".format(user_msg_txt))
-        try:
-            self.domain = self.classify_domain(user_msg_txt)
-        except DomainDetectionFail:
-            with open("chatbot_maps/domain_list.txt") as fin:
-                possible_domains = fin.read()[:-1].split("\n")
-            self.offer_user_options(msg, "domain", possible_domains, "what's the domain?")
-        else:
-            logging.debug("classify_domain rets {}:".format(self.domain))
+        if self.domain is None:
+            try:
+                self.domain = self.classify_domain(user_msg_txt)
+            except commons.DomainDetectionFail:
+                with open("chatbot_maps/domain_list.txt") as fin:
+                    possible_domains = fin.read()[:-1].split("\n")
+                self.offer_user_options(msg, "domain", possible_domains, "I'm not sure what we are talking about, please "
+                                                                         "choose one option from the following")
+                return
+            else:
+                logging.debug("classify_domain rets {}:".format(self.domain))
 
         logging.debug("classify_modality for: {}".format(user_msg_txt))
 
         self.modality = self.classify_modality(user_msg_txt)
         # self.offer_user_options(msg, "modality", ["ask questions", "answer stuff"], "what do you want to do?")
 
-        if self.modality == Modality.enriching:
+        if self.modality == commons.Modality.enriching:
             logging.debug("modality is : enriching; looking for open question")
             try:
                 relation, question = self.db.get_open_question(self.domain)
@@ -296,7 +286,7 @@ class MariaBot(telepot.helper.ChatHandler):
                 self.sendMessage(message_user_tid,
                                  "question: {} ({}). what would you answer to that?".format(question, relation))
 
-        elif self.modality == Modality.querying:
+        elif self.modality == commons.Modality.querying:
             logging.debug("modality is: querying")
             self.relation = ""
             logging.debug("answering user question Q:{} D:{} R:{}".format(user_msg_txt, self.domain, self.relation))
