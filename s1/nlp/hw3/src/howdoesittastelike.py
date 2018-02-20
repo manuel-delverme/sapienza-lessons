@@ -199,7 +199,6 @@ def main():
     #     print_similar_foods(food_to_dim, recipe_to_dim, food_frequency, tree, food_name)
 
     print_similar_foods(food_to_dim, recipe_to_dim, food_frequency, tree, "pizza")
-    print_similar_foods(food_to_dim, recipe_to_dim, food_frequency, tree, "valentina")
 
 
 def print_similar_foods(food_to_dim, recipe_to_dim, food_frequency, model, dish_name):

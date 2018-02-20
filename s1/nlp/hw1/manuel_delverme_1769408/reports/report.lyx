@@ -1,7 +1,9 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \begin_preamble
 \usepackage{listings}
@@ -14,16 +16,16 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
-\font_math auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -33,7 +35,7 @@
 \spacing single
 \use_hyperref false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_package amsmath 1
 \use_package amssymb 1
 \use_package cancel 1
@@ -57,12 +59,19 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
+\headheight 2cm
+\headsep 2cm
+\footskip 2cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
 \paragraph_indentation default
 \quotes_language english
-\papercolumns 1
+\papercolumns 2
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
@@ -75,112 +84,297 @@
 \begin_body
 
 \begin_layout Title
-Homework Report 1
+Homework Report 2
 \end_layout
 
 \begin_layout Author
-Manuel Del Verme
-\begin_inset Newline newline
-\end_inset
-
-1769408
+Manuel Del Verme 1769408
 \end_layout
 
 \begin_layout Section
-System overview
+Abstract
+\end_layout
+
+\begin_layout Section
+Model description
+\end_layout
+
+\begin_layout Section
+Optimization
+\end_layout
+
+\begin_layout Section
+Experiments
+\end_layout
+
+\begin_layout Section
+multilingual pos tagging
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \begin_layout Subsection
-Design choices
+Datasets
 \end_layout
 
 \begin_layout Standard
-Python, and sklearn_crfsuite were used, Python allows for high an iteration
- speed between different experiemnts, and sklearn_crfsuite uses pycrfsuite
- which in turn uses a C implementation (Cython) to achieve high training
- speed.
+3.1 Datasets For the multilingual experiments, we use the data from the Universal
+ Dependencies project v1.2 (Nivre et al., 2015) (17 POS) with the canonical
+ data splits.
+ For languages with token segmentation ambiguity we use the provided gold
+ segmentation.
+ If there is more than one treebank per language, we use the treebank that
+ has the canonical language name (e.g., Finnish instead of Finnish-FTB).
+ We consider all languages that have at least 60k tokens and are distributed
+ with word forms, resulting in 22 languages.
+ We also report accuracies on WSJ (45 POS) using the standard splits (Collins,
+ 2002; Manning, 2011).
+ The overview of languages is provided in Table 1.
+\end_layout
+
+\begin_layout Subsubsection
+Universal dependencies
 \end_layout
 
 \begin_layout Subsection
-features encoding
+Tagger designer
 \end_layout
 
 \begin_layout Standard
-several features werer tested but only an handful of them improvement over
- both the provided data, and an hand annotated dataset used to assert the
- indipendence of the training and test samples, this indipendence was not
- found hence a bias in the optimization of hyperparameters has been taken
- in consideration (PROVE ME WITH DATA) [http://stats.stackexchange.com/questions/9
-5797/how-to-split-the-dataset-for-cross-validation-learning-curve-and-final-eval
-uat]
+blablabla LSTM / bi-LSTMs
+\end_layout
+
+\begin_layout Itemize
+GRU vs LSTM
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+LSTMs are recurrent neural networks (RNNs) in which layers are designed
+ to prevent vanishing gradients.
+\end_layout
+
+\begin_layout Itemize
+GRU are blablabla
+\end_layout
+
+\begin_layout Itemize
+Bidirectional LSTMs make a backward and forward pass through the sequence
+ before passing on to the next layer.
+ For further details, see (Goldberg, 2015; Cho, 2015).
+ https://github.com/fchollet/keras/blob/master/examples/imdb_bidirectional_lstm.py
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Dense layer
+\end_layout
+
+\begin_layout Itemize
+heirarical tagging
+\end_layout
+
+\begin_layout Section
+Loss function
+\end_layout
+
+\begin_layout Subsection
+accounting for rare words
+\end_layout
+
+\begin_layout Subsubsection
+Cumulative absolute weight across classes 
+\begin_inset Formula $\stackrel[class=0]{N}{\sum}|W_{feature,class}|$
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-in the following table relevance score for each feature and each tag is
- shown:
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
 \end_layout
 
-\begin_layout Standard
-[FIGURE eli5]
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+score
 \end_layout
 
-\begin_layout Standard
-some of the unused features are:
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_idx_to_end_1_
 \end_layout
 
-\begin_layout Standard
-'is_truncated_word': signals if the letter in question and it's left word
- slice are part of existing_word[:-1]
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+ 31.68967
 \end_layout
 
-\begin_layout Standard
-since [vapnik theorem] and since [learning curve] and since [notebook],
- a simpler feature set was tested with good results
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_idx_from_beginning_1_
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+28.11506
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_left_of_real_word_ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+24.39695
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_idx_from_beginning_0_
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.33952 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_right_of_real_word_
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.67326
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+_bias_
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.13758
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+memory constraints
+\end_layout
+
+\begin_layout Itemize
+It's not possible to store the full feature vector because of it's prohibitive
+ memory dimension 
+\begin_inset Formula $o(n^{\delta})$
+\end_inset
+
+ only the positive features and a few negative features (sampled) were considere
+d, ignoring negative samples sightly decreased performance.
 \end_layout
 
 \begin_layout Section
 Results and Analysis
 \end_layout
 
-\begin_layout Itemize
-K-fold cross-validation was used
-\end_layout
-
-\begin_layout Itemize
-The sample set is split in K subsets.
-\end_layout
-
-\begin_layout Itemize
-K tests are performed where at each test one of the sets is taken as test
- set.
-\end_layout
-
-\begin_layout Itemize
-The results are averaged
-\end_layout
-
-\begin_layout Itemize
-gating 906
-\end_layout
-
-\begin_layout Standard
-Report also results with different and how you tune it.
- 
+\begin_layout Subsection
+Trained model results
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="13">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
+<lyxtabular version="3" rows="3" columns="4">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top">
 <column alignment="center" valignment="top">
 <column alignment="center" valignment="top">
@@ -199,7 +393,7 @@ Report also results with different and how you tune it.
 \begin_inset Text
 
 \begin_layout Plain Layout
-Training error 
+F1
 \end_layout
 
 \end_inset
@@ -208,88 +402,166 @@ Training error
 \begin_inset Text
 
 \begin_layout Plain Layout
-Dev error
+Prec
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Precision
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 Recall
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10-fold
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.90722
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.91588
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.89916
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1-fold
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.91051
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Learning Curve / Amount of training data (number of sentences) vs tagging
+ accuracy.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /home/awok/figure_1-6.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+since simple models generalize better [Vapnik, Chervonenkis] and since 
+\end_layout
+
+\begin_layout Standard
+the learning curve did not plateau, the feature set was kept as simple as
+ possible.
+\end_layout
+
+\begin_layout Subsection
+Report also results with different delta and how you tune it.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $\delta$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -309,106 +581,7 @@ F1
 \begin_inset Text
 
 \begin_layout Plain Layout
-Averaging Perceptron
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
+2
 \end_layout
 
 \end_inset
@@ -417,7 +590,7 @@ Averaging Perceptron
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+0.903725566065
 \end_layout
 
 \end_inset
@@ -428,106 +601,7 @@ Averaging Perceptron
 \begin_inset Text
 
 \begin_layout Plain Layout
-Voting APs
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
+3
 \end_layout
 
 \end_inset
@@ -536,7 +610,7 @@ Voting APs
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+0.911790471963
 \end_layout
 
 \end_inset
@@ -547,110 +621,7 @@ Voting APs
 \begin_inset Text
 
 \begin_layout Plain Layout
-Voting APs
-\begin_inset Formula $\delta=2$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
+4
 \end_layout
 
 \end_inset
@@ -659,130 +630,7 @@ Voting APs
 \begin_inset Text
 
 \begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Voting APs
-\begin_inset Formula $\delta=3$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
+0.910815004383
 \end_layout
 
 \end_inset
@@ -793,110 +641,7 @@ Voting APs
 \begin_inset Text
 
 \begin_layout Plain Layout
-Voting APs
-\begin_inset Formula $\delta=4$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
+5
 \end_layout
 
 \end_inset
@@ -905,7 +650,7 @@ Voting APs
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+0.911341191113
 \end_layout
 
 \end_inset
@@ -918,41 +663,109 @@ Voting APs
 
 \end_layout
 
-\begin_layout Itemize
-show how (and if) performances increase as number of training examples increases.
+\begin_layout Enumerate
+The two sets from morpho challenge 2010 and the crowd-soruced annotated
+ dataset are loaded and used to find the best values for the hyperparameters
+ (
+\begin_inset Formula $\epsilon$
+\end_inset
+
+, max_iterations, 
+\begin_inset Formula $\delta$
+\end_inset
+
+) by bruteforce and crossvalidation over a limited parameter space.
+\end_layout
+
+\begin_layout Enumerate
+The best hyperparameters from (1) are used to train a new classifier and
+ tested on the morpho challenge 2010 test set.
+\end_layout
+
+\begin_layout Subsection
+learned weights
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename ../weights.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Failures
+\end_layout
+
+\begin_layout Subsection
+Voting classifier
+\end_layout
+
+\begin_layout Standard
+A second classifier was trained on synthetic data was used hoping to gather
+ information from the blind merging of morphemes.
+\end_layout
+
+\begin_layout Subsection
+Synthetic dataset
+\end_layout
+
+\begin_layout Standard
+A synthetic morpheme was considered as one of the n! permutations of the
+ morphemes present in the original training set, if the joining the morphemes
+ would create a real word.
+\end_layout
+
+\begin_layout Subsection
+Initializing perceptron weights
+\end_layout
+
+\begin_layout Standard
+A perceptron cannot offer optimalitiy guarantee in the case of non linearly
+ separable data, hence a corpus of milions of segmentations (very similar
+ to point 3.1 but also including short words) was created and used as pre-fit
+ to initialize the perceptron weights, this approach failed because the
+ used library threats the underlying model as read-only except for the fit
+ function which doesn't support incremental learning (this approach was
+ inspired by Speaker verification using adapted Gaussian mixture models
+ Reynolds DA, 2000 )
+\end_layout
+
+\begin_layout Subsection
+High variance results
+\end_layout
+
+\begin_layout Standard
+A score 0.946 precision 0.954 precision 0.938 recall was achieved but the results
+ have a huge variance (faded color) shown below.
 \begin_inset Newline newline
 \end_inset
 
-[LEARNING CURVE PLOT]
+
+\begin_inset Graphics
+	filename /home/awok/figure_1-7.png
+	scale 50
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout Itemize
-[CONFUSION MATRIX]
+\begin_layout Section
+Only morpho challenge 2010 data
 \end_layout
 
-\begin_deeper
-\begin_layout Itemize
-Number of correct and incorrect predictions for each class: Each row in
- the confusion matrix corresponds to the metrics for one of the true classes.
- For example, the first row shows that for movies that are actually in the
- Romance genre, the multiclass ML model gets the predictions right for over
- 80% of the cases.
- It incorrectly predicts the genre as Thriller for less than 20% of the
- cases, and Adventure for less than 20% of the cases.
- Class-wise F1-score: The last column shows the F1-score for each of the
- classes.
- True class-frequencies in the evaluation data: The second to last column
- shows that in the evaluation dataset, 57.92% of the observations in the
- evaluation data is Romance, 21.23% is Thriller, and 20.85% is Adventure.
- Predicted class-frequencies for the evaluation data: The last row shows
- the frequency of each class in the predictions.
- 77.56% of the obscervations is predicted as Romance, 9.33% is predicted as
- Thriller, and 13.12% is predicted as Adventure.
-\end_layout
+\begin_layout Standard
+\begin_inset Graphics
+	filename /home/awok/no-crowd-learning.png
+	scale 50
 
-\end_deeper
-\begin_layout Subsection
-http://docs.aws.amazon.com/machine-learning/latest/dg/multiclass-model-insights.html
+\end_inset
+
+
 \end_layout
 
 \end_body

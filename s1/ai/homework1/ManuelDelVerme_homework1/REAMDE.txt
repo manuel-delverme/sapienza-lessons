@@ -1,5 +1,0 @@
-the project requires the aima framework to be imported as library
-
-extras:
-  the idea/ folder is intellij-idea config
-  the executable file can be run as ./extras/homework1.jar 1 map.txt img.bmp 6

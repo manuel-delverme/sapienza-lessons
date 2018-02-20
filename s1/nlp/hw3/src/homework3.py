@@ -1,4 +1,5 @@
 import glob
+import pickle
 import gzip
 import urllib
 import xml.etree.ElementTree
@@ -68,7 +69,7 @@ def get_archive_path(archive_name):
             archive_glob = "{}/{}.xml.gz".format(archives_path, normalized_name)
             archive_path = glob.glob(archive_glob)[0]
         except IndexError as e:
-            print("[ERROR] lookup failed", archive_name)
+            # print("[ERROR] lookup failed", archive_name)
             raise e
     return archive_path
 
@@ -158,7 +159,7 @@ def fetch_wiki_xml(wikipedia_archive_path):
     try:
         with open(article_path) as fin:
             xml_page = ET.parse(fin)
-            print("\t\t\treading", article_path)
+            # print("\t\t\treading", article_path)
     except (FileNotFoundError, xml.etree.ElementTree.ParseError):
         try:
             with gzip.open(wikipedia_archive_path) as fin:
@@ -180,6 +181,7 @@ def fetch_wiki_xml(wikipedia_archive_path):
 
 # @disk_cache BROKEN!
 def extract_sents(wikipedia_archive_path):
+    bids = {}
     if ".txt" == wikipedia_archive_path[-4:]:
         with open(wikipedia_archive_path) as fin:
             doc = en_nlp(fin.read())
@@ -187,20 +189,21 @@ def extract_sents(wikipedia_archive_path):
         try:
             xml_page = fetch_wiki_xml(wikipedia_archive_path)
         except FileNotFoundError:
-            return []
+            return [], {}
         annotations = xml_page.findall("annotations")[0]
         text_xml_node = xml_page.find('text')
         if text_xml_node.text is None:
-            return []
+            return [], {}
         doc = en_nlp(text_xml_node.text)
         for annotation in reversed(annotations):
             mention = annotation.find("mention").text
             start = int(annotation.find("anchorStart").text)
             end = int(annotation.find("anchorEnd").text)
             bid = annotation.find("babelNetID").text
+            bids[mention] = bid
             span = doc[start:end]
             span.merge(bid=bid, mention=mention)
-    return list(doc.sents)
+    return list(doc.sents), bids
 
 
 def fitler_paths(paths, patterns):
@@ -262,10 +265,10 @@ def extract_triples(root, pattern):
                 for rightright in right.children:
                     if rightright.pos_ in y_pos:
                         # other = " ".join(map(str, rightright.subtree))
-                        other = str(rightright)
+                        # other = str(rightright)
                         if str(left) == "not":
                             left = "it"
-                        triple = [left, tuple([root] + [pattern['rights'][0][0]]), other]
+                        triple = [left, tuple([root, right]), rightright]
                         yield triple
             else:
                 if right.pos_ in y_pos:
@@ -313,39 +316,14 @@ def gather_patterns():
             'rights': [],
             'y': ["VERB"],
             'pages': gather_wiki_links(sparqlery(ANIMALS_SPARQL))
-        }}
-    # Relation: activity
-    # Categories: Animals
-    # Description: describes the actions a living entity can perform
-    # Example Sentence: CONCEPT is able to...
-    # patterns['able'] = {
-    #     # 'lefts': [("is", "VERB"), ],
-    #     'category': "animals",
-    #     'self': ("able", ""),
-    #     'rights': [("to", ""), ],
-    # }
-    # Relation: similarity
-    # Categories: Animals, Instruments
-    # Description: describes similar concepts
-    # Example Sentence: CONCEPT could be confused with ...
-    # patterns['confused'] = {
-    #     'lefts': [],  # [("can", "ADP"), ("be", "VERB")],
-    #     'self': ("confused", "VERB"),
-    #     'rights': [("with", "with the"), ],
-    # }
-    # Relation: part
-    # Categories: Animals, Food, Vehicles, Clothes, Home, Appliance, Instruments, Artefacts, Tools, Container
-    # Description: describes meronymy relations
-    # Example Sentence: CONCEPT has...
-    # solve as wikidata sparql
-    # results = sparqlery("""
-    # SELECT ?x ?y ?xLabel ?yLabel WHERE {
-    #     ?x wdt:P527 ?y.
-    #     ?x wdt:P31 wd:Q39546.
-    #     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-    # }
-    # LIMIT 20
-    # """, "has-part")
+        },
+        'color': {
+            'lefts': [],
+            'self': ("color", ""),
+            'rights': [("is"), ],
+            'pages': gather_wiki_links(sparqlery(FOOD_OR_TOOL))
+        }
+    }
     return patterns
 
 
@@ -367,21 +345,28 @@ def defie(pattern_description, pages=walk_wikipedia()):
     gathered_triples = set()
     context = defaultdict(list)
     for wikipedia_archive_path in pages:
-        sents = extract_sents(wikipedia_archive_path)
+        sents, bids = extract_sents(wikipedia_archive_path)
         for sent in sents:
             roots = [root for root in sent if list(root.children)]
             for root in roots:
                 if str(root) == pattern_description['self'][0]:
-                    print_tree(root)
+                    # print_tree(root)
                     triples = extract_triples(root, pattern_description)
                     for triple in triples:
                         for i, t in enumerate(triple):
                             if str(t).lower() in ("that", "it"):
                                 page_name = wikipedia_archive_path.split("/")[-1].split(".")
                                 page_name = "".join(p for p in page_name if p not in ("tar", "gz", "xml"))
-                                triple[i] = page_name
-                        gathered_triples.add(tuple(triple))
-                        context[tuple(triple)].append(sent)
+                                triple[i] = page_name + ":WIKIPAGE"
+                        for i, t in enumerate(triple):
+                            if str(t) in bids:
+                                triple[i] = str(triple[i]) + ":" + bids[str(t)]
+                            elif not isinstance(t, tuple):
+                                print("[???]", t)
+                        x, r, y = triple
+                        row = "{}, {}, {}".format(str(x), " ".join(map(str, r)), str(y))
+                        gathered_triples.add(row)
+                        context[row].append(str(sent))
     return gathered_triples, context
 
 
@@ -394,10 +379,11 @@ def sparqlery(query):
 
 
 def main():
-    triples = {}
+    # triples = {}
     patterns = gather_patterns()
     for pattern_id, pattern_description in patterns.items():
         try:
+            raise FileNotFoundError()
             with open("results/" + pattern_id) as fin:
                 tuples = fin.read()
             if not tuples or len(tuples.split("\n")) < 20:
@@ -406,14 +392,12 @@ def main():
             print("[PARSING]", pattern_id)
             pages = pattern_description['pages']
             gathered_triples, context = defie(pattern_description, pages=pages)
-            triples[pattern_id] = gathered_triples
+            # triples[pattern_id] = gathered_triples
             with open("results/" + pattern_id, 'w') as fout:
-                fout.write("\n".join(map(str, gathered_triples)))
-            print(pattern_id, ":")
-            for trip in gathered_triples:
-                print(trip)
-                for c in context[trip]:
-                    print("\t\t", c)
+                fout.write("\n".join(map(str, gathered_triples)) + "\n")
+            with open("results/context_" + pattern_id, 'wb') as fout:
+                pickle.dump(context, fout)
+            print("[DONE]", pattern_id)
 
 
 if __name__ == "__main__":

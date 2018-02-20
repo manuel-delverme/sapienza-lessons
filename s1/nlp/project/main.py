@@ -1,7 +1,11 @@
 # -*- coding: UTF-8 -*-
 import json
 import logging
+import answer_question
+import classify_pattern
+import nltk
 import pickle
+from collections import OrderedDict
 import pprint
 import random
 import subprocess
@@ -15,12 +19,18 @@ import telepot.loop
 from telepot.delegate import per_chat_id, create_open, pave_event_space
 from telepot.loop import MessageLoop
 from telepot.namedtuple import ReplyKeyboardRemove, KeyboardButton, ReplyKeyboardMarkup
+from collections import defaultdict
 
 import answer_question
 import classify_pattern
 import config
 import mariaDB
+
+import telepot
+import telepot.loop
+import random
 from commons import DomainDetectionFail, ModalityDetectionFail, RelationDetectionFail, FailToAnswerException, Modality
+import config
 
 user_handler = {}
 
@@ -65,7 +75,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.modality = None
 
     def log_message(self, msg):
-        self.sendMessage(config.MANUEL_ID, pprint.pformat(msg))
+        self.sendMessage(config.MANUEL_ID, "[LOG] " + pprint.pformat(msg))
 
     def sendMessage(self, user_id, msg, reply_markup=None):
         self.bot.sendMessage(user_id, msg, reply_markup=reply_markup)
@@ -195,6 +205,7 @@ class MariaBot(telepot.helper.ChatHandler):
 
         self.user_tid = message_user_tid = msg['from']['id']
         user = self.db.find_by_tid(message_user_tid)
+        logging.debug("user_obj := {}".format(user))
 
         if user is None:  # if user is a new user
             logging.debug("user is new")
@@ -214,6 +225,11 @@ class MariaBot(telepot.helper.ChatHandler):
             self.sendMessage(user.tid, "i failed to understand that")
             return
 
+        if "DEBUG" == user_msg_txt:
+            logging.debug = self.log_message
+            logging.debug("DEBUG:ON")
+            return
+
         if self.is_greeting(user_msg_txt):
             logging.debug("is_greeting".format(user_msg_txt))
             self.greet_user(user)
@@ -230,7 +246,8 @@ class MariaBot(telepot.helper.ChatHandler):
             return
 
         if self.distracting_user == 0:
-            answer = "about your earlier query.. I don't know try http://lmgtfy.com/?q={}".format(
+            answer = "about your earlier query.. I don't know how to answer that try to rephrase or check here -> " \
+                     "http://lmgtfy.com/?q={}".format(
                 self.unk_msg['text'].replace(" ", "+")
             )
             self.sendMessage(self.user_tid, answer)
@@ -369,6 +386,10 @@ def main(test_run=False):
         # "Where is Flagstaff Lake located ?",
         # "ok thanks",
         # "Is coliseum located in Rome?",
+        "DEBUG",
+        "Where is Flagstaff Lake located ?",
+        "ok thanks",
+        "Is coliseum located in Rome?",
         "What is the capital of France?",
         "How do cakes smell lke?",
         "what is the material of hard cake?",
@@ -377,6 +398,11 @@ def main(test_run=False):
         "die3",
         "die4",
         "i want to enrich",
+        # TODO:
+        # debug over telegram
+        # screenshot conv for report
+        # improve report by looking at old ones
+        # "What is an example of a symbol?",
     ]
     logging.debug('bot is in test mode:' + str(test_run))
     if test_run:
@@ -391,14 +417,25 @@ def main(test_run=False):
             print("[USER WRITES]: <<<<< {}".format(message_template['text']))
             test_bot.on_message(message_template)
     else:
+        # import urllib3
+        # import telepot.api
+
+        # proxy_url = 'http://localhost:1234/'
+        # telepot.api._pools = {
+        #     'default': urllib3.ProxyManager(proxy_url=proxy_url, num_pools=3, maxsize=10, retries=False, timeout=30),
+        # }
+        # telepot.api._onetime_pool_spec = (
+        # urllib3.ProxyManager, dict(proxy_url=proxy_url, num_pools=1, maxsize=1, retries=False, timeout=30))
+
         logging.debug("running DelegatorBot")
         bot = telepot.DelegatorBot(KEY, [
             pave_event_space()(
                 per_chat_id(), create_open, MariaBot, timeout=99999),
         ])
-        for msg in msg_flow:
-            print("sending", msg)
-            subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
+        print(bot.getMe())
+        # for msg in msg_flow:
+        #     print("sending", msg)
+        #     subprocess.call(["/opt/tg/bin/telegram-cli", "-W", "-e", "msg @r_maria_bot {}".format(msg)])
         logging.debug("looping forever")
         MessageLoop(bot).run_forever()
         logging.debug("forever has passed?")
@@ -408,5 +445,5 @@ if __name__ == "__main__":
     logging.basicConfig(filename='mariabot.log', level=logging.DEBUG)
     # print("hi")
     # test_run = "--test" in os.sys.argv
-    test_run = True
+    test_run = False
     main(test_run=test_run)
