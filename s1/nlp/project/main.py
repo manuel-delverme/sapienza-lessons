@@ -61,6 +61,7 @@ class MariaBot(telepot.helper.ChatHandler):
         self.domain = None
         self.relation = None
         self.modality = None
+        self.unk_msg = None
 
     def log_message(self, msg):
         self.sendMessage(config.MANUEL_ID, "[LOG] " + pprint.pformat(msg))
@@ -190,10 +191,14 @@ class MariaBot(telepot.helper.ChatHandler):
         return len(msg_bow.intersection(GREETING_BOW)) != 0
 
     def on_message(self, msg):
-
         self.user_tid = message_user_tid = msg['from']['id']
         user = self.db.find_by_tid(message_user_tid)
-        logging.debug("user_obj := {}".format(user))
+        logging.debug("user_obj := {}\n{}".format(user, {
+            'relation': self.relation,
+            'domain': self.domain,
+            'unk_msg': self.unk_msg,
+            'modality': self.modality,
+        }))
 
         if user is None:  # if user is a new user
             logging.debug("user is new")
@@ -214,6 +219,8 @@ class MariaBot(telepot.helper.ChatHandler):
 
         if "DEBUG" == user_msg_txt:
             logging.debug = self.log_message
+            logging.warning = self.log_message
+            logging.info = self.log_message
             logging.debug("DEBUG:ON")
             return
 
@@ -245,22 +252,8 @@ class MariaBot(telepot.helper.ChatHandler):
             self.sendMessage(user.tid, "cool")
             return
 
-        logging.debug("classify_domain {}".format(user_msg_txt))
-        if self.domain is None:
-            try:
-                self.domain = self.classify_domain(user_msg_txt)
-            except commons.DomainDetectionFail:
-                with open("chatbot_maps/domain_list.txt") as fin:
-                    possible_domains = fin.read()[:-1].split("\n")
-                self.offer_user_options(msg, "domain", possible_domains, "I'm not sure what we are talking about, please "
-                                                                         "choose one option from the following")
-                return
-            else:
-                logging.debug("classify_domain rets {}:".format(self.domain))
-
-        logging.debug("classify_modality for: {}".format(user_msg_txt))
-
         self.modality = self.classify_modality(user_msg_txt)
+        logging.debug("classify_modality for: {}".format(user_msg_txt) + str(self.modality))
         # self.offer_user_options(msg, "modality", ["ask questions", "answer stuff"], "what do you want to do?")
 
         if self.modality == commons.Modality.enriching:
@@ -287,6 +280,18 @@ class MariaBot(telepot.helper.ChatHandler):
                                  "question: {} ({}). what would you answer to that?".format(question, relation))
 
         elif self.modality == commons.Modality.querying:
+            logging.debug("classify_domain {}".format(user_msg_txt))
+            if self.domain is None:
+                try:
+                    self.domain = self.classify_domain(user_msg_txt)
+                except commons.DomainDetectionFail:
+                    with open("chatbot_maps/domain_list.txt") as fin:
+                        possible_domains = fin.read()[:-1].split("\n")
+                    self.offer_user_options(msg, "domain", possible_domains, "I'm not sure what we are talking about, please "
+                                                                             "choose one option from the following")
+                    return
+                else:
+                    logging.debug("classify_domain rets {}:".format(self.domain))
             logging.debug("modality is: querying")
             self.relation = ""
             logging.debug("answering user question Q:{} D:{} R:{}".format(user_msg_txt, self.domain, self.relation))
@@ -300,7 +305,7 @@ class MariaBot(telepot.helper.ChatHandler):
                 # ask another user
                 logging.info("opening question {}".format(user_msg_txt))
                 self.db.add_open_question(user_msg_txt)
-                self.distracting_user = 5
+                self.distracting_user = 3
                 self.unk_msg = msg
                 self.on_message(msg)
 

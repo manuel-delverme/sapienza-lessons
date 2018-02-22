@@ -177,7 +177,7 @@ class Eliza(object):
                 # fix munged punctuation at the end
                 if resp[-2:] == '?.': resp = resp[:-2] + '.'
                 if resp[-2:] == '??': resp = resp[:-2] + '?'
-                return resp
+                return resp.replace("{0}", query)
 
 
 if __name__ == "__main__":
