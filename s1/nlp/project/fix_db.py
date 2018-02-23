@@ -6,7 +6,7 @@ db = client['nlp_projectDB']['knowledge_base']
 
 for record in tqdm.tqdm(db.find(), total=db.count()):
     if "bn:" in record['c1'] or "bn:" in record['c2']:
-       record['disabled'] = True
+        record['disabled'] = True
         db.save(record)
     # fields = record['c1'].split("::")
     """
