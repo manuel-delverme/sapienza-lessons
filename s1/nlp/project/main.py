@@ -141,11 +141,11 @@ class MariaBot(telepot.helper.ChatHandler):
 
         result = sorted(classified_domains, key=lambda x: classified_domains[x], reverse=True)
         best_guess = result[0]
-        if classified_domains[best_guess] < 1.5:  # HYPER PARAM
-            print("[BOT] domain for question: ", best_guess, classified_domains[best_guess])
-            print("[BOT] failed confidence < 1.5")
-            raise commons.DomainDetectionFail()
-        return best_guess
+        # if classified_domains[best_guess] < 1.5:  # HYPER PARAM
+        #     print("[BOT] domain for question: ", best_guess, classified_domains[best_guess])
+        #     print("[BOT] failed confidence < 1.5")
+        #     raise commons.DomainDetectionFail()
+        return best_guess, classified_domains[best_guess]
 
     @staticmethod
     def check_for_open_question_answer(user_msg_txt, domain):

@@ -5,66 +5,44 @@ import pickle
 import sklearn.metrics
 import pymongo
 import tqdm
+import main
 
 
-def classify_domain(msg_txt):
-    # raise DomainDetectionFail()
-    with open("chatbot_maps/domain_list.txt") as fin:
-        possible_domains = fin.read()[:-1].split("\n")
-
-    classified_domains = collections.OrderedDict({d: 0 for d in possible_domains})
-    for word in nltk.tokenize.word_tokenize(msg_txt):
-        # print("[BOT] word:", word, "-" * 100)
-        total_weight = 0
-        weights = {}
-
-        for d in possible_domains:
-            try:
-                weight = domain_vectors[d][word]
-            except KeyError:
-                pass
-            else:
-                # total_weight += math.log(weight)
-                weights[d] = weight
-        if weights:
-            for d in weights.keys():
-                classified_domains[d] += weights[d] / (len(weights) ** 2)
-
-    result = sorted(classified_domains, key=lambda x: classified_domains[x], reverse=True)
-    best_guess = result[0]
-    if classified_domains[best_guess] < 1.5:  # HYPER PARAM
-        print("[BOT] domain for question: ", best_guess, classified_domains[best_guess])
-        print("[BOT] failed confidence < 1.5")
-        raise commons.DomainDetectionFail()
-    return best_guess
-
-
-def main():
+def gather_stats():
     client = pymongo.MongoClient('localhost')
     db = client['nlp_projectDB']['knowledge_base']
 
     stats = {}
 
-    for entry in tqdm.tqdm(db.find(), total=db.count()):
-        question = entry['quesiton']
-        domain = entry['quesiton']
-        relation = entry['quesiton']
-        c1 = entry['quesiton']
-        c2 = entry['quesiton']
+    query = {'domain': {'$ne': ['', ]}}
+    results = db.find(query)
+    for entry in tqdm.tqdm(results, total=db.count(query)):
+        question = entry['question']
+        domains = entry['domains']
+        relation = entry['relation']
+        c1 = entry['c1']
+        c2 = entry['c2']
 
-        domain_hat = classify_domain(question)
+        if domains != ['', ]:
+            domain_hat, conference = main.MariaBot.classify_domain(question)
+            print(domain_hat, domains, conference)
+            if domain_hat in domains:
+                stats['domain']['correct'] += 1
+            else:
+                stats['domain']['false'] += 1
         # relation_hat = classify_domain(question)
-        answer = answer_question.answer_question(db, question, relation)
-        # self.relation = None
 
-        y_domain_pred = domain_clf.predict(question)
-        y_domain_true = domain
+        # answer = answer_question.answer_question(db, question, relation)
+        # # self.relation = None
 
-        y_relation_pred = relation_clf.predict(question)
-        y_relation_true = relation
+        # y_domain_pred = domain_clf.predict(question)
+        # y_domain_true = domain
 
-        y_xy_pred = xy_clf.predict(question)
-        y_xy_true = xy
+        # y_relation_pred = relation_clf.predict(question)
+        # y_relation_true = relation
+
+        # y_xy_pred = xy_clf.predict(question)
+        # y_xy_true = xy
 
     domain_report = sklearn.metrics.classification_report(y_domain_true,
                                                           y_domain_pred)  # , labels=None, target_names=None, sample_weight=None, digits=2)
@@ -83,5 +61,5 @@ def main():
     #     eli5.explain_weights(clf, docs[0], vec=vec, target_names=target_names, top=20)
 
 
-if __name_ _ == '__main__':
-    main()
+if __name__ == '__main__':
+    gather_stats()
