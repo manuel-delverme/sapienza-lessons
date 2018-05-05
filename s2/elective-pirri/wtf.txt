@@ -1,0 +1,66 @@
+head, Lean forward
+head, Turn right
+head, Raise the head
+head, Turn bottom-right
+head, Turn left
+head, Roll left
+head, Roll right
+head, Turn bottom-left
+head, Turn top-right
+head, Turn top-left
+r-arm, Shoulder abduction
+r-arm, Roll the wrist
+r-arm, Elbow flex
+r-arm, Elbow exten
+r-arm, Shoulder ext rot and elbow exten
+r-arm, Shoulder int rot and elbow exten
+r-arm, Shoulder ext rot and elbow flex
+r-arm, Shoulder int rot and elbow flex
+r-arm, Shoulder adduction
+r-arm, Shoulder circling
+r-arm, Shoulder external rot
+r-arm, Shoulder internal rot
+r-arm, Elbow lower medial flex
+r-arm, Elbow lower medial exten
+r-arm, Elbow upper medial flex
+r-arm, Elbow upper medial exten
+r-arm, Shoulder flex
+r-arm, Shoulder exten
+l-arm, Shoulder abduction
+l-arm, Roll the wrist
+l-arm, Elbow flex
+l-arm, Elbow exten
+l-arm, Shoulder ext rot and elbow exten
+l-arm, Shoulder int rot and elbow exten
+l-arm, Shoulder ext rot and elbow flex
+l-arm, Shoulder int rot and elbow flex
+l-arm, Shoulder adduction
+l-arm, Shoulder circling
+l-arm, Shoulder external rot
+l-arm, Shoulder internal rot
+l-arm, Elbow lower medial flex
+l-arm, Elbow upper medial flex
+l-arm, Elbow lower medial exten
+l-arm, Elbow upper medial exten
+l-arm, Shoulder flex
+l-arm, Shoulder exten
+r-leg, Hip flex
+r-leg, Hip exten
+r-leg, Hip abduction
+r-leg, Hip adduction
+r-leg, Knee flex
+r-leg, Knee exten
+r-leg, Leg internal rot
+r-leg, Leg external rot
+r-leg, Knee lower medial flex
+r-leg, Knee lower medial exten
+l-leg, Hip flex
+l-leg, Hip exten
+l-leg, Hip abduction
+l-leg, Hip adduction
+l-leg, Knee flex
+l-leg, Knee exten
+l-leg, Leg internal rot
+l-leg, Leg external rot
+l-leg, Knee lower medial flex
+l-leg, Knee lower medial exten
