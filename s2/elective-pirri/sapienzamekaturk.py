@@ -7,15 +7,17 @@ from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 import sys
 import os.path
-import vlc
-import ipdb
+try:
+    import vlc
+except ImportError:
+    raise Exception("do 'pip install python-vlc'")
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Player(QtWidgets.QMainWindow):
     def __init__(self, master=None):
         QtWidgets.QMainWindow.__init__(self, master)
 
-        self.label = None
+        self.label = ["no-label", "no-label"]
         self.begin_time = None
         self.end_time = None
 
@@ -113,6 +115,7 @@ class Player(QtWidgets.QMainWindow):
                     QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,
                     QtCore.Qt.Key_F4,
+                    QtCore.Qt.Key_F5,
                 ]:
             seq = QtGui.QKeySequence(f_key)
             hack_shortcut = QtWidgets.QShortcut(seq, self)
@@ -135,7 +138,7 @@ class Player(QtWidgets.QMainWindow):
                     try:
                         selected_row = self.labels2_list.selectedIndexes()[0].row()
                     except IndexError:
-                        selected_row = 0
+                        selected_row = -1
 
                     for idx in range(selected_row + 1, self.labels2_list.count()):
                         el = self.labels2_list.item(idx)
@@ -150,20 +153,20 @@ class Player(QtWidgets.QMainWindow):
         for letter in string.ascii_lowercase:
             hack_shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Shift+" + letter), self)
 
-            def more_hacks(my_letter):
+            def more_hacks(my_letter, key_sequence):
                 def even_more_hacks():
                     try:
-                        selected_row = self.labels1_list.selectedIndexes()[0].row()
+                        selected_row = self.labels2_list.selectedIndexes()[0].row()
                     except IndexError:
                         selected_row = 0
 
                     for idx in range(0, selected_row)[::-1]:
-                        el = self.labels1_list.item(idx)
+                        el = self.labels2_list.item(idx)
                         if el.text()[0].lower() == my_letter:
-                            self.labels1_list.setCurrentRow(idx)
+                            self.labels2_list.setCurrentRow(idx)
                             break
                 return even_more_hacks
-            hack_shortcut.activated.connect(more_hacks(letter))
+            hack_shortcut.activated.connect(more_hacks(letter, "Shift+" + letter))
             self.hack_shortcuts["-" + letter] = hack_shortcut
 
 
@@ -232,10 +235,9 @@ class Player(QtWidgets.QMainWindow):
         self._update_label_info()
 
     def update_label1(self):
-        # ipdb.set_trace()
         label, = self.labels1_list.selectedItems()
         label = label.text()
-        self.label = label
+        self.label[0] = label
 
         self.labels2_list.clear()
         for row in sorted(self.labels[label]):
@@ -244,23 +246,25 @@ class Player(QtWidgets.QMainWindow):
         self._update_label_info()
 
     def update_label2(self):
-        # ipdb.set_trace()
-        label, = self.labels1_list.selectedItems()
-        self.label += ":" + label.text()
+        try:
+            label, = self.labels2_list.selectedItems()
+        except ValueError:
+            return
+        self.label[1] = label.text()
         self._update_label_info()
 
 
     def save_label(self):
         label_from, label_to = self.begin_time, self.end_time
-        label_name = self.label
+        label_name = ":".join(self.label)
 
-        if label_from >= label_to:
-            self.label_info.setText("WANING!\nLabel End cannot come\nbefore Label Start\nno time travelling\n"+"WARNING!\n"*20)
+        if None in (self.file_name, self.label[0], self.label[1], self.begin_time, self.end_time):
+            print("SHOUDL NOT HAPPEN")
             self.save_button.setEnabled(False)
             return
 
-        if None in (self.file_name, self.label, self.begin_time, self.end_time):
-            print("SHOUDL NOT HAPPEN")
+        if label_from >= label_to:
+            self.label_info.setText("WANING!\nLabel End cannot come\nbefore Label Start\nno time travelling\n"+"WARNING!\n"*20)
             self.save_button.setEnabled(False)
             return
 
@@ -277,7 +281,7 @@ class Player(QtWidgets.QMainWindow):
             fout.write("\n")
 
         self.save_button.setEnabled(False)
-        self.label = None
+        self.label = ["no-label", "no-label"]
         self.begin_time = None
         self.end_time = None
         self._update_label_info()
@@ -289,12 +293,9 @@ class Player(QtWidgets.QMainWindow):
         label: {}
         from: {}
         to: {}
-        """.format(self.file_name, self.label, self.begin_time, self.end_time))
-        if None not in (self.file_name, self.label, self.begin_time, self.end_time):
+        """.format(self.file_name, ":".join(self.label), self.begin_time, self.end_time))
+        if None not in (self.file_name, self.label[0], self.label[1], self.begin_time, self.end_time):
             self.save_button.setEnabled(True)
-
-    def save_annotation(self):
-        print("start", self.begin_label, "end", self.end_time, "label", self.label)
 
     def do_lol(self):
         import subprocess
@@ -348,4 +349,6 @@ if __name__ == "__main__":
     player.resize(640, 480)
     if sys.argv[1:]:
         player.OpenFile(sys.argv[1])
+    else:
+        player.OpenFile()
     sys.exit(app.exec_())
