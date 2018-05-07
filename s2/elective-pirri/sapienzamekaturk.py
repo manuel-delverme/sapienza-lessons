@@ -2,6 +2,7 @@
 import collections
 import json
 import string
+# import ipdb
 import pprint
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
@@ -180,9 +181,9 @@ class Player(QtWidgets.QMainWindow):
         self.save_button_shortcut.activated.connect(self.save_label)
 
         self.vboxlayout = QtWidgets.QVBoxLayout()
+        self.vboxlayout.addLayout(self.hbuttonbox)
         self.vboxlayout.addLayout(self.hvideobox)
         self.vboxlayout.addWidget(self.positionslider)
-        self.vboxlayout.addLayout(self.hbuttonbox)
 
         self.widget.setLayout(self.vboxlayout)
 
@@ -258,7 +259,7 @@ class Player(QtWidgets.QMainWindow):
         label_from, label_to = self.begin_time, self.end_time
         label_name = ":".join(self.label)
 
-        if None in (self.file_name, self.label[0], self.label[1], self.begin_time, self.end_time):
+        if None in (self.file_name,self.begin_time, self.end_time) or "no-label" in self.label:
             print("SHOUDL NOT HAPPEN")
             self.save_button.setEnabled(False)
             return
@@ -268,20 +269,28 @@ class Player(QtWidgets.QMainWindow):
             self.save_button.setEnabled(False)
             return
 
-        json_entry = {
-                self.file_name: [
-                    {
-                        'label': label_name,
-                        'frame': [label_from, label_to],
-                    },
-                ]
-        }
-        with open("temp.jsonl", "a") as fout:
-            json.dump(json_entry, fout)
-            fout.write("\n")
+        try:
+            with open("temp.json", "r") as fout:
+                old_entries = json.load(fout)
+        except FileNotFoundError:
+            old_entries = {}
+
+        try:
+            old_entries[self.file_name].append({
+                'label': label_name,
+                'milliseconds': [label_from, label_to],
+            })
+        except Exception as e:
+            old_entries[self.file_name] = [{
+                'label': label_name,
+                'milliseconds': [label_from, label_to],
+            }]
+
+        with open("temp.json", "w") as fout:
+            json.dump(old_entries, fout)
 
         self.save_button.setEnabled(False)
-        self.label = ["no-label", "no-label"]
+        # self.label = ["no-label", "no-label"]
         self.begin_time = None
         self.end_time = None
         self._update_label_info()
@@ -291,8 +300,8 @@ class Player(QtWidgets.QMainWindow):
         """
         file: {}
         label: {}
-        from: {}
-        to: {}
+        from millis: {}
+        to millis: {}
         """.format(self.file_name, ":".join(self.label), self.begin_time, self.end_time))
         if None not in (self.file_name, self.label[0], self.label[1], self.begin_time, self.end_time):
             self.save_button.setEnabled(True)
@@ -307,8 +316,6 @@ class Player(QtWidgets.QMainWindow):
     def OpenFile(self, filename=None):
         if filename is None or filename == False:
             filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File", os.path.expanduser('~'))
-        self.file_name = filename
-
         if sys.version < '3':
             filename = unicode(filename)
         self.media = self.instance.media_new(filename)
@@ -316,6 +323,10 @@ class Player(QtWidgets.QMainWindow):
 
         self.media.parse()
         self.setWindowTitle(self.media.get_meta(0))
+
+        filename = filename.split("/")[-1]
+        self.file_name = filename
+
 
         if sys.platform.startswith('linux'): # for Linux using the X Server
             self.mediaplayer.set_xwindow(self.videoframe.winId())
