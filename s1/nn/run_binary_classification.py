@@ -1,6 +1,7 @@
 # import GPy
 import lazy_import
 import warnings
+
 warnings.filterwarnings("ignore")
 
 zipfile = lazy_import.lazy_module("zipfile")
@@ -37,18 +38,19 @@ def load_datasets(challenge_nr):
         with zipfile.ZipFile(dataset_zip, "r") as f:
             print("\t", "loading", dataset_name)
             train_file_name = dataset_name + "_train.data"
-            # data = f.read(dataset_name + "_train.data").decode('utf-8')
-            data = np.genfromtxt(train_file_name, delimiter=' ')
+            data = f.read(dataset_name + "_train.data").decode('utf-8')
+            # data = np.genfromtxt(train_file_name, delimiter=' ')
 
             test_file_name = dataset_name + "_train.solution"
-            # target = (f.read(dataset_name + "_train.solution")).decode('utf-8')
-            # target = [int(d) for d in target.split("\n")[:-1]]
-            target = np.genfromtxt(test_file_name, delimiter=' ')
-            # print("dataset\n", f.read(dataset_name + "_public.info").decode('utf-8'))
+            target = (f.read(dataset_name + "_train.solution")).decode('utf-8')
+            target = [int(d) for d in target.split("\n")[:-1]]
+            # target = np.genfromtxt(test_file_name, delimiter=' ')
+            print("dataset\n", f.read(dataset_name + "_public.info").decode('utf-8'))
 
         print("\t", len(data), datapoints)
-        assert(len(data) == len(target))
+        assert (len(data) == len(target))
         yield sklearn.model_selection.train_test_split(data, target, random_state=31337)
+
 
 for X_train, X_test, y_train, y_test in load_datasets(challenge_nr=1):
     results = []
@@ -56,6 +58,7 @@ for X_train, X_test, y_train, y_test in load_datasets(challenge_nr=1):
 
     for clf_name, (clf, defaults, search_space) in models.binary_class_models.items():
         print("running classifier", clf_name)
+
 
         def make_fitness(clf_class, defaults):
             def fitness(hyper_params):
@@ -81,7 +84,9 @@ for X_train, X_test, y_train, y_test in load_datasets(challenge_nr=1):
 
                 score = sklearn.metrics.accuracy_score(y_test, pred)
                 return -score
+
             return fitness
+
 
         opt = GPyOpt.methods.BayesianOptimization(
             f=make_fitness(clf, defaults),  # function to optimize
