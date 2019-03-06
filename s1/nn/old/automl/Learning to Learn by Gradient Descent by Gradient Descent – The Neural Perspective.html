@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<!-- saved from url=(0102)https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="https://theneuralperspective.com/xmlrpc.php">
+<title>Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective</title>
+		<script id="twitter-wjs" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/widgets.js"></script><script src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/remote-login.php" type="text/javascript"></script>
+		<script type="text/javascript">
+		/* <![CDATA[ */
+			if ( 'function' === typeof WPRemoteLogin ) {
+				document.cookie = "wordpress_test_cookie=test; path=/";
+				if ( document.cookie.match( /(;|^)\s*wordpress_test_cookie\=/ ) ) {
+					WPRemoteLogin();
+				}
+			}
+		/* ]]> */
+		</script>
+		<link rel="dns-prefetch" href="https://s2.wp.com/">
+<link rel="dns-prefetch" href="https://s0.wp.com/">
+<link rel="dns-prefetch" href="https://theneuralperspective.wordpress.com/">
+<link rel="dns-prefetch" href="https://s1.wp.com/">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+<link rel="alternate" type="application/rss+xml" title="The Neural Perspective » Feed" href="https://theneuralperspective.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="The Neural Perspective » Comments Feed" href="https://theneuralperspective.com/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="The Neural Perspective » Learning to Learn by Gradient Descent by Gradient Descent Comments Feed" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/feed/">
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function () {
+					oldonload();
+					func();
+				}
+			}
+		}
+		/* ]]> */
+	</script>
+			<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/72x72\/","ext":".png","svgUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/s1.wp.com\/wp-includes\/js\/wp-emoji-release.min.js?m=1496863874h&ver=4.8.1-RC2-41203"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,56826,8203,55356,56819),0,0),c=j.toDataURL(),b===c&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55358,56794,8205,9794,65039),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55358,56794,8203,9794,65039),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/wp-emoji-release.min.js" type="text/javascript" defer=""></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="all-css-0-1" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource" type="text/css" media="all">
+<link rel="stylesheet" id="sela-fonts-css" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/css" type="text/css" media="all">
+<link rel="stylesheet" id="all-css-2-1" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(1)" type="text/css" media="all">
+<style id="sela-style-inline-css" type="text/css">
+.entry-meta .date { clip: rect(1px, 1px, 1px, 1px); height: 1px; position: absolute; overflow: hidden; width: 1px; }
+.site-branding { background-image: url(https://theneuralperspective.files.wordpress.com/2017/01/cropped-what4.png); }
+</style>
+<link rel="stylesheet" id="print-css-3-1" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/global-print.css" type="text/css" media="print">
+<link rel="stylesheet" id="all-css-4-1" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(2)" type="text/css" media="all">
+<script type="text/javascript" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(3)"></script>
+<link rel="stylesheet" id="all-css-0-2" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/style.css" type="text/css" media="all">
+<!--[if lt IE 8]>
+<link rel='stylesheet' id='highlander-comments-ie7-css'  href='https://s1.wp.com/wp-content/mu-plugins/highlander-comments/style-ie7.css?m=1351637563h&#038;ver=20110606' type='text/css' media='all' />
+<![endif]-->
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://theneuralperspective.wordpress.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://s1.wp.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Matching Networks for One Shot Learning" href="https://theneuralperspective.com/2017/01/03/matching-networks-for-one-shot-learning/">
+<link rel="next" title="Bidirectional Attention Flow for Machine Comprehension" href="https://theneuralperspective.com/2017/01/08/bidirectional-attention-flow-for-machine-comprehension/">
+<meta name="generator" content="WordPress.com">
+<link rel="canonical" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/">
+<link rel="shortlink" href="http://wp.me/p7XPfO-vj">
+<link rel="alternate" type="application/json+oembed" href="https://public-api.wordpress.com/oembed/?format=json&amp;url=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F&amp;for=wpcom-auto-discovery"><link rel="alternate" type="application/xml+oembed" href="https://public-api.wordpress.com/oembed/?format=xml&amp;url=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F&amp;for=wpcom-auto-discovery">
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Learning to Learn by Gradient Descent by Gradient Descent">
+<meta property="og:url" content="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/">
+<meta property="og:description" content="TLDR; Use gradient descent to train an LSTM optimizee which is used to determine the parameters of our main optimizer. Detailed Notes: What does it mean to learn to learn? If you think about all th…">
+<meta property="article:published_time" content="2017-01-04T14:50:44+00:00">
+<meta property="article:modified_time" content="2017-01-04T14:50:44+00:00">
+<meta property="og:site_name" content="The Neural Perspective">
+<meta property="og:image" content="https://github.com/ajarai/casual-digressions/raw/master/notes/images/learning_to_learn/diagram3.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:site" content="@GokuMohandas">
+<meta name="twitter:text:title" content="Learning to Learn by Gradient Descent by Gradient Descent">
+<meta name="twitter:image" content="https://github.com/ajarai/casual-digressions/raw/master/notes/images/learning_to_learn/eq1.png?w=240">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@GokuMohandas">
+<meta property="article:publisher" content="https://www.facebook.com/WordPresscom">
+<link rel="shortcut icon" type="image/x-icon" href="https://secure.gravatar.com/blavatar/d89fe7031224782793e7a08915b33bfc?s=32" sizes="16x16">
+<link rel="icon" type="image/x-icon" href="https://secure.gravatar.com/blavatar/d89fe7031224782793e7a08915b33bfc?s=32" sizes="16x16">
+<link rel="apple-touch-icon-precomposed" href="https://secure.gravatar.com/blavatar/d89fe7031224782793e7a08915b33bfc?s=114">
+<link rel="search" type="application/opensearchdescription+xml" href="https://theneuralperspective.com/osd.xml" title="The Neural Perspective">
+<link rel="search" type="application/opensearchdescription+xml" href="https://s1.wp.com/opensearch.xml" title="WordPress.com">
+<meta name="theme-color" content="#f0f0f0">
+<meta name="application-name" content="The Neural Perspective"><meta name="msapplication-window" content="width=device-width;height=device-height"><meta name="msapplication-tooltip" content="Deep Learning Simplified"><meta name="msapplication-task" content="name=Subscribe;action-uri=https://theneuralperspective.com/feed/;icon-uri=https://secure.gravatar.com/blavatar/d89fe7031224782793e7a08915b33bfc?s=16"><meta name="msapplication-task" content="name=Sign up for a free blog;action-uri=http://wordpress.com/signup/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="msapplication-task" content="name=WordPress.com Support;action-uri=http://support.wordpress.com/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="msapplication-task" content="name=WordPress.com Forums;action-uri=http://forums.wordpress.com/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="title" content="Learning to Learn by Gradient Descent by Gradient Descent | The Neural Perspective on WordPress.com">
+<meta name="description" content="https://arxiv.org/abs/1606.04474 TLDR; Use gradient descent to train an LSTM optimizee which is used to determine the parameters of our main optimizer. Detailed Notes: What does it mean to learn to learn? If you think about all the recent advancements in AI architecture, it all boils down to one thing. We are coming up with better…">
+	<style type="text/css" id="sela-header-css">
+					.site-title a,
+			.site-description {
+				color: #333333;
+			}
+			</style>
+	<style type="text/css" id="custom-background-css">
+body.custom-background { background-color: #f0f0f0; }
+</style>
+<link rel="amphtml" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/amp/"><style type="text/css" id="syntaxhighlighteranchor"></style>
+<style type="text/css" id="custom-colors-css">.nav-menu>li>a:after{color:rgba(0,0,0,.3)}.main-navigation a,.social-links ul a:before{color:#fff}.menu-toggle,.menu-toggle:hover,.menu-toggle:focus{color:#fff}.main-navigation.toggled ul ul,.main-navigation.toggled ul ul a{color:#fff}.site-info a{color:#fff}.main-navigation li.current_page_ancestor>a,.main-navigation li.current-menu-ancestor>a{color:#fff}.main-navigation a:hover,.main-navigation ul>:hover>a,.main-navigation ul>.focus>a{color:#fff}.main-navigation li.current_page_item>a,.main-navigation li.current-menu-item>a{color:#fff}.main-navigation li.current_page_item>a .sub-menu li a,.main-navigation li.current-menu-item>a .sub-menu li a,.main-navigation ul ul li.current_page_item>a,.main-navigation ul ul li.current-menu-item>a{color:#4f4f4f}body{background-color:#f0f0f0}.main-navigation,button{background-color:#267aaa}.main-navigation .nav-menu>li>a:after,.main-navigation .menu>li>a:after{color:#5cacda}a,.entry-title a:hover,.comment-meta a,.jetpack-testimonial .entry-title{color:#2374a3}.widget_flickr #flickr_badge_uber_wrapper td a:last-child,.widget-area .milestone-countdown .difference{color:#2374a3}.main-navigation ul ul a:hover,.main-navigation ul ul>li.focus>a{color:#2374a3}input[type="button"],input[type="reset"],input[type="submit"],#infinite-handle span{background-color:#2374a3}input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="search"]:focus,input[type="url"]:focus,textarea:focus{border-color:#2374a3}.social-links ul a:before,.footer-widget-area button{background-color:#7fbce0}.site-info a:hover{color:#7fbce0}.footer-widget-area a:hover{color:#21719f}</style>
+<style type="text/css"></style><link rel="stylesheet" type="text/css" id="gravatar-card-css" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/hovercard.css"><link rel="stylesheet" type="text/css" id="gravatar-card-services-css" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/services.css"><script type="text/javascript" charset="utf-8" async="" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/timeline.51c8b5d8f676afc57ecc964ab64b1485.js"></script><style type="text/css">
+:root #content > #center > .dose > .dosesingle,
+:root #content > #right > .dose > .dosesingle
+{ display: none !important; }</style></head>
+
+<body class="post-template-default single single-post postid-1941 single-format-standard custom-background mp6 customizer-styles-applied not-multi-author display-header-text date-hidden has-site-logo highlander-enabled highlander-light">
+<div id="page" class="hfeed site">
+	<header id="masthead" class="site-header" role="banner">
+		<a class="skip-link screen-reader-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#content" title="Skip to content">Skip to content</a>
+
+		<div class="site-branding">
+			<a href="https://theneuralperspective.com/" class="site-logo-link" rel="home"><img width="120" height="120" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/what3.png" class="site-logo attachment-sela-logo" alt="" data-size="sela-logo" data-attachment-id="1883" data-permalink="https://theneuralperspective.com/what3/" data-orig-file="https://theneuralperspective.files.wordpress.com/2017/01/what3.png" data-orig-size="120,120" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="what3" data-image-description="" data-medium-file="https://theneuralperspective.files.wordpress.com/2017/01/what3.png?w=120" data-large-file="https://theneuralperspective.files.wordpress.com/2017/01/what3.png?w=120"></a>			<h1 class="site-title"><a href="https://theneuralperspective.com/" title="The Neural Perspective" rel="home">The Neural Perspective</a></h1>
+							<h2 class="site-description">Deep Learning Simplified</h2>
+					</div><!-- .site-branding -->
+
+		<nav id="site-navigation" class="main-navigation" role="navigation">
+			<button class="menu-toggle" aria-controls="menu" aria-expanded="false">Menu</button>
+			<div class="menu-primary-container"><ul id="menu-primary" class="menu nav-menu"><li id="menu-item-12" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-12"><a href="https://theneuralperspective.com/">Home</a></li>
+<li id="menu-item-65" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-65"><a href="https://theneuralperspective.com/tag/tutorials/">Tutorials</a></li>
+<li id="menu-item-66" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-66"><a href="https://theneuralperspective.com/tag/readings/">Readings</a></li>
+<li id="menu-item-15" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a href="https://theneuralperspective.com/contact/">Contact</a></li>
+<li id="menu-item-67" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-67"><a href="https://theneuralperspective.com/about/">About</a></li>
+</ul></div>		</nav><!-- #site-navigation -->
+	</header><!-- #masthead -->
+
+	<div id="content" class="site-content">
+
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main" role="main">
+
+		
+			
+				
+<article id="post-1941" class="post-1941 post type-post status-publish format-standard hentry category-optimizationarchitecture tag-readings without-featured-image">
+
+	
+	<header class="entry-header ">
+					<h1 class="entry-title">Learning to Learn by Gradient Descent by Gradient&nbsp;Descent</h1>			</header><!-- .entry-header -->
+
+	<div class="entry-body">
+
+				<div class="entry-meta">
+			<span class="date"><a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/" title="Permalink to Learning to Learn by Gradient Descent by Gradient Descent" rel="bookmark"><time class="entry-date published" datetime="2017-01-04T14:50:44+00:00">January 4, 2017</time></a></span>		</div><!-- .entry-meta -->
+		
+				<div class="entry-content">
+			<p><strong><a href="https://arxiv.org/abs/1606.04474" target="_blank">https://arxiv.org/abs/1606.04474</a></strong></p>
+<p><strong>TLDR</strong>; Use gradient descent to train an LSTM optimizee which is used to determine the parameters of our main optimizer.</p>
+<h3><a id="user-content-detailed-notes" class="anchor" href="https://github.com/ajarai/casual-digressions/blob/master/notes/learning_to_learn.md#detailed-notes"></a>Detailed Notes:</h3>
+<ul>
+<li>What does it mean to learn to learn? If you think about all the recent advancements in AI architecture, it all boils down to one thing. We are coming up with better ways to represent our data so that we can better perform some end goal. Ex. Processing images with deep convolutional components or processing text with recurrent architectures. This is an oversimplification but essentially we are using these deep structures to channel and morph our input data into a more informative/descriptive/efficient representation.</li>
+<li>This paper applies this idea to the traditional gradient descent. Why should we hand pick the parameters of our optimizer, instead, we should learn how to pick those parameters. The idea is using a separate network that functions using the main function it self (f) and the parameters of the optimizer (/theta).</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/eq1.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/eq1.png" alt="eq1"></a></p>
+<ul>
+<li>The update operation to the optimizee’s weights looks like the following:</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/eq2.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/eq2.png" alt="eq1"></a></p>
+<ul>
+<li>Our original loss function above depends only on the final optimizee parameter value. In order to train the optimizer it will be more effective to have an objective function that depends on the ENTIRE trajectory of the optimization, for ?some horizon T?.</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/eq3.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/eq3.png" alt="eq1"></a></p>
+<ul>
+<li>The diagram below depicts the flow of gradients. The dashed lines indicate that the gradient DOES NOT flow there. This allows us to state that the gradients of f w.r.t to theta at t are independent of the optimizee’s parameters.</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/diagram1.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/diagram1.png" alt="eq1"></a></p>
+<h3><a id="user-content-training-points" class="anchor" href="https://github.com/ajarai/casual-digressions/blob/master/notes/learning_to_learn.md#training-points"></a>Training Points:</h3>
+<ul>
+<li>Comparisons between learned and hand-crafted optimizers for some quadratics based data and the MNIST dataset.</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/diagram2.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/diagram2.png" alt="eq1"></a></p>
+<ul>
+<li>One issue with the method in this paper was that gradients w.r.t optimzee parameters can vary greatly in terms of magnitude at different points of the input. Our optimizer’s will tend to focus on these large deviances which will bias the training. So the solution was to preprocess the gradients by applying a log transformation to it. But keep in mind that log(gradient) approaches -infinity as the gradient approaches 0. So the preprocessing step looks like below (p=10 in this paper):</li>
+</ul>
+<p><a class="hoverZoomLink" href="https://github.com/ajarai/casual-digressions/blob/master/notes/images/learning_to_learn/diagram3.png" target="_blank"><img class=" aligncenter" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/diagram3.png" alt="eq1"></a></p>
+<h3><a id="user-content-unique-points" class="anchor" href="https://github.com/ajarai/casual-digressions/blob/master/notes/learning_to_learn.md#unique-points"></a>Unique Points:</h3>
+<ul>
+<li>The idea of learning all the components within the deep architecture seems to be very promising. We are making fewer assumptions and simply just modeling based on the data.</li>
+<li>I particularly enjoyed the many jokes this paper gave rise to, which all went along the tone of “Learning to learn to learn to learn by gradient descent by gradient descent by gradient descent.” Which brings up a good point. In the datasets explored in this paper (mainly MNIST), the extra parameters and computation seen to be a favorable addition but what about for more complex/larger architectures and for different types of tasks?</li>
+</ul>
+<h3><a id="user-content-official-deepmind-tensorflow-implementation" class="anchor" href="https://github.com/ajarai/casual-digressions/blob/master/notes/learning_to_learn.md#official-deepmind-tensorflow-implementation"></a>Official DeepMind Tensorflow Implementation</h3>
+<p><strong><a href="https://github.com/deepmind/learning-to-learn">GitHub Repo</a></strong></p>
+<div id="jp-post-flair" class="sharedaddy sd-like-enabled sd-sharing-enabled"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon sd-sharing"><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow" data-shared="sharing-twitter-1941" class="share-twitter sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=twitter&amp;nb=1" target="_blank" title="Click to share on Twitter"><span></span><span class="sharing-screen-reader-text">Click to share on Twitter (Opens in new window)</span></a></li><li class="share-linkedin"><a rel="nofollow" data-shared="sharing-linkedin-1941" class="share-linkedin sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=linkedin&amp;nb=1" target="_blank" title="Click to share on LinkedIn"><span></span><span class="sharing-screen-reader-text">Click to share on LinkedIn (Opens in new window)</span></a></li><li class="share-facebook"><a rel="nofollow" data-shared="sharing-facebook-1941" class="share-facebook sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=facebook&amp;nb=1" target="_blank" title="Share on Facebook"><span></span><span class="sharing-screen-reader-text">Share on Facebook (Opens in new window)</span></a></li><li class="share-google-plus-1"><a rel="nofollow" data-shared="sharing-google-1941" class="share-google-plus-1 sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=google-plus-1&amp;nb=1" target="_blank" title="Click to share on Google+"><span></span><span class="sharing-screen-reader-text">Click to share on Google+ (Opens in new window)</span></a></li><li class="share-email share-service-visible"><a rel="nofollow" data-shared="" class="share-email sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=email&amp;nb=1" target="_blank" title="Click to email"><span></span><span class="sharing-screen-reader-text">Click to email (Opens in new window)</span></a></li><li><a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" class="sharing-anchor sd-button share-more"><span>More</span></a></li><li class="share-end"></li></ul><div class="sharing-hidden"><div class="inner" style="display: none;"><ul><li class="share-reddit"><a rel="nofollow" data-shared="" class="share-reddit sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=reddit&amp;nb=1" target="_blank" title="Click to share on Reddit"><span></span><span class="sharing-screen-reader-text">Click to share on Reddit (Opens in new window)</span></a></li><li class="share-tumblr"><a rel="nofollow" data-shared="" class="share-tumblr sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=tumblr&amp;nb=1" target="_blank" title="Click to share on Tumblr"><span></span><span class="sharing-screen-reader-text">Click to share on Tumblr (Opens in new window)</span></a></li><li class="share-end"></li><li class="share-print"><a rel="nofollow" data-shared="" class="share-print sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#print" target="_blank" title="Click to print"><span></span><span class="sharing-screen-reader-text">Click to print (Opens in new window)</span></a></li><li class="share-pinterest"><a rel="nofollow" data-shared="sharing-pinterest-1941" class="share-pinterest sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=pinterest&amp;nb=1" target="_blank" title="Click to share on Pinterest"><span></span><span class="sharing-screen-reader-text">Click to share on Pinterest (Opens in new window)</span></a></li><li class="share-end"></li><li class="share-pocket"><a rel="nofollow" data-shared="" class="share-pocket sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=pocket&amp;nb=1" target="_blank" title="Click to share on Pocket"><span></span><span class="sharing-screen-reader-text">Click to share on Pocket (Opens in new window)</span></a></li><li class="share-telegram"><a rel="nofollow" data-shared="" class="share-telegram sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=telegram&amp;nb=1" target="_blank" title="Click to share on Telegram"><span></span><span class="sharing-screen-reader-text">Click to share on Telegram (Opens in new window)</span></a></li><li class="share-end"></li><li class="share-jetpack-whatsapp"><a rel="nofollow" data-shared="" class="share-jetpack-whatsapp sd-button share-icon no-text" href="whatsapp://send?text=Learning%20to%20Learn%20by%20Gradient%20Descent%20by%20Gradient%20Descent https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F" target="_blank" title="Click to share on WhatsApp"><span></span><span class="sharing-screen-reader-text">Click to share on WhatsApp (Opens in new window)</span></a></li><li class="share-skype"><a rel="nofollow" data-shared="sharing-skype-1941" class="share-skype sd-button share-icon no-text" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?share=skype&amp;nb=1" target="_blank" title="Click to share on Skype"><span></span><span class="sharing-screen-reader-text">Click to share on Skype (Opens in new window)</span></a></li><li class="share-end"></li><li class="share-end"></li></ul></div></div></div></div></div></div>					</div><!-- .entry-content -->
+		
+				<footer class="entry-meta">
+			<span class="cat-links">Posted in: <a href="https://theneuralperspective.com/category/optimizationarchitecture/" rel="category tag">Optimization/Architecture</a></span><span class="sep"> | </span><span class="tags-links">Tagged: <a href="https://theneuralperspective.com/tag/readings/" rel="tag">Readings</a></span>		</footer><!-- .entry-meta -->
+		
+			</div><!-- .entry-body -->
+
+</article><!-- #post-## -->
+
+					<nav class="navigation post-navigation" role="navigation">
+		<h1 class="screen-reader-text">Post navigation</h1>
+		<div class="nav-links">
+			<div class="nav-previous"><a href="https://theneuralperspective.com/2017/01/03/matching-networks-for-one-shot-learning/" rel="prev"><span class="meta-nav"></span>&nbsp;Matching Networks for One Shot&nbsp;Learning</a></div><div class="nav-next"><a href="https://theneuralperspective.com/2017/01/08/bidirectional-attention-flow-for-machine-comprehension/" rel="next">Bidirectional Attention Flow for Machine&nbsp;Comprehension&nbsp;<span class="meta-nav"></span></a></div>		</div><!-- .nav-links -->
+	</nav><!-- .navigation -->
+	
+				
+	<div id="comments" class="comments-area">
+
+			<h2 class="comments-title">
+			One thought on “<span>Learning to Learn by Gradient Descent by Gradient&nbsp;Descent</span>”		</h2>
+
+		
+		<ol class="comment-list">
+			
+	<li id="comment-175" class="comment even thread-even depth-1 highlander-comment">
+		<article id="div-comment-175" class="comment-body">
+
+			<header class="comment-meta">
+				<cite class="fn">Frans W</cite> <span class="says">says:</span>
+				<div class="comment-metadata">
+					<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#comment-175">
+						<time datetime="2017-05-31T21:34:42+00:00">
+							May 31, 2017 at 9:34 pm						</time>
+					</a>
+				</div><!-- .comment-metadata -->
+
+				
+				<div class="comment-tools">
+					
+					<span class="reply"><a rel="nofollow" class="comment-reply-link" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?replytocom=175#respond" onclick="return addComment.moveForm( &quot;div-comment-175&quot;, &quot;175&quot;, &quot;respond&quot;, &quot;1941&quot; )" aria-label="Reply to Frans W">Reply</a></span>				</div><!-- .comment-tools -->
+			</header><!-- .comment-meta -->
+
+			<div class="comment-author vcard">
+				<img alt="" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/67701985bd2dec1a65fd0ecaa86a6207" class="avatar avatar-48 grav-hashed grav-hijack" height="48" width="48" id="grav-67701985bd2dec1a65fd0ecaa86a6207-0">			</div><!-- .comment-author -->
+
+			<div class="comment-content">
+				<p>Hello, I need to have the right contribution regarding this. Please contact me instantly: <a href="mailto:frans.wikman@gmx.com">frans.wikman@gmx.com</a></p>
+<p id="comment-like-175" data-liked="comment-not-liked" class="comment-likes comment-not-liked"><a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/?like_comment=175&amp;_wpnonce=022e0871a9" class="comment-like-link needs-login" rel="nofollow" data-blog="117692728"><span>Like</span></a><span id="comment-like-count-175" class="comment-like-feedback">Like</span></p>
+			</div><!-- .comment-content -->
+		</article><!-- .comment-body -->
+
+	</li><!-- #comment-## -->
+		</ol><!-- .comment-list -->
+
+		
+	
+	
+		<div id="respond" class="comment-respond js">
+		<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#respond" style="display:none;">Cancel reply</a></small></h3>			<form action="https://theneuralperspective.com/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate="">
+				<input type="hidden" id="highlander_comment_nonce" name="highlander_comment_nonce" value="e70b7d1de7"><input type="hidden" name="_wp_http_referer" value="/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/">
+<input type="hidden" name="hc_post_as" id="hc_post_as" value="guest">
+
+<div class="comment-form-field comment-textarea">
+	
+	<div id="comment-form-comment"><textarea tabindex="-1" style="position: absolute; top: -999px; left: 0px; right: auto; bottom: auto; border: 0px; padding: 0px; box-sizing: content-box; word-wrap: break-word; overflow: hidden; transition: none; height: 0px !important; min-height: 0px !important; font-family: Arial, Helvetica, Tahoma, Verdana, sans-serif; font-size: 14px; font-weight: 300; font-style: normal; letter-spacing: 0px; text-transform: none; text-decoration: none solid rgba(0, 0, 0, 0.7); word-spacing: 0px; text-indent: 0px; line-height: 21px; width: 597px;" class="autosizejs "></textarea><textarea id="comment" name="comment" title="Enter your comment here..." placeholder="Enter your comment here..." style="height: 125px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea></div>
+</div>
+
+<div id="comment-form-identity" style="display: none;">
+
+	<div id="comment-form-nascar">
+		<p>Fill in your details below or click an icon to log in:</p>
+		<ul>
+			<li class="selected" style="display:none;">
+				<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#comment-form-guest" id="postas-guest" title="Guest">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#comment-form-load-service:WordPress.com" id="postas-wordpress" title="WordPress.com">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#comment-form-load-service:Twitter" id="postas-twitter" title="Twitter">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#comment-form-load-service:Facebook" id="postas-facebook" title="Facebook">
+					<span></span>
+				</a>
+			</li>
+			<li>
+		</li></ul>
+	</div>
+
+	<div id="comment-form-guest" class="comment-form-service selected">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+<a href="https://gravatar.com/site/signup/" target="_blank">				<img src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/ad516503a11cd5ca435acc9bb6523536" alt="Gravatar" width="25" class="no-grav">
+</a>			</div>
+
+				<div class="comment-form-fields">
+				<div class="comment-form-field comment-form-email">
+					<label for="email">Email <span class="required">(required)</span> <span class="nopublish">(Address never made public)</span></label>
+					<div class="comment-form-input"><input id="email" name="email" type="email" value=""></div>
+				</div>
+				<div class="comment-form-field comment-form-author">
+					<label for="author">Name <span class="required">(required)</span></label>
+					<div class="comment-form-input"><input id="author" name="author" type="text" value=""></div>
+				</div>
+				<div class="comment-form-field comment-form-url">
+					<label for="url">Website</label>
+					<div class="comment-form-input"><input id="url" name="url" type="url" value=""></div>
+				</div>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-wordpress" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/ad516503a11cd5ca435acc9bb6523536" alt="WordPress.com Logo" width="25" class="no-grav">
+			</div>
+
+				<div class="comment-form-fields">
+				<input type="hidden" name="wp_avatar" id="wordpress-avatar" class="comment-meta-wordpress" value="">
+				<input type="hidden" name="wp_user_id" id="wordpress-user_id" class="comment-meta-wordpress" value="">
+				<input type="hidden" name="wp_access_token" id="wordpress-access_token" class="comment-meta-wordpress" value="">
+				<p class="comment-form-posting-as pa-wordpress"><strong></strong> You are commenting using your WordPress.com account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout( &#39;wordpress&#39; );">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-twitter" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/ad516503a11cd5ca435acc9bb6523536" alt="Twitter picture" width="25" class="no-grav">
+			</div>
+
+				<div class="comment-form-fields">
+				<input type="hidden" name="twitter_avatar" id="twitter-avatar" class="comment-meta-twitter" value="">
+				<input type="hidden" name="twitter_user_id" id="twitter-user_id" class="comment-meta-twitter" value="">
+				<input type="hidden" name="twitter_access_token" id="twitter-access_token" class="comment-meta-twitter" value="">
+				<p class="comment-form-posting-as pa-twitter"><strong></strong> You are commenting using your Twitter account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout( &#39;twitter&#39; );">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-facebook" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/ad516503a11cd5ca435acc9bb6523536" alt="Facebook photo" width="25" class="no-grav">
+			</div>
+
+				<div class="comment-form-fields">
+				<input type="hidden" name="fb_avatar" id="facebook-avatar" class="comment-meta-facebook" value="">
+				<input type="hidden" name="fb_user_id" id="facebook-user_id" class="comment-meta-facebook" value="">
+				<input type="hidden" name="fb_access_token" id="facebook-access_token" class="comment-meta-facebook" value="">
+				<p class="comment-form-posting-as pa-facebook"><strong></strong> You are commenting using your Facebook account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout( &#39;facebook&#39; );">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-googleplus" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/ad516503a11cd5ca435acc9bb6523536" alt="Google+ photo" width="25" class="no-grav">
+			</div>
+
+				<div class="comment-form-fields">
+				<input type="hidden" name="googleplus_avatar" id="googleplus-avatar" class="comment-meta-googleplus" value="">
+				<input type="hidden" name="googleplus_user_id" id="googleplus-user_id" class="comment-meta-googleplus" value="">
+				<input type="hidden" name="googleplus_access_token" id="googleplus-access_token" class="comment-meta-googleplus" value="">
+				<p class="comment-form-posting-as pa-googleplus"><strong></strong> You are commenting using your Google+ account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout( &#39;googleplus&#39; );">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+
+	<div id="comment-form-load-service" class="comment-form-service">
+		<div class="comment-form-posting-as-cancel"><a href="javascript:HighlanderComments.cancelExternalWindow();">Cancel</a></div>
+		<p>Connecting to %s</p>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+var highlander_expando_javascript = function(){
+	var input = document.createElement( 'input' ),
+	    comment = jQuery( '#comment' );
+
+	if ( 'placeholder' in input ) {
+		comment.attr( 'placeholder', jQuery( '.comment-textarea label' ).remove().text() );
+	}
+
+	// Expando Mode: start small, then auto-resize on first click + text length
+	jQuery( '#comment-form-identity' ).hide();
+	jQuery( '#comment-form-subscribe' ).hide();
+	jQuery( '#commentform .form-submit' ).hide();
+
+	comment.css( { 'height':'10px' } ).one( 'focus', function() {
+		var timer = setInterval( HighlanderComments.resizeCallback, 10 )
+		jQuery( this ).animate( { 'height': HighlanderComments.initialHeight } ).delay( 100 ).queue( function(n) { clearInterval( timer ); HighlanderComments.resizeCallback(); n(); } );
+		jQuery( '#comment-form-identity' ).slideDown();
+		jQuery( '#comment-form-subscribe' ).slideDown();
+		jQuery( '#commentform .form-submit' ).slideDown();
+	});
+}
+jQuery(document).ready( highlander_expando_javascript );
+</script>
+
+<div id="comment-form-subscribe" style="display: none;">
+	<p class="comment-subscription-form"><input type="checkbox" name="subscribe" id="subscribe" value="subscribe" style="width: auto;"> <label class="subscribe-label" id="subscribe-label" for="subscribe" style="display: inline;">Notify me of new comments via email.</label></p></div>
+
+
+
+
+<p class="form-submit" style="display: none;"><input name="submit" type="submit" id="comment-submit" class="submit" value="Post Comment"> <input type="hidden" name="comment_post_ID" value="1941" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+</p><p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="27961c1fd1"></p>
+<input type="hidden" name="genseq" value="1505228424">
+<p style="display: none;"></p>			<input type="hidden" id="ak_js" name="ak_js" value="1505228432512"></form>
+			</div><!-- #respond -->
+	<div style="clear: both"></div>
+</div><!-- #comments -->
+
+			
+		
+		</main><!-- #main -->
+	</div><!-- #primary -->
+
+	<div id="secondary" class="widget-area sidebar-widget-area" role="complementary">
+		<aside id="search-3" class="widget widget_search"><h3 class="widget-title">Search</h3><form role="search" method="get" class="search-form" action="https://theneuralperspective.com/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search …" value="" name="s">
+				</label>
+				<input type="submit" class="search-submit" value="Search">
+			</form></aside><aside id="twitter_timeline-7" class="widget widget_twitter_timeline"><h3 class="widget-title">Follow me on Twitter</h3><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-timeline twitter-timeline-rendered" style="position: static; visibility: visible; display: inline-block; width: 100%; height: 400px; padding: 0px; border: none; max-width: 100%; min-width: 180px; margin-top: 0px; margin-bottom: 0px; min-height: 200px;" data-widget-id="profile:GokuMohandas" title="Twitter Timeline" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource.html"></iframe></aside>		<aside id="recent-posts-3" class="widget widget_recent_entries">		<h3 class="widget-title">Recent Posts</h3>		<ul>
+					<li>
+				<a href="https://theneuralperspective.com/2017/06/05/more-on-embeddings-spring-2017/">Update on Embeddings (Spring&nbsp;2017)</a>
+						</li>
+					<li>
+				<a href="https://theneuralperspective.com/2017/05/21/exploring-sparsity-in-recurrent-neural-networks/">Exploring Sparsity in Recurrent Neural&nbsp;Networks</a>
+						</li>
+					<li>
+				<a href="https://theneuralperspective.com/2017/04/26/question-answering-from-unstructured-text-by-retrieval-and-comprehension/">Question Answering from Unstructured Text by Retrieval and&nbsp;Comprehension</a>
+						</li>
+					<li>
+				<a href="https://theneuralperspective.com/2017/04/01/overcoming-catastrophic-forgetting-in-neural-networks/">Overcoming Catastrophic Forgetting in Neural&nbsp;Networks</a>
+						</li>
+					<li>
+				<a href="https://theneuralperspective.com/2017/03/24/opening-the-black-box-of-deep-neural-networks-via-information/">Opening the Black Box of Deep Neural Networks via&nbsp;Information</a>
+						</li>
+				</ul>
+		</aside>			</div><!-- #secondary -->
+
+	</div><!-- #content -->
+
+	
+	<footer id="colophon" class="site-footer">
+					<div class="social-links"><ul id="menu-social" class="menu"><li id="menu-item-17" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-17"><a href="https://twitter.com/gokumohandas"><span class="screen-reader-text">Twitter</span></a></li>
+<li id="menu-item-25" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-25"><a href="https://github.com/GokuMohandas/"><span class="screen-reader-text">Github</span></a></li>
+<li id="menu-item-20" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20"><a href="https://www.linkedin.com/in/gokumd"><span class="screen-reader-text">Linkedin</span></a></li>
+</ul></div>		
+		<div class="site-info" role="contentinfo">
+			<a href="https://wordpress.com/?ref=footer_custom_svg" title="Create a website or blog at WordPress.com"><svg style="fill: currentColor; position: relative; top: 1px;" width="14px" height="15px" viewBox="0 0 14 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-labelledby="title" role="img">
+				<title id="title">Create a website or blog at WordPress.com</title>
+				<path d="M12.5225848,4.97949746 C13.0138466,5.87586309 13.2934037,6.90452431 13.2934037,7.99874074 C13.2934037,10.3205803 12.0351007,12.3476807 10.1640538,13.4385638 L12.0862862,7.88081544 C12.4453251,6.98296834 12.5648813,6.26504621 12.5648813,5.62667922 C12.5648813,5.39497674 12.549622,5.17994084 12.5225848,4.97949746 L12.5225848,4.97949746 Z M7.86730089,5.04801561 C8.24619178,5.02808979 8.58760099,4.98823815 8.58760099,4.98823815 C8.9267139,4.94809022 8.88671369,4.44972248 8.54745263,4.46957423 C8.54745263,4.46957423 7.52803983,4.54957381 6.86996227,4.54957381 C6.25158863,4.54957381 5.21247202,4.46957423 5.21247202,4.46957423 C4.87306282,4.44972248 4.83328483,4.96816418 5.17254589,4.98823815 C5.17254589,4.98823815 5.49358462,5.02808979 5.83269753,5.04801561 L6.81314716,7.73459399 L5.43565839,11.8651647 L3.14394256,5.04801561 C3.52312975,5.02808979 3.86416859,4.98823815 3.86416859,4.98823815 C4.20305928,4.94809022 4.16305906,4.44972248 3.82394616,4.46957423 C3.82394616,4.46957423 2.80475558,4.54957381 2.14660395,4.54957381 C2.02852925,4.54957381 1.88934333,4.54668493 1.74156477,4.54194422 C2.86690406,2.83350881 4.80113651,1.70529256 6.99996296,1.70529256 C8.638342,1.70529256 10.1302017,2.33173369 11.2498373,3.35765419 C11.222726,3.35602457 11.1962815,3.35261718 11.1683554,3.35261718 C10.5501299,3.35261718 10.1114609,3.89113285 10.1114609,4.46957423 C10.1114609,4.98823815 10.4107217,5.42705065 10.7296864,5.94564049 C10.969021,6.36482346 11.248578,6.90326506 11.248578,7.68133501 C11.248578,8.21992476 11.0413918,8.84503256 10.7696866,9.71584277 L10.1417574,11.8132391 L7.86730089,5.04801561 Z M6.99996296,14.2927074 C6.38218192,14.2927074 5.78595654,14.2021153 5.22195356,14.0362644 L7.11048207,8.54925635 L9.04486267,13.8491542 C9.05760348,13.8802652 9.07323319,13.9089317 9.08989995,13.9358945 C8.43574834,14.1661896 7.73285573,14.2927074 6.99996296,14.2927074 L6.99996296,14.2927074 Z M0.706448182,7.99874074 C0.706448182,7.08630113 0.902152921,6.22015756 1.25141403,5.43749503 L4.25357806,13.6627848 C2.15393732,12.6427902 0.706448182,10.4898387 0.706448182,7.99874074 L0.706448182,7.99874074 Z M6.99996296,0.999 C3.14016476,0.999 0,4.13905746 0,7.99874074 C0,11.8585722 3.14016476,14.999 6.99996296,14.999 C10.8596871,14.999 14,11.8585722 14,7.99874074 C14,4.13905746 10.8596871,0.999 6.99996296,0.999 L6.99996296,0.999 Z" id="wordpress-logo-simplified-cmyk" stroke="none" fill="“currentColor”" fill-rule="evenodd"></path>
+			</svg></a>
+			
+					</div><!-- .site-info -->
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+<!--  -->
+<script type="text/javascript" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/gprofiles.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/wpgroho.js"></script>
+
+	<script>
+		//initialize and attach hovercards to all gravatars
+		jQuery( document ).ready( function( $ ) {
+
+			if (typeof Gravatar === "undefined"){
+				return;
+			}
+
+			if ( typeof Gravatar.init !== "function" ) {
+				return;
+			}			
+
+			Gravatar.profile_cb = function( hash, id ) {
+				WPGroHo.syncProfileData( hash, id );
+			};
+			Gravatar.my_hash = WPGroHo.my_hash;
+			Gravatar.init( 'body', '#wp-admin-bar-my-account' );
+		});
+	</script>
+
+		<div style="display:none">
+	<div class="grofile-hash-map-67701985bd2dec1a65fd0ecaa86a6207">
+	</div>
+	</div>
+<script type="text/javascript">
+/* <![CDATA[ */
+var HighlanderComments = {"loggingInText":"Logging In\u2026","submittingText":"Posting Comment\u2026","postCommentText":"Post Comment","connectingToText":"Connecting to %s","commentingAsText":"%1$s: You are commenting using your %2$s account.","logoutText":"Log Out","loginText":"Log In","connectURL":"https:\/\/theneuralperspective.wordpress.com\/public.api\/connect\/?action=request","logoutURL":"https:\/\/theneuralperspective.wordpress.com\/wp-login.php?action=logout&_wpnonce=15dbe04018","homeURL":"https:\/\/theneuralperspective.com\/","postID":"1941","gravDefault":"identicon","enterACommentError":"Please enter a comment","enterEmailError":"Please enter your email address here","invalidEmailError":"Invalid email address","enterAuthorError":"Please enter your name here","gravatarFromEmail":"This picture will show whenever you leave a comment. Click to customize it.","logInToExternalAccount":"Log in to use details from one of these accounts.","change":"Change","changeAccount":"Change Account","comment_registration":"","userIsLoggedIn":"","isJetpack":"0","text_direction":"ltr"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(4)"></script>
+
+	<div id="carousel-reblog-box">
+		<form action="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" name="carousel-reblog">
+			<textarea id="carousel-reblog-content" name="carousel-reblog-content" placeholder="Add your thoughts here... (optional)"></textarea>
+			<label for="carousel-reblog-to-blog-id" id="carousel-reblog-lblogid">Post to</label>
+			<select name="carousel-reblog-to-blog-id" id="carousel-reblog-to-blog-id">
+						</select>
+
+			<div class="submit">
+				<span class="canceltext"><a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#" class="cancel">Cancel</a></span>
+				<input type="submit" name="carousel-reblog-submit" class="button" id="carousel-reblog-submit" value="Reblog Post">
+				<input type="hidden" id="carousel-reblog-blog-id" value="117692728">
+				<input type="hidden" id="carousel-reblog-blog-url" value="https://theneuralperspective.com">
+				<input type="hidden" id="carousel-reblog-blog-title" value="The Neural Perspective">
+				<input type="hidden" id="carousel-reblog-post-url" value="">
+				<input type="hidden" id="carousel-reblog-post-title" value="">
+			</div>
+
+			<input type="hidden" id="_wpnonce" name="_wpnonce" value="98970e0f06"><input type="hidden" name="_wp_http_referer" value="/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/">		</form>
+
+		<div class="arrow"></div>
+	</div>
+
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/theneuralperspective.com\/2017\/01\/04\/learning-to-learn-by-gradient-descent-by-gradient-descent\/":1941};
+	</script>
+		<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-twitter' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-linkedin' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomlinkedin', 'menubar=1,resizable=1,width=580,height=450' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-facebook' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-google-plus-1' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomgoogle-plus-1', 'menubar=1,resizable=1,width=480,height=550' );
+				return false;
+			});
+		});
+		</script>
+			
+		<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-tumblr' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomtumblr', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+		});
+		</script>
+							<script type="text/javascript">
+				jQuery(document).on('ready', function(){
+					jQuery('body').on('click', 'a.share-pinterest', function(e){
+						e.preventDefault();
+						// Load Pinterest Bookmarklet code
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+						// Trigger Stats
+						var s = document.createElement("script");
+						s.type = "text/javascript";
+						s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+						var x = document.getElementsByTagName("script")[0];
+						x.parentNode.insertBefore(s, x);
+					});
+				});
+			</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-pocket' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcompocket', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-telegram' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomtelegram', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-skype' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomskype', 'menubar=1,resizable=1,width=305,height=665' );
+				return false;
+			});
+		});
+		</script>
+		<link rel="stylesheet" id="all-css-0-3" href="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/jetpack-carousel.css" type="text/css" media="all">
+<!--[if lte IE 8]>
+<link rel='stylesheet' id='jetpack-carousel-ie8fix-css'  href='https://s1.wp.com/wp-content/mu-plugins/carousel/jetpack-carousel-ie8fix.css?m=1412618825h&#038;ver=20121024' type='text/css' media='all' />
+<![endif]-->
+<script type="text/javascript">
+/* <![CDATA[ */
+var comment_like_text = {"loading":"Loading..."};
+/* ]]> */
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var actionbardata = {"siteID":"117692728","siteName":"The Neural Perspective","siteURL":"https:\/\/theneuralperspective.com","icon":"<img alt='' src='https:\/\/secure.gravatar.com\/blavatar\/d89fe7031224782793e7a08915b33bfc?s=50&d=https%3A%2F%2Fs1.wp.com%2Fi%2Flogo%2Fwpcom-gray-white.png' class='avatar avatar-50' height='50' width='50' \/>","canManageOptions":"","canCustomizeSite":"","isFollowing":"","themeSlug":"pub\/sela","signupURL":"https:\/\/wordpress.com\/start\/","loginURL":"https:\/\/theneuralperspective.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F","themeURL":"https:\/\/wordpress.com\/theme\/sela\/","xhrURL":"https:\/\/theneuralperspective.com\/wp-admin\/admin-ajax.php","nonce":"bd714a15de","isSingular":"1","isFolded":"","isLoggedIn":"","isMobile":"","subscribeNonce":"<input type=\"hidden\" id=\"_wpnonce\" name=\"_wpnonce\" value=\"7d1a8ce1e1\" \/>","referer":"https:\/\/theneuralperspective.com\/2017\/01\/04\/learning-to-learn-by-gradient-descent-by-gradient-descent\/","canFollow":"1","feedID":"56155186","statusMessage":"","customizeLink":"https:\/\/theneuralperspective.wordpress.com\/wp-admin\/customize.php?url=https%3A%2F%2Ftheneuralperspective.wordpress.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F","postID":"1941","shortlink":"http:\/\/wp.me\/p7XPfO-vj","canEditPost":"","editLink":"https:\/\/wordpress.com\/post\/theneuralperspective.com\/1941","statsLink":"https:\/\/wordpress.com\/stats\/post\/1941\/theneuralperspective.com","i18n":{"view":"View site","follow":"Follow","following":"Following","edit":"Edit","login":"Log in","signup":"Sign up","customize":"Customize","report":"Report this content","themeInfo":"Get theme: Sela","shortlink":"Copy shortlink","copied":"Copied","followedText":"New posts from this site will now appear in your <a href=\"https:\/\/wordpress.com\/\">Reader<\/a>","foldBar":"Collapse this bar","unfoldBar":"Expand this bar","editSubs":"Manage subscriptions","viewReader":"View site in Reader","viewReadPost":"View post in Reader","subscribe":"Sign me up","enterEmail":"Enter your email address","followers":"Join 32 other followers","alreadyUser":"Already have a WordPress.com account? <a href=\"https:\/\/theneuralperspective.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F\">Log in now.<\/a>","stats":"Stats"}};
+/* ]]> */
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var jetpackCarouselStrings = {"widths":[370,700,1000,1200,1400,2000],"is_logged_in":"","lang":"en","ajaxurl":"https:\/\/theneuralperspective.com\/wp-admin\/admin-ajax.php","nonce":"9171cbe140","display_exif":"1","display_geo":"1","single_image_gallery":"1","single_image_gallery_media_file":"","background_color":"black","comment":"Comment","post_comment":"Post Comment","write_comment":"Write a Comment...","loading_comments":"Loading Comments...","download_original":"View full size <span class=\"photo-size\">{0}<span class=\"photo-size-times\">\u00d7<\/span>{1}<\/span>","no_comment_text":"Please be sure to submit some text with your comment.","no_comment_email":"Please provide an email address to comment.","no_comment_author":"Please provide your name to comment.","comment_post_error":"Sorry, but there was an error posting your comment. Please try again later.","comment_approved":"Your comment was approved.","comment_unapproved":"Your comment is in moderation.","camera":"Camera","aperture":"Aperture","shutter_speed":"Shutter Speed","focal_length":"Focal Length","comment_registration":"0","require_name_email":"1","login_url":"https:\/\/theneuralperspective.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F","blog_id":"117692728","local_comments_commenting_as":"<fieldset><label for=\"email\">Email (Required)<\/label> <input type=\"text\" name=\"email\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-email-field\" \/><\/fieldset><fieldset><label for=\"author\">Name (Required)<\/label> <input type=\"text\" name=\"author\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-author-field\" \/><\/fieldset><fieldset><label for=\"url\">Website<\/label> <input type=\"text\" name=\"url\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-url-field\" \/><\/fieldset>","reblog":"Reblog","reblogged":"Reblogged","reblog_add_thoughts":"Add your thoughts here... (optional)","reblogging":"Reblogging...","post_reblog":"Post Reblog","stats_query_args":"blog=117692728&v=wpcom&tz=0&user_id=0&subd=theneuralperspective","is_public":"1","reblog_enabled":""};
+/* ]]> */
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var sharing_js_options = {"lang":"en","counts":"1"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(5)"></script><div id="actionbar" class="actnbr-pub-sela actnbr-has-follow actnbr-hidden"><ul><li class="actnbr-btn actnbr-hidden"> 			    	<a class="actnbr-action actnbr-actn-follow" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/"><svg class="gridicon gridicon__follow" height="24px" width="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M23 16v2h-3v3h-2v-3h-3v-2h3v-3h2v3h3zM20 2v9h-4v3h-3v4H4c-1.1 0-2-.9-2-2V2h18zM8 13v-1H4v1h4zm3-3H4v1h7v-1zm0-2H4v1h7V8zm7-4H4v2h14V4z"></path></g></svg><span>Follow</span></a> 			    	<div class="actnbr-popover tip tip-top-left actnbr-notice"> 			    		<div class="tip-arrow"></div> 			    		<div class="tip-inner actnbr-follow-bubble"></div> 			    	</div> 			    </li><li class="actnbr-ellipsis actnbr-hidden"> 			  <svg class="gridicon gridicon__ellipsis" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><circle cx="5" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle></g></svg> 			  <div class="actnbr-popover tip tip-top-left actnbr-more"> 			  	<div class="tip-arrow"></div> 			  	<div class="tip-inner"> 				  <ul> 				    <li class="actnbr-sitename actnbr-hidden"><a href="https://theneuralperspective.com/"><img alt="" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/d89fe7031224782793e7a08915b33bfc" class="avatar avatar-50" height="50" width="50"> The Neural Perspective</a></li> 				   	<li class="actnbr-folded-customize actnbr-hidden"><a href="https://theneuralperspective.wordpress.com/wp-admin/customize.php?url=https%3A%2F%2Ftheneuralperspective.wordpress.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F"><svg class="gridicon gridicon__customize" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M2 6c0-1.505.78-3.08 2-4 0 .845.69 2 2 2 1.657 0 3 1.343 3 3 0 .386-.08.752-.212 1.09.74.594 1.476 1.19 2.19 1.81L8.9 11.98c-.62-.716-1.214-1.454-1.807-2.192C6.753 9.92 6.387 10 6 10c-2.21 0-4-1.79-4-4zm12.152 6.848l1.34-1.34c.607.304 1.283.492 2.008.492 2.485 0 4.5-2.015 4.5-4.5 0-.725-.188-1.4-.493-2.007L18 9l-2-2 3.507-3.507C18.9 3.188 18.225 3 17.5 3 15.015 3 13 5.015 13 7.5c0 .725.188 1.4.493 2.007L3 20l2 2 6.848-6.848c1.885 1.928 3.874 3.753 5.977 5.45l1.425 1.148 1.5-1.5-1.15-1.425c-1.695-2.103-3.52-4.092-5.448-5.977z" data-reactid=".2.1.1:0.1b.0"></path></g></svg><span>Customize<span></span></span></a></li> 				    <li class="actnbr-folded-follow actnbr-hidden"><a class="actnbr-action actnbr-actn-follow" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/"><svg class="gridicon gridicon__follow" height="24px" width="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M23 16v2h-3v3h-2v-3h-3v-2h3v-3h2v3h3zM20 2v9h-4v3h-3v4H4c-1.1 0-2-.9-2-2V2h18zM8 13v-1H4v1h4zm3-3H4v1h7v-1zm0-2H4v1h7V8zm7-4H4v2h14V4z"></path></g></svg><span>Follow</span></a></li> 					<li class="actnbr-signup actnbr-hidden"><a href="https://wordpress.com/start/">Sign up</a></li> 				    <li class="actnbr-login actnbr-hidden"><a href="https://theneuralperspective.wordpress.com/wp-login.php?redirect_to=https%3A%2F%2Ftheneuralperspective.com%2F2017%2F01%2F04%2Flearning-to-learn-by-gradient-descent-by-gradient-descent%2F">Log in</a></li> 				     				    <li class="actnbr-shortlink actnbr-hidden"><a href="http://wp.me/p7XPfO-vj">Copy shortlink</a></li> 				    <li class="flb-report actnbr-hidden"><a href="http://en.wordpress.com/abuse/">Report this content</a></li> 				     				     				    <li class="actnbr-subs actnbr-hidden"><a href="https://subscribe.wordpress.com/">Manage subscriptions</a></li> 				    <li class="actnbr-fold actnbr-hidden"><a href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/">Collapse this bar</a></li> 			      </ul> 			    </div> 		      </div> 		    </li> 	      </ul></div>
+<script type="text/javascript">
+// <![CDATA[
+(function() {
+try{
+  if ( window.external &&'msIsSiteMode' in window.external) {
+    if (window.external.msIsSiteMode()) {
+      var jl = document.createElement('script');
+      jl.type='text/javascript';
+      jl.async=true;
+      jl.src='/wp-content/plugins/ie-sitemode/custom-jumplist.php';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jl, s);
+    }
+  }
+}catch(e){}
+})();
+// ]]>
+</script><script src="https://stats.wp.com/w.js?56" type="text/javascript" async="" defer=""></script>
+<script type="text/javascript">
+_tkq = window._tkq || [];
+_stq = window._stq || [];
+_tkq.push(['storeContext', {'blog_id':'117692728','blog_tz':'0','user_lang':'en','blog_lang':'en','user_id':'0'}]);
+_stq.push(['view', {'blog':'117692728','v':'wpcom','tz':'0','user_id':'0','post':'1941','subd':'theneuralperspective'}]);
+_stq.push(['extra', {'crypt':'UE40eW5QN0p8M2Y/RE1TaVhzUzFMbjdWNHpwZGhTayxPSUFCMGNrd29+Smw0TDhnZmRTK0hlRi9QSGh6bi9GXVhBJWIlZlR5U1JMLU8/MkNtblkvY1dDdGwyXVU0dy1VaHpRTEdubHdNTzhpeE5bfDdOVkxjJmp4Z3hOLW5pOXFNaVpxRXklSS1Rb3huWFMsakNzXy9vS19qP08taU5qT0RkZkxJJnJMRk95SWE3Wm84cjVwM1lZW2dXfnksM0JmbE1aSHFZZis4MVJIeGltMmhrSUM1SFpYUndteGtudGJvaWlCWEhnNC9vYnhvTUE9TCtsdFMsNGtmckM/RGQzWVBWMFt4Xz1TZkwuUyUvcldbM1Zkd2lQSm9bYSV1WXA0RE9NUjR+ZFElcFBVLz1LSw=='}]);
+_stq.push([ 'clickTrackerInit', '117692728', '1941' ]);
+	</script>
+<noscript>&lt;img src="https://pixel.wp.com/b.gif?v=noscript" style="height:0px;width:0px;overflow:hidden" alt="" /&gt;</noscript>
+<script>
+if ( 'object' === typeof wpcom_mobile_user_agent_info ) {
+
+	wpcom_mobile_user_agent_info.init();
+	var mobileStatsQueryString = "";
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedPlatformName )
+		mobileStatsQueryString += "&x_" + 'mobile_platforms' + '=' + wpcom_mobile_user_agent_info.matchedPlatformName;
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedUserAgentName )
+		mobileStatsQueryString += "&x_" + 'mobile_devices' + '=' + wpcom_mobile_user_agent_info.matchedUserAgentName;
+	
+	if( wpcom_mobile_user_agent_info.isIPad() )
+		mobileStatsQueryString += "&x_" + 'ipad_views' + '=' + 'views';
+
+	if( "" != mobileStatsQueryString ) {
+		new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + mobileStatsQueryString + '&baba=' + Math.random();
+	}
+	
+}
+</script>
+
+
+<div class="comment-likes-overlay" style="display: none;"></div><div id="sharing_email" style="display: none;">
+		<form action="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input type="email" name="target_email" id="target_email" value="">
+
+			
+				<label for="source_name">Your Name</label>
+				<input type="text" name="source_name" id="source_name" value="">
+
+				<label for="source_email">Your Email Address</label>
+				<input type="email" name="source_email" id="source_email" value="">
+
+						<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off">
+			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
+			<div class="recaptcha" id="sharing_recaptcha"></div><input type="hidden" name="recaptcha_public_key" id="recaptcha_public_key" value="6LcYW8MSAAAAADBAuEH9yaPcF7lWh11Iq62ZKtoo">
+			<img style="float: right; display: none" class="loading" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/loading.gif" alt="loading" width="16" height="16">
+			<input type="submit" value="Send Email" class="sharing_send">
+			<a rel="nofollow" href="https://theneuralperspective.com/2017/01/04/learning-to-learn-by-gradient-descent-by-gradient-descent/#cancel" class="sharing_cancel">Cancel</a>
+
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./Learning to Learn by Gradient Descent by Gradient Descent – The Neural Perspective_files/saved_resource(6).html"></iframe></body><div></div></html>
