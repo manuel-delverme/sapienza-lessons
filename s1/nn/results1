@@ -1,0 +1,101 @@
+ ________________________
+<# 1-binary-classification/>
+ ------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+
+
+==================== optim ====================
+     loading madeline
+     3140 datapoints
+  0%|                    | 0/5 [00:00<?, ?it/s]running classifier RandomForestClassifier
+ 20%|██▍         | 1/5 [00:08<00:33,  8.42s/it]running classifier Ridge Classifier
+ 40%|████▊       | 2/5 [00:10<00:15,  5.29s/it]running classifier KNeighborsClassifier
+ 60%|███████▏    | 3/5 [00:37<00:24, 12.43s/it]running classifier LinearSVC+L1
+ 80%|█████████▌  | 4/5 [01:26<00:21, 21.74s/it]running classifier Perceptron
+100%|████████████| 5/5 [01:29<00:00, 17.85s/it]
+==================== results ====================
+
+
+Perceptron -0.49044585987261147
+Ridge Classifier -0.5477707006369427
+LinearSVC+L1 -0.5605095541401274
+RandomForestClassifier -0.6764331210191082
+KNeighborsClassifier -0.7707006369426752
+==================== results ====================
+     loading jasmine
+     2984 datapoints
+  0%|                    | 0/5 [00:00<?, ?it/s]running classifier RandomForestClassifier
+ 20%|██▍         | 1/5 [00:03<00:12,  3.18s/it]running classifier Ridge Classifier
+ 40%|████▊       | 2/5 [00:07<00:10,  3.61s/it]running classifier KNeighborsClassifier
+ 60%|███████▏    | 3/5 [00:21<00:14,  7.09s/it]running classifier LinearSVC+L1
+ 80%|█████████▌  | 4/5 [00:28<00:07,  7.13s/it]running classifier Perceptron
+100%|████████████| 5/5 [00:30<00:00,  6.03s/it]
+==================== results ====================
+
+
+Perceptron -0.6058981233243967
+LinearSVC+L1 -0.7721179624664879
+KNeighborsClassifier -0.7774798927613941
+Ridge Classifier -0.7841823056300268
+RandomForestClassifier -0.7868632707774799
+==================== results ====================
+     loading philippine
+     5832 datapoints
+  0%|                    | 0/5 [00:00<?, ?it/s]running classifier RandomForestClassifier
+ 20%|██▍         | 1/5 [00:04<00:19,  4.93s/it]running classifier Ridge Classifier
+ 40%|████▊       | 2/5 [00:09<00:14,  4.85s/it]running classifier KNeighborsClassifier
+ 60%|███████▏    | 3/5 [02:36<01:44, 52.16s/it]running classifier LinearSVC+L1
+ 80%|█████████▌  | 4/5 [04:59<01:14, 74.93s/it]running classifier Perceptron
+100%|████████████| 5/5 [05:01<00:00, 60.27s/it]
+==================== results ====================
+
+
+Perceptron -0.6522633744855967
+KNeighborsClassifier -0.6817558299039781
+LinearSVC+L1 -0.7366255144032922
+Ridge Classifier -0.7373113854595336
+RandomForestClassifier -0.7544581618655692
+==================== results ====================
+     loading sylvine
+     5124 datapoints
+  0%|                    | 0/5 [00:00<?, ?it/s]running classifier RandomForestClassifier
+ 20%|██▍         | 1/5 [00:04<00:19,  4.91s/it]running classifier Ridge Classifier
+ 40%|████▊       | 2/5 [00:06<00:09,  3.09s/it]running classifier KNeighborsClassifier
+ 60%|███████▏    | 3/5 [00:10<00:07,  3.58s/it]running classifier LinearSVC+L1
+ 80%|█████████▌  | 4/5 [00:21<00:05,  5.47s/it]running classifier Perceptron
+100%|████████████| 5/5 [00:24<00:00,  4.93s/it]
+==================== results ====================
+
+
+Perceptron -0.6385636221701796
+KNeighborsClassifier -0.7533177205308352
+Ridge Classifier -0.8758782201405152
+LinearSVC+L1 -0.8907103825136612
+RandomForestClassifier -0.9234972677595629
+==================== results ====================
+     loading christine
+     5418 datapoints
+  0%|                    | 0/5 [00:00<?, ?it/s]running classifier RandomForestClassifier
+ 20%|██▍         | 1/5 [00:09<00:37,  9.45s/it]running classifier Ridge Classifier
+ 40%|████▊       | 2/5 [00:38<00:57, 19.18s/it]running classifier KNeighborsClassifier
+ 60%|██████▌    | 3/5 [08:24<05:36, 168.14s/it]running classifier LinearSVC+L1
+dddd
+
+
+ 80%|████████▊  | 4/5 [19:32<04:53, 293.01s/it]running classifier Perceptron
+100%|███████████| 5/5 [19:36<00:00, 235.35s/it]
+==================== results ====================
+
+
+Perceptron -0.5948339483394834
+Ridge Classifier -0.692250922509225
+LinearSVC+L1 -0.6929889298892989
+RandomForestClassifier -0.7195571955719557
+KNeighborsClassifier -0.7225092250922509
+==================== results ====================
+
