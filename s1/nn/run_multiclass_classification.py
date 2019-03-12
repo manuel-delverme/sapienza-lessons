@@ -8,7 +8,7 @@ import time
 import numpy as np
 import sklearn.metrics
 from sklearn.utils.extmath import density
-import models
+import estimators
 import sklearn.linear_model
 
 RANDOM_STATE = 31337
@@ -46,7 +46,7 @@ regression_models = [
 results = []
 losses = ('squared_hinge', 'hinge')
 
-for clf_name, (clf, defaults, search_space) in models.multi_class_models.items():
+for clf_name, (clf, defaults, search_space) in estimators.multi_class_models.items():
     print("running classifier", clf_name)
 
 

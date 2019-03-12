@@ -1,25 +1,20 @@
-import lazy_import
-np = lazy_import.lazy_module("numpy")
-glob = lazy_import.lazy_module("glob")
-zipfile = lazy_import.lazy_module("zipfile")
-sklearn = lazy_import.lazy_module("sklearn")
-from io import StringIO
+import sklearn.datasets
+import sklearn.model_selection
 
 
-def load_file(f, path):
-    data = f.read(path).decode('utf-8')
-    return np.genfromtxt(StringIO(data), delimiter=' ')
+class _hack:
+  def __init__(self, maker):
+    self.data, self.target = maker()
 
 
-def load_datasets(challenge_nr):
-    for dataset_zip in glob.glob("datasets/{}/*.zip".format(challenge_nr)):
-        dataset_name = dataset_zip.split("/")[-1][:-4]
-        with zipfile.ZipFile(dataset_zip, "r") as f:
-            print("\t", "loading", dataset_name)
-            data = load_file(f, dataset_name + "_train.data")
-            target = load_file(f, dataset_name + "_train.solution")
-
-        print("\t", len(data), "datapoints")
-        assert(len(data) == len(target))
-        yield (**sklearn.model_selection.train_test_split(data, target, random_state=31337)) + dataset_name
-
+def load_datasets():
+  dataset_loaders = (
+    (sklearn.datasets.load_breast_cancer, "binary"),
+    (sklearn.datasets.load_iris, "multi-class"),
+    (lambda: _hack(sklearn.datasets.make_multilabel_classification), "multi-label"),
+    (sklearn.datasets.load_boston, "regression"),
+  )
+  for dataset_loader, dataset_name in dataset_loaders:
+    dataset = dataset_loader()
+    X, y = dataset.data, dataset.target
+    yield sklearn.model_selection.train_test_split(X, y, random_state=31337), dataset_name

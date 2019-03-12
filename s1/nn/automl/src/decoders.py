@@ -124,7 +124,7 @@ class WienerCascadeDecoder(object):
         """
 
         num_outputs=y_train.shape[1] #Number of outputs
-        models=[] #Initialize list of models (there will be a separate model for each output)
+        models=[] #Initialize list of estimators (there will be a separate model for each output)
         for i in range(num_outputs): #Loop through outputs
             #Fit linear portion of model
             regr = linear_model.LinearRegression() #Call the linear portion of the model "regr"
@@ -132,7 +132,7 @@ class WienerCascadeDecoder(object):
             y_train_predicted_linear=regr.predict(X_flat_train) # Get outputs of linear portion of model
             #Fit nonlinear portion of model
             p=np.polyfit(y_train_predicted_linear,y_train[:,i],self.degree)
-            #Add model for this output (both linear and nonlinear parts) to the list "models"
+            #Add model for this output (both linear and nonlinear parts) to the list "estimators"
             models.append([regr,p])
         self.model=models
 
@@ -153,7 +153,7 @@ class WienerCascadeDecoder(object):
             The predicted outputs
         """
 
-        num_outputs=len(self.model) #Number of outputs being predicted. Recall from the "fit" function that self.model is a list of models
+        num_outputs=len(self.model) #Number of outputs being predicted. Recall from the "fit" function that self.model is a list of estimators
         y_test_predicted=np.empty([X_flat_test.shape[0],num_outputs]) #Initialize matrix that contains predicted outputs
         for i in range(num_outputs): #Loop through outputs
             [regr,p]=self.model[i] #Get the linear (regr) and nonlinear (p) portions of the trained model
@@ -681,11 +681,11 @@ class XGBoostDecoder(object):
             param['gpu_id']=self.gpu
             param['updater']='grow_gpu'
 
-        models=[] #Initialize list of models (there will be a separate model for each output)
+        models=[] #Initialize list of estimators (there will be a separate model for each output)
         for y_idx in range(num_outputs): #Loop through outputs
             dtrain = xgb.DMatrix(X_flat_train, label=y_train[:,y_idx]) #Put in correct format for XGB
             bst = xgb.train(param, dtrain, self.num_round) #Train model
-            models.append(bst) #Add fit model to list of models
+            models.append(bst) #Add fit model to list of estimators
 
         self.model=models
 
@@ -756,11 +756,11 @@ class SVRDecoder(object):
         """
 
         num_outputs=y_train.shape[1] #Number of outputs
-        models=[] #Initialize list of models (there will be a separate model for each output)
+        models=[] #Initialize list of estimators (there will be a separate model for each output)
         for y_idx in range(num_outputs): #Loop through outputs
             model=SVR(C=self.C, max_iter=self.max_iter) #Initialize SVR model
             model.fit(X_flat_train, y_train[:,y_idx]) #Train the model
-            models.append(model) #Add fit model to list of models
+            models.append(model) #Add fit model to list of estimators
         self.model=models
 
 

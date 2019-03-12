@@ -9,7 +9,7 @@ import GPyOpt
 import time
 import numpy as np
 import sklearn.metrics
-import models
+import estimators
 import sklearn.linear_model
 
 RANDOM_STATE = 31337
@@ -70,7 +70,7 @@ def make_fitness(clf_class, defaults):
     return fitness
 
 
-for clf_name, (clf, defaults, search_space) in models.binary_class_models.items():
+for clf_name, (clf, defaults, search_space) in estimators.binary.items():
     print("running classifier", clf_name)
     opt = GPyOpt.methods.BayesianOptimization(
         f=make_fitness(clf, defaults),  # function to optimize
