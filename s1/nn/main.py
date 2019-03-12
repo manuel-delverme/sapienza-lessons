@@ -114,7 +114,10 @@ for (X_train, X_test, y_train, y_test), dataset_name in data_loader.load_dataset
           clf_.fit(X_train, y_train)
           pred = clf_.predict(X_test)
 
-          return sklearn.metrics.accuracy_score(y_test, pred)
+          if dataset_name == 'regression':
+            return sklearn.metrics.regression.mean_squared_error(y_test, pred)
+          else:
+            return sklearn.metrics.accuracy_score(y_test, pred)
 
         return fitness_fn
 

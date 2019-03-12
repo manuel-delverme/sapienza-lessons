@@ -13,7 +13,7 @@ import estimators.binary
 models = estimators.binary.models.copy()
 # del models['Ridge Classifier']
 
-for clf_name in ('Ridge Classifier', 'Perceptron Classifier'):
+for clf_name in ('Ridge', 'Perceptron'):
   clf, defaults, search_space = models[clf_name]
   models[clf_name] = lambda **p: sklearn.multiclass.OneVsRestClassifier(clf(**p)), defaults, search_space
 

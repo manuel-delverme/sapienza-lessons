@@ -12,11 +12,11 @@ RANDOM_STATE = 31337
 # ----------------------- binary estimators ----------------------
 models = {}
 add_model(
-    models, name="Ridge Classifier", klass=RidgeClassifier, const={},
+    models, name="Ridge", klass=RidgeClassifier, const={},
     space=({'name': 'alpha', 'type': 'continuous', 'domain': (0., 1.)}, )
 )
 add_model(
-    models, name="Perceptron Classifier", klass=Perceptron, const={'random_state': RANDOM_STATE},
+    models, name="Perceptron", klass=Perceptron, const={'random_state': RANDOM_STATE},
     space=(
       {'name': 'alpha', 'type': 'continuous', 'domain': (0.00001, 0.0010)},
       {'name': 'eta0', 'type': 'continuous', 'domain': (0.1, 1.)},)
@@ -29,12 +29,12 @@ add_model(
 #       {'name': 'loss', 'type': 'categorical', 'domain': (1, 2)},
 #     ))
 add_model(
-    models, name="KNeighbors Classifier", klass=KNeighborsClassifier, const={},
+    models, name="KNeighbors", klass=KNeighborsClassifier, const={},
     space=(
       {'name': 'n_neighbors', 'type': 'discrete', 'domain': range(1, 75)},
     ))
 add_model(
-    models, name="RandomForest Classifier", klass=RandomForestClassifier, const={'random_state': RANDOM_STATE, },
+    models, name="RandomForest", klass=RandomForestClassifier, const={'random_state': RANDOM_STATE, },
     space=(
       {'name': 'max_depth', 'type': 'discrete', 'domain': range(1, 10)},
     ))
